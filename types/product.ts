@@ -1,12 +1,23 @@
-import type { Metadata } from "next";
-import ServicesPageClient from "./ServicesPageClient";
+// types/product.ts
 
-export const metadata: Metadata = {
-  title: "LYXso – Tjenester",
-  description:
-    "Administrer tjenester, varighet og priser for partneren i LYXso.",
+export type ProductCategory = {
+  id: string;
+  orgId: string;
+  name: string;
+  position: number;
+  createdAt: string;
+  updatedAt: string;
 };
 
-export default function ServicesPage() {
-  return <ServicesPageClient />;
-}
+export type Product = {
+  id: string;
+  orgId: string;
+  name: string;
+  description: string | null;
+  sku: string | null;
+  price: number | null;
+  unit: string | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
