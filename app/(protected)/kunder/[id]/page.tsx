@@ -2,7 +2,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
-  fetchCustomers,
   fetchCustomerBookings,
   fetchCustomer,
   fetchCustomerStatistics,
@@ -13,6 +12,8 @@ import {
 } from "@/repos/customersRepo";
 import type { Booking } from "@/types/booking";
 import AddNoteButton from "./AddNoteButton";
+import CustomerAISummary from "./CustomerAISummary";
+import type { CustomerContext } from "@/repos/aiAssistantRepo";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -192,6 +193,19 @@ export default async function CustomerDetailPage({ params }: PageProps) {
             </div>
           </section>
         )}
+
+        {/* AI SUMMARY */}
+        <CustomerAISummary
+          context={{
+            name: customer.name,
+            totalBookings: statistics?.totalBookings ?? bookings.length,
+            completedBookings: statistics?.completedBookings ?? bookings.filter(b => b.status === "completed").length,
+            lastVisitDate: statistics?.lastVisit ?? (bookingsDesc[0]?.startTime ?? null),
+            hasCoating: statistics?.hasCoating ?? coatingJobs.length > 0,
+            hasTireHotel: tireSets.length > 0,
+            recentServices: bookingsDesc.slice(0, 5).map(b => b.serviceName).filter((s): s is string => !!s),
+          } satisfies CustomerContext}
+        />
 
         {/* MAIN GRID */}
         <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
