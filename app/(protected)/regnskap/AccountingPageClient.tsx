@@ -113,7 +113,7 @@ export default function AccountingPageClient() {
     }
     fetchSettings();
     fetchSummary("day");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, []);
 
   const handleSaveSettings = async (e: FormEvent) => {

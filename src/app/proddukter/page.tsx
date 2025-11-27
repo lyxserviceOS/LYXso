@@ -62,7 +62,7 @@ export default function ProductsPage() {
 
   useEffect(() => {
     loadProducts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, []);
 
   async function handleCreate(e: React.FormEvent) {
