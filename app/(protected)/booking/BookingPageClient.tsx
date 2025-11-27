@@ -15,6 +15,7 @@ import type {
   Service,
   BookingCustomerSummary,
 } from "@/types/booking";
+import type { Location, Resource, ResourceType } from "@/types/location";
 
 const STATUS_LABELS: Record<BookingStatus, string> = {
   pending: "Venter",
@@ -23,7 +24,133 @@ const STATUS_LABELS: Record<BookingStatus, string> = {
   cancelled: "Kansellert",
 };
 
-type ViewMode = "list" | "day";
+type ViewMode = "list" | "day" | "resource";
+
+// Mock locations and resources for demo
+const MOCK_LOCATIONS: Location[] = [
+  {
+    id: "loc-1",
+    org_id: "org-1",
+    name: "Hovedverksted",
+    address: "Industriveien 42",
+    city: "Oslo",
+    postal_code: "0484",
+    country: "NO",
+    phone: "+47 22 33 44 55",
+    email: "verksted@lyxso.no",
+    opening_hours: {
+      monday: { open: "08:00", close: "17:00" },
+      tuesday: { open: "08:00", close: "17:00" },
+      wednesday: { open: "08:00", close: "17:00" },
+      thursday: { open: "08:00", close: "17:00" },
+      friday: { open: "08:00", close: "16:00" },
+    },
+    is_active: true,
+    is_primary: true,
+    timezone: "Europe/Oslo",
+    created_at: "2024-01-01",
+    updated_at: "2024-01-01",
+  },
+  {
+    id: "loc-2",
+    org_id: "org-1",
+    name: "Avdeling Sør",
+    address: "Sørlandsgata 15",
+    city: "Kristiansand",
+    postal_code: "4608",
+    country: "NO",
+    phone: "+47 38 00 11 22",
+    email: "sor@lyxso.no",
+    opening_hours: {
+      monday: { open: "09:00", close: "17:00" },
+      tuesday: { open: "09:00", close: "17:00" },
+      wednesday: { open: "09:00", close: "17:00" },
+      thursday: { open: "09:00", close: "17:00" },
+      friday: { open: "09:00", close: "15:00" },
+    },
+    is_active: true,
+    is_primary: false,
+    timezone: "Europe/Oslo",
+    created_at: "2024-03-01",
+    updated_at: "2024-03-01",
+  },
+];
+
+const MOCK_RESOURCES: Resource[] = [
+  {
+    id: "res-1",
+    org_id: "org-1",
+    location_id: "loc-1",
+    name: "Løftebukk 1",
+    description: "Hovedløftebukk for større kjøretøy",
+    type: "lift",
+    max_concurrent_bookings: 1,
+    is_active: true,
+    color: "#3B82F6",
+    created_at: "2024-01-01",
+    updated_at: "2024-01-01",
+  },
+  {
+    id: "res-2",
+    org_id: "org-1",
+    location_id: "loc-1",
+    name: "Løftebukk 2",
+    description: "Sekundær løftebukk",
+    type: "lift",
+    max_concurrent_bookings: 1,
+    is_active: true,
+    color: "#10B981",
+    created_at: "2024-01-01",
+    updated_at: "2024-01-01",
+  },
+  {
+    id: "res-3",
+    org_id: "org-1",
+    location_id: "loc-1",
+    name: "Poleringsbås",
+    description: "Dedikert rom for polering og coating",
+    type: "bay",
+    max_concurrent_bookings: 1,
+    is_active: true,
+    color: "#F59E0B",
+    created_at: "2024-01-01",
+    updated_at: "2024-01-01",
+  },
+  {
+    id: "res-4",
+    org_id: "org-1",
+    location_id: "loc-1",
+    name: "PPF-rom",
+    description: "Spesialrom for PPF-installasjon",
+    type: "room",
+    max_concurrent_bookings: 1,
+    is_active: true,
+    color: "#8B5CF6",
+    created_at: "2024-01-01",
+    updated_at: "2024-01-01",
+  },
+  {
+    id: "res-5",
+    org_id: "org-1",
+    location_id: "loc-2",
+    name: "Løftebukk Sør",
+    description: "Hovedløftebukk ved Avdeling Sør",
+    type: "lift",
+    max_concurrent_bookings: 1,
+    is_active: true,
+    color: "#EC4899",
+    created_at: "2024-03-01",
+    updated_at: "2024-03-01",
+  },
+];
+
+const RESOURCE_TYPE_LABELS: Record<ResourceType, string> = {
+  bay: "Bås",
+  lift: "Løftebukk",
+  room: "Rom",
+  equipment: "Utstyr",
+  other: "Annet",
+};
 
 function formatDateTime(value: string | null): string {
   if (!value) return "—";
@@ -72,6 +199,8 @@ type NewBookingForm = {
   customerId: string; // "none" eller faktisk id
   serviceName: string;
   employeeId: string; // "none" eller faktisk id
+  locationId: string; // "all" eller faktisk id
+  resourceId: string; // "none" eller faktisk id
   startTime: string; // "2025-11-25T10:00"
   endTime: string;
   notes: string;
@@ -83,6 +212,8 @@ const EMPTY_NEW_BOOKING: NewBookingForm = {
   customerId: "none",
   serviceName: "",
   employeeId: "none",
+  locationId: "all",
+  resourceId: "none",
   startTime: "",
   endTime: "",
   notes: "",
@@ -98,6 +229,10 @@ export default function BookingPageClient() {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [customers, setCustomers] = useState<BookingCustomerSummary[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
+  
+  // Module 18: Locations and Resources
+  const [locations] = useState<Location[]>(MOCK_LOCATIONS);
+  const [resources] = useState<Resource[]>(MOCK_RESOURCES);
 
   const [selectedStatus, setSelectedStatus] = useState<BookingStatus | "all">(
     "all",
@@ -105,11 +240,20 @@ export default function BookingPageClient() {
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | "all">(
     "all",
   );
+  const [selectedLocationId, setSelectedLocationId] = useState<string | "all">(
+    "all",
+  );
+  const [selectedResourceId, setSelectedResourceId] = useState<string | "all">(
+    "all",
+  );
   const [selectedBookingId, setSelectedBookingId] = useState<string | null>(
     null,
   );
 
   const [viewMode, setViewMode] = useState<ViewMode>("list");
+  
+  // Location management modal
+  const [showLocationModal, setShowLocationModal] = useState(false);
 
   // Ny booking-modal state
   const [showNewModal, setShowNewModal] = useState(false);
@@ -119,6 +263,12 @@ export default function BookingPageClient() {
 
   // Status-oppdatering på valgt booking
   const [updatingStatus, setUpdatingStatus] = useState(false);
+  
+  // Filter resources based on selected location
+  const filteredResources = useMemo(() => {
+    if (selectedLocationId === "all") return resources;
+    return resources.filter(r => r.location_id === selectedLocationId);
+  }, [resources, selectedLocationId]);
 
   // -----------------------------
   // Last inn data ved første render
@@ -420,6 +570,17 @@ export default function BookingPageClient() {
             >
               Dagvisning
             </button>
+            <button
+              type="button"
+              onClick={() => setViewMode("resource")}
+              className={`rounded-full px-3 py-1 ${
+                viewMode === "resource"
+                  ? "bg-white text-slate-900 shadow-sm"
+                  : "text-slate-500"
+              }`}
+            >
+              Ressurser
+            </button>
           </div>
 
           {error && (
@@ -488,6 +649,54 @@ export default function BookingPageClient() {
               ))}
             </select>
           </div>
+          
+          {/* Module 18: Location and Resource filters */}
+          <div className="border-t border-slate-200 pt-3">
+            <h3 className="mb-2 text-xs font-semibold text-slate-700">📍 Lokasjon & Ressurser</h3>
+            
+            <label className="mb-1 block text-xs font-medium text-slate-500">
+              Lokasjon
+            </label>
+            <select
+              className="mb-3 w-full rounded border border-slate-300 px-2 py-1 text-xs"
+              value={selectedLocationId}
+              onChange={(e) => {
+                setSelectedLocationId(e.target.value);
+                setSelectedResourceId("all"); // Reset resource when location changes
+              }}
+            >
+              <option value="all">Alle lokasjoner</option>
+              {locations.filter(l => l.is_active).map((loc) => (
+                <option key={loc.id} value={loc.id}>
+                  {loc.name} {loc.is_primary && "⭐"}
+                </option>
+              ))}
+            </select>
+            
+            <label className="mb-1 block text-xs font-medium text-slate-500">
+              Ressurs
+            </label>
+            <select
+              className="w-full rounded border border-slate-300 px-2 py-1 text-xs"
+              value={selectedResourceId}
+              onChange={(e) => setSelectedResourceId(e.target.value)}
+            >
+              <option value="all">Alle ressurser</option>
+              {filteredResources.filter(r => r.is_active).map((res) => (
+                <option key={res.id} value={res.id}>
+                  {res.name} ({RESOURCE_TYPE_LABELS[res.type]})
+                </option>
+              ))}
+            </select>
+            
+            <button
+              type="button"
+              onClick={() => setShowLocationModal(true)}
+              className="mt-3 w-full rounded border border-slate-300 bg-slate-50 px-2 py-1.5 text-xs text-slate-600 hover:bg-slate-100"
+            >
+              ⚙️ Administrer lokasjoner
+            </button>
+          </div>
 
           <div className="border-t border-slate-200 pt-3 text-xs text-slate-500">
             <p className="mb-1">
@@ -504,13 +713,120 @@ export default function BookingPageClient() {
         {/* MIDTEN: Liste eller dagvisning */}
         <section className="rounded-xl border border-slate-200 bg-white p-4 text-sm">
           <h2 className="mb-3 text-sm font-medium">
-            {viewMode === "list" ? "Bookinger" : "Dagvisning"}
+            {viewMode === "list" ? "Bookinger" : viewMode === "day" ? "Dagvisning" : "Ressursvisning"}
           </h2>
 
-          {filteredBookings.length === 0 ? (
+          {filteredBookings.length === 0 && viewMode !== "resource" ? (
             <p className="text-xs text-slate-500">
               Ingen bookinger funnet med valgte filtre.
             </p>
+          ) : viewMode === "resource" ? (
+            // RESOURCE VIEW - Module 18
+            <div className="max-h-[520px] overflow-auto">
+              <div className="mb-4">
+                <p className="text-xs text-slate-500 mb-3">
+                  Ressurskalender viser tilgjengelighet og bookinger per ressurs.
+                </p>
+                
+                {/* Resource columns */}
+                <div className="grid gap-3" style={{ gridTemplateColumns: `repeat(${filteredResources.length || 1}, minmax(150px, 1fr))` }}>
+                  {filteredResources.length === 0 ? (
+                    <p className="text-xs text-slate-400">Ingen ressurser for valgt lokasjon.</p>
+                  ) : (
+                    filteredResources.map(resource => {
+                      const location = locations.find(l => l.id === resource.location_id);
+                      // Mock booking assignments to resources
+                      const resourceBookings = filteredBookings.slice(0, 2).map((b, idx) => ({
+                        ...b,
+                        resourceId: idx === 0 ? resource.id : undefined
+                      })).filter(b => b.resourceId === resource.id);
+                      
+                      return (
+                        <div 
+                          key={resource.id} 
+                          className="rounded-lg border border-slate-200 bg-white overflow-hidden"
+                        >
+                          {/* Resource header */}
+                          <div 
+                            className="px-3 py-2 text-white text-xs font-medium"
+                            style={{ backgroundColor: resource.color || '#6B7280' }}
+                          >
+                            <div className="font-semibold">{resource.name}</div>
+                            <div className="text-[10px] opacity-80">
+                              {RESOURCE_TYPE_LABELS[resource.type]} • {location?.name || 'Ukjent'}
+                            </div>
+                          </div>
+                          
+                          {/* Resource info */}
+                          <div className="px-3 py-2 border-b border-slate-100 bg-slate-50">
+                            <div className="flex items-center justify-between text-[10px]">
+                              <span className="text-slate-500">Kapasitet:</span>
+                              <span className="font-medium">{resource.max_concurrent_bookings} samtidige</span>
+                            </div>
+                            <div className="flex items-center justify-between text-[10px]">
+                              <span className="text-slate-500">Status:</span>
+                              <span className={`inline-flex items-center rounded-full px-1.5 py-0.5 text-[9px] font-medium ${
+                                resource.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                              }`}>
+                                {resource.is_active ? '✓ Aktiv' : '✗ Inaktiv'}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          {/* Bookings for this resource */}
+                          <div className="p-2 space-y-1.5 min-h-[100px]">
+                            {resourceBookings.length === 0 ? (
+                              <p className="text-[10px] text-slate-400 text-center py-4">
+                                Ingen bookinger
+                              </p>
+                            ) : (
+                              resourceBookings.map(b => (
+                                <button
+                                  key={b.id}
+                                  type="button"
+                                  onClick={() => setSelectedBookingId(b.id)}
+                                  className={`w-full text-left rounded px-2 py-1.5 text-[10px] border transition ${
+                                    b.id === selectedBookingId 
+                                      ? 'border-sky-400 bg-sky-50' 
+                                      : 'border-slate-200 bg-slate-50 hover:border-sky-300'
+                                  }`}
+                                >
+                                  <div className="font-medium truncate">{getCustomerName(b)}</div>
+                                  <div className="text-slate-500">{formatTime(b.startTime)} - {formatTime(b.endTime)}</div>
+                                </button>
+                              ))
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+              
+              {/* Capacity summary */}
+              <div className="mt-4 p-3 rounded-lg bg-slate-50 border border-slate-200">
+                <h4 className="text-xs font-semibold mb-2">📊 Kapasitetsoversikt</h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className="bg-white rounded p-2 border border-slate-200">
+                    <div className="text-lg font-bold text-slate-900">{locations.filter(l => l.is_active).length}</div>
+                    <div className="text-[10px] text-slate-500">Aktive lokasjoner</div>
+                  </div>
+                  <div className="bg-white rounded p-2 border border-slate-200">
+                    <div className="text-lg font-bold text-slate-900">{resources.filter(r => r.is_active).length}</div>
+                    <div className="text-[10px] text-slate-500">Aktive ressurser</div>
+                  </div>
+                  <div className="bg-white rounded p-2 border border-slate-200">
+                    <div className="text-lg font-bold text-blue-600">{resources.filter(r => r.type === 'lift').length}</div>
+                    <div className="text-[10px] text-slate-500">Løftebukker</div>
+                  </div>
+                  <div className="bg-white rounded p-2 border border-slate-200">
+                    <div className="text-lg font-bold text-purple-600">{resources.filter(r => r.type === 'bay' || r.type === 'room').length}</div>
+                    <div className="text-[10px] text-slate-500">Båser/Rom</div>
+                  </div>
+                </div>
+              </div>
+            </div>
           ) : viewMode === "list" ? (
             // LISTEVISNING
             <div className="max-h-[520px] overflow-auto">
@@ -995,6 +1311,119 @@ export default function BookingPageClient() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+      
+      {/* MODAL: Location Management - Module 18 */}
+      {showLocationModal && (
+        <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/40 px-4">
+          <div className="w-full max-w-2xl max-h-[90vh] overflow-auto rounded-xl border border-slate-200 bg-white p-4 text-sm shadow-lg">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-lg font-semibold">📍 Lokasjoner & Ressurser</h2>
+              <button
+                type="button"
+                onClick={() => setShowLocationModal(false)}
+                className="text-slate-400 hover:text-slate-600"
+              >
+                ✕
+              </button>
+            </div>
+            
+            {/* Locations list */}
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-medium text-slate-800">Lokasjoner</h3>
+                <button
+                  type="button"
+                  className="rounded bg-slate-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-800"
+                >
+                  + Ny lokasjon
+                </button>
+              </div>
+              
+              <div className="space-y-3">
+                {locations.map(loc => (
+                  <div 
+                    key={loc.id} 
+                    className={`rounded-lg border p-3 ${loc.is_active ? 'border-slate-200 bg-white' : 'border-slate-100 bg-slate-50 opacity-60'}`}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">{loc.name}</span>
+                          {loc.is_primary && (
+                            <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-700">
+                              ⭐ Hovedlokasjon
+                            </span>
+                          )}
+                          {!loc.is_active && (
+                            <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-medium text-red-700">
+                              Inaktiv
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-xs text-slate-500 mt-1">
+                          {loc.address}, {loc.postal_code} {loc.city}
+                        </div>
+                        {loc.phone && (
+                          <div className="text-xs text-slate-400 mt-0.5">
+                            📞 {loc.phone} • ✉️ {loc.email}
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex gap-2">
+                        <button className="text-xs text-slate-500 hover:text-slate-700">Rediger</button>
+                        <button className="text-xs text-red-500 hover:text-red-700">Slett</button>
+                      </div>
+                    </div>
+                    
+                    {/* Resources for this location */}
+                    <div className="mt-3 pt-3 border-t border-slate-100">
+                      <div className="text-[11px] font-medium text-slate-600 mb-2">Ressurser ved denne lokasjonen:</div>
+                      <div className="flex flex-wrap gap-2">
+                        {resources.filter(r => r.location_id === loc.id).map(res => (
+                          <div 
+                            key={res.id}
+                            className="inline-flex items-center gap-1.5 rounded-full border px-2 py-1 text-[10px]"
+                            style={{ borderColor: res.color || '#CBD5E1', backgroundColor: `${res.color}15` || '#F8FAFC' }}
+                          >
+                            <span 
+                              className="w-2 h-2 rounded-full"
+                              style={{ backgroundColor: res.color || '#6B7280' }}
+                            />
+                            <span>{res.name}</span>
+                            <span className="text-slate-400">({RESOURCE_TYPE_LABELS[res.type]})</span>
+                          </div>
+                        ))}
+                        <button className="inline-flex items-center rounded-full border border-dashed border-slate-300 px-2 py-1 text-[10px] text-slate-500 hover:border-slate-400 hover:text-slate-600">
+                          + Legg til ressurs
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            {/* Capacity Rules Info */}
+            <div className="rounded-lg bg-blue-50 border border-blue-200 p-3">
+              <h4 className="font-medium text-blue-800 text-sm mb-1">💡 Kapasitetsregler</h4>
+              <p className="text-xs text-blue-700">
+                Hver ressurs kan ha maksimalt antall samtidige bookinger. Når en ressurs er fullt booket, 
+                vil systemet automatisk foreslå alternative tidspunkter eller ressurser til kunden.
+              </p>
+            </div>
+            
+            <div className="mt-4 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setShowLocationModal(false)}
+                className="rounded bg-slate-900 px-4 py-2 text-xs font-medium text-white hover:bg-slate-800"
+              >
+                Lukk
+              </button>
+            </div>
           </div>
         </div>
       )}
