@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import type { TyreSet, TyreSeason, TyreCondition, TyreStatus } from "@/types/tyre";
+import type { TyreSet, TyreSeason, TyreCondition, TyreStatus, TyrePosition, TyreHistory } from "@/types/tyre";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
 const ORG_ID = process.env.NEXT_PUBLIC_ORG_ID;
@@ -10,6 +10,44 @@ const ORG_ID = process.env.NEXT_PUBLIC_ORG_ID;
 type FilterSeason = TyreSeason | "all";
 type FilterCondition = TyreCondition | "all";
 type FilterStatus = TyreStatus | "all";
+
+// Mock history data for demonstration
+const MOCK_HISTORY: TyreHistory[] = [
+  { id: "h1", tyre_set_id: "", action: "stored", date: "2024-10-15", mileage: 45000, notes: "Vinterdekk inn for lagring", created_by: "Anders", created_at: "2024-10-15" },
+  { id: "h2", tyre_set_id: "", action: "inspected", date: "2024-10-15", mileage: null, notes: "Mønsterdybde sjekket, alle over 5mm", created_by: "Anders", created_at: "2024-10-15" },
+  { id: "h3", tyre_set_id: "", action: "mounted", date: "2024-04-01", mileage: 38000, notes: "Sommerdekk montert", created_by: "Kari", created_at: "2024-04-01" },
+];
+
+// New tyre set form type
+type NewTyreSetForm = {
+  registration_number: string;
+  customer_name: string;
+  dimension: string;
+  brand: string;
+  model: string;
+  season: TyreSeason;
+  condition: TyreCondition;
+  tread_depth_mm: string;
+  shelf: string;
+  row: string;
+  position: string;
+  notes: string;
+};
+
+const EMPTY_FORM: NewTyreSetForm = {
+  registration_number: "",
+  customer_name: "",
+  dimension: "",
+  brand: "",
+  model: "",
+  season: "summer",
+  condition: "good",
+  tread_depth_mm: "",
+  shelf: "",
+  row: "",
+  position: "",
+  notes: "",
+};
 
 export default function DekkhotellPageClient() {
   const [tyreSets, setTyreSets] = useState<TyreSet[]>([]);
@@ -24,6 +62,13 @@ export default function DekkhotellPageClient() {
   
   // Selected tyre set for detail view
   const [selectedSet, setSelectedSet] = useState<TyreSet | null>(null);
+  
+  // Modal states
+  const [showNewModal, setShowNewModal] = useState(false);
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [showTyrePositionsModal, setShowTyrePositionsModal] = useState(false);
+  const [newForm, setNewForm] = useState<NewTyreSetForm>(EMPTY_FORM);
+  const [saving, setSaving] = useState(false);
   
   // Stats
   const [stats, setStats] = useState({
@@ -148,6 +193,102 @@ export default function DekkhotellPageClient() {
     }
   };
 
+  const getActionLabel = (action: string): string => {
+    switch (action) {
+      case "stored": return "Lagt inn på lager";
+      case "mounted": return "Montert på bil";
+      case "inspected": return "Inspeksjon utført";
+      case "note_added": return "Notat lagt til";
+      default: return action;
+    }
+  };
+
+  const handleNewFormChange = (field: keyof NewTyreSetForm, value: string) => {
+    setNewForm(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleSaveNewTyreSet = async () => {
+    setSaving(true);
+    // In a real app, this would POST to the API
+    // For now, we'll add it to the local state as a demo
+    const newSet: TyreSet = {
+      id: `demo-${Date.now()}`,
+      org_id: ORG_ID || "",
+      customer_id: null,
+      vehicle_id: null,
+      registration_number: newForm.registration_number || null,
+      label: newForm.customer_name || null,
+      dimension: newForm.dimension || null,
+      brand: newForm.brand || null,
+      model: newForm.model || null,
+      season: newForm.season,
+      condition: newForm.condition,
+      tread_depth_mm: newForm.tread_depth_mm ? parseFloat(newForm.tread_depth_mm) : null,
+      storage_location_id: null,
+      location: null,
+      shelf: newForm.shelf || null,
+      row: newForm.row || null,
+      position: newForm.position || null,
+      status: "stored",
+      notes: newForm.notes || null,
+      stored_at: new Date().toISOString(),
+      last_mounted_at: null,
+      mileage_at_storage: null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+    
+    setTyreSets(prev => [newSet, ...prev]);
+    setStats(prev => ({
+      ...prev,
+      total: prev.total + 1,
+      stored: prev.stored + 1,
+      [newForm.season]: (prev as Record<string, number>)[newForm.season] + 1,
+    }));
+    
+    setNewForm(EMPTY_FORM);
+    setShowNewModal(false);
+    setSaving(false);
+  };
+
+  const handlePrintLabel = () => {
+    if (!selectedSet) return;
+    // Create a printable label
+    const labelContent = `
+      <html>
+        <head>
+          <title>Dekketikett - ${selectedSet.registration_number}</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; }
+            .label { border: 2px solid black; padding: 15px; max-width: 300px; }
+            .reg { font-size: 24px; font-weight: bold; text-align: center; margin-bottom: 10px; }
+            .info { font-size: 12px; margin: 5px 0; }
+            .location { font-size: 18px; font-weight: bold; text-align: center; margin-top: 10px; padding: 10px; background: #f0f0f0; }
+          </style>
+        </head>
+        <body>
+          <div class="label">
+            <div class="reg">${selectedSet.registration_number || "—"}</div>
+            <div class="info"><strong>Sesong:</strong> ${getSeasonLabel(selectedSet.season)}</div>
+            <div class="info"><strong>Dimensjon:</strong> ${selectedSet.dimension || "—"}</div>
+            <div class="info"><strong>Merke:</strong> ${selectedSet.brand || "—"}</div>
+            <div class="info"><strong>Tilstand:</strong> ${getConditionLabel(selectedSet.condition)}</div>
+            <div class="info"><strong>Inn-dato:</strong> ${selectedSet.stored_at ? new Date(selectedSet.stored_at).toLocaleDateString("nb-NO") : "—"}</div>
+            <div class="location">
+              ${selectedSet.shelf || "—"} / ${selectedSet.row || "—"} / ${selectedSet.position || "—"}
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+    const printWindow = window.open("", "_blank");
+    if (printWindow) {
+      printWindow.document.write(labelContent);
+      printWindow.document.close();
+      printWindow.print();
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto space-y-6 text-sm">
       {/* Header */}
@@ -160,6 +301,7 @@ export default function DekkhotellPageClient() {
         </div>
         <button
           type="button"
+          onClick={() => setShowNewModal(true)}
           className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
         >
           + Nytt dekksett
@@ -418,22 +560,70 @@ export default function DekkhotellPageClient() {
                     </div>
                   )}
                 </div>
+                <button
+                  type="button"
+                  onClick={() => setShowHistoryModal(true)}
+                  className="mt-2 text-xs text-blue-600 hover:text-blue-700"
+                >
+                  Se full historikk →
+                </button>
+              </div>
+              
+              {/* Tyre positions */}
+              <div className="border-t border-slate-100 pt-4">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-xs font-medium text-slate-700">Dekkposisjoner</p>
+                  <button
+                    type="button"
+                    onClick={() => setShowTyrePositionsModal(true)}
+                    className="text-xs text-blue-600 hover:text-blue-700"
+                  >
+                    Inspiser →
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="rounded-lg bg-slate-50 p-2 text-center text-xs">
+                    <p className="text-slate-500">Foran venstre</p>
+                    <p className="font-medium text-slate-900">{selectedSet.tread_depth_mm || "—"} mm</p>
+                  </div>
+                  <div className="rounded-lg bg-slate-50 p-2 text-center text-xs">
+                    <p className="text-slate-500">Foran høyre</p>
+                    <p className="font-medium text-slate-900">{selectedSet.tread_depth_mm || "—"} mm</p>
+                  </div>
+                  <div className="rounded-lg bg-slate-50 p-2 text-center text-xs">
+                    <p className="text-slate-500">Bak venstre</p>
+                    <p className="font-medium text-slate-900">{selectedSet.tread_depth_mm || "—"} mm</p>
+                  </div>
+                  <div className="rounded-lg bg-slate-50 p-2 text-center text-xs">
+                    <p className="text-slate-500">Bak høyre</p>
+                    <p className="font-medium text-slate-900">{selectedSet.tread_depth_mm || "—"} mm</p>
+                  </div>
+                </div>
               </div>
               
               {/* Actions */}
-              <div className="border-t border-slate-100 pt-4 flex gap-2">
+              <div className="border-t border-slate-100 pt-4 space-y-2">
                 <button
                   type="button"
-                  className="flex-1 rounded-lg bg-blue-600 px-3 py-2 text-xs font-medium text-white hover:bg-blue-700"
+                  className="w-full rounded-lg bg-blue-600 px-3 py-2 text-xs font-medium text-white hover:bg-blue-700"
                 >
-                  Klargjør dekkskift
+                  🚗 Klargjør dekkskift
                 </button>
-                <button
-                  type="button"
-                  className="rounded-lg border border-slate-300 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50"
-                >
-                  Rediger
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={handlePrintLabel}
+                    className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                  >
+                    🏷️ Skriv ut etikett
+                  </button>
+                  <button
+                    type="button"
+                    className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                  >
+                    ✏️ Rediger
+                  </button>
+                </div>
               </div>
             </div>
           ) : (
@@ -443,6 +633,336 @@ export default function DekkhotellPageClient() {
           )}
         </section>
       </div>
+
+      {/* New Tyre Set Modal */}
+      {showNewModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-lg max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-slate-900">Nytt dekksett</h2>
+              <button
+                type="button"
+                onClick={() => setShowNewModal(false)}
+                className="text-slate-400 hover:text-slate-600"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              {/* Customer/Vehicle section */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 mb-1">Regnr *</label>
+                  <input
+                    type="text"
+                    value={newForm.registration_number}
+                    onChange={(e) => handleNewFormChange("registration_number", e.target.value.toUpperCase())}
+                    placeholder="AB12345"
+                    className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 mb-1">Kundenavn</label>
+                  <input
+                    type="text"
+                    value={newForm.customer_name}
+                    onChange={(e) => handleNewFormChange("customer_name", e.target.value)}
+                    placeholder="Ola Nordmann"
+                    className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Tyre details */}
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 mb-1">Dimensjon</label>
+                  <input
+                    type="text"
+                    value={newForm.dimension}
+                    onChange={(e) => handleNewFormChange("dimension", e.target.value)}
+                    placeholder="225/45R17"
+                    className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 mb-1">Merke</label>
+                  <input
+                    type="text"
+                    value={newForm.brand}
+                    onChange={(e) => handleNewFormChange("brand", e.target.value)}
+                    placeholder="Continental"
+                    className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 mb-1">Modell</label>
+                  <input
+                    type="text"
+                    value={newForm.model}
+                    onChange={(e) => handleNewFormChange("model", e.target.value)}
+                    placeholder="WinterContact"
+                    className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Season & Condition */}
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 mb-1">Sesong</label>
+                  <select
+                    value={newForm.season}
+                    onChange={(e) => handleNewFormChange("season", e.target.value)}
+                    className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                  >
+                    <option value="summer">Sommer</option>
+                    <option value="winter">Vinter</option>
+                    <option value="allseason">Helårs</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 mb-1">Tilstand</label>
+                  <select
+                    value={newForm.condition}
+                    onChange={(e) => handleNewFormChange("condition", e.target.value)}
+                    className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                  >
+                    <option value="good">God</option>
+                    <option value="worn">Slitt</option>
+                    <option value="bad">Dårlig</option>
+                    <option value="replace">Må byttes</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 mb-1">Mønsterdybde</label>
+                  <input
+                    type="number"
+                    value={newForm.tread_depth_mm}
+                    onChange={(e) => handleNewFormChange("tread_depth_mm", e.target.value)}
+                    placeholder="6.5"
+                    step="0.1"
+                    className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Storage location */}
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 mb-1">Hylle</label>
+                  <input
+                    type="text"
+                    value={newForm.shelf}
+                    onChange={(e) => handleNewFormChange("shelf", e.target.value)}
+                    placeholder="A"
+                    className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 mb-1">Rad</label>
+                  <input
+                    type="text"
+                    value={newForm.row}
+                    onChange={(e) => handleNewFormChange("row", e.target.value)}
+                    placeholder="3"
+                    className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 mb-1">Posisjon</label>
+                  <input
+                    type="text"
+                    value={newForm.position}
+                    onChange={(e) => handleNewFormChange("position", e.target.value)}
+                    placeholder="12"
+                    className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Notes */}
+              <div>
+                <label className="block text-xs font-medium text-slate-700 mb-1">Notater</label>
+                <textarea
+                  value={newForm.notes}
+                  onChange={(e) => handleNewFormChange("notes", e.target.value)}
+                  rows={2}
+                  placeholder="Eventuelle notater..."
+                  className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="mt-6 flex gap-3">
+              <button
+                type="button"
+                onClick={() => setShowNewModal(false)}
+                className="flex-1 rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+              >
+                Avbryt
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveNewTyreSet}
+                disabled={saving || !newForm.registration_number}
+                className="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+              >
+                {saving ? "Lagrer..." : "Lagre dekksett"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* History Modal */}
+      {showHistoryModal && selectedSet && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-lg">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-slate-900">
+                Historikk – {selectedSet.registration_number}
+              </h2>
+              <button
+                type="button"
+                onClick={() => setShowHistoryModal(false)}
+                className="text-slate-400 hover:text-slate-600"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="space-y-3 max-h-[400px] overflow-y-auto">
+              {MOCK_HISTORY.map(entry => (
+                <div key={entry.id} className="flex gap-3 p-3 rounded-lg bg-slate-50">
+                  <div className={`h-8 w-8 rounded-full flex items-center justify-center text-white text-xs ${
+                    entry.action === "stored" ? "bg-emerald-500" :
+                    entry.action === "mounted" ? "bg-blue-500" :
+                    entry.action === "inspected" ? "bg-amber-500" :
+                    "bg-slate-400"
+                  }`}>
+                    {entry.action === "stored" ? "📥" :
+                     entry.action === "mounted" ? "🔧" :
+                     entry.action === "inspected" ? "🔍" : "📝"}
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-slate-900">{getActionLabel(entry.action)}</p>
+                    <p className="text-xs text-slate-500">
+                      {new Date(entry.date).toLocaleDateString("nb-NO")}
+                      {entry.mileage && ` • ${entry.mileage.toLocaleString("nb-NO")} km`}
+                      {entry.created_by && ` • ${entry.created_by}`}
+                    </p>
+                    {entry.notes && (
+                      <p className="text-xs text-slate-600 mt-1">{entry.notes}</p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <div className="mt-4">
+              <button
+                type="button"
+                onClick={() => setShowHistoryModal(false)}
+                className="w-full rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+              >
+                Lukk
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Tyre Positions Modal */}
+      {showTyrePositionsModal && selectedSet && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-lg">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-slate-900">
+                Dekkposisjoner – {selectedSet.registration_number}
+              </h2>
+              <button
+                type="button"
+                onClick={() => setShowTyrePositionsModal(false)}
+                className="text-slate-400 hover:text-slate-600"
+              >
+                ✕
+              </button>
+            </div>
+            
+            {/* Visual tyre diagram */}
+            <div className="relative bg-slate-50 rounded-lg p-8 mb-4">
+              <div className="absolute top-2 left-1/2 -translate-x-1/2 text-xs text-slate-400">FRONT</div>
+              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-xs text-slate-400">BAK</div>
+              
+              <div className="grid grid-cols-2 gap-x-16 gap-y-8">
+                {/* Front Left */}
+                <div className="rounded-lg border-2 border-slate-300 bg-white p-3 text-center">
+                  <p className="text-[10px] text-slate-500 uppercase">Foran venstre</p>
+                  <p className="text-lg font-bold text-slate-900">{selectedSet.tread_depth_mm || "—"}</p>
+                  <p className="text-[10px] text-slate-500">mm</p>
+                  <span className={`inline-flex mt-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${getConditionColor(selectedSet.condition)}`}>
+                    {getConditionLabel(selectedSet.condition)}
+                  </span>
+                </div>
+                
+                {/* Front Right */}
+                <div className="rounded-lg border-2 border-slate-300 bg-white p-3 text-center">
+                  <p className="text-[10px] text-slate-500 uppercase">Foran høyre</p>
+                  <p className="text-lg font-bold text-slate-900">{selectedSet.tread_depth_mm || "—"}</p>
+                  <p className="text-[10px] text-slate-500">mm</p>
+                  <span className={`inline-flex mt-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${getConditionColor(selectedSet.condition)}`}>
+                    {getConditionLabel(selectedSet.condition)}
+                  </span>
+                </div>
+                
+                {/* Rear Left */}
+                <div className="rounded-lg border-2 border-slate-300 bg-white p-3 text-center">
+                  <p className="text-[10px] text-slate-500 uppercase">Bak venstre</p>
+                  <p className="text-lg font-bold text-slate-900">{selectedSet.tread_depth_mm || "—"}</p>
+                  <p className="text-[10px] text-slate-500">mm</p>
+                  <span className={`inline-flex mt-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${getConditionColor(selectedSet.condition)}`}>
+                    {getConditionLabel(selectedSet.condition)}
+                  </span>
+                </div>
+                
+                {/* Rear Right */}
+                <div className="rounded-lg border-2 border-slate-300 bg-white p-3 text-center">
+                  <p className="text-[10px] text-slate-500 uppercase">Bak høyre</p>
+                  <p className="text-lg font-bold text-slate-900">{selectedSet.tread_depth_mm || "—"}</p>
+                  <p className="text-[10px] text-slate-500">mm</p>
+                  <span className={`inline-flex mt-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${getConditionColor(selectedSet.condition)}`}>
+                    {getConditionLabel(selectedSet.condition)}
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="text-xs text-slate-500 mb-4">
+              <p><strong>Anbefalt mønsterdybde:</strong></p>
+              <p>• Sommerdekk: min 3 mm</p>
+              <p>• Vinterdekk: min 4 mm</p>
+            </div>
+            
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setShowTyrePositionsModal(false)}
+                className="flex-1 rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+              >
+                Lukk
+              </button>
+              <button
+                type="button"
+                className="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+              >
+                Oppdater målinger
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
