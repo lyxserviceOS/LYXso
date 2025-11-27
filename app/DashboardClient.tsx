@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import type { Booking } from "../types/booking";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -13,6 +14,23 @@ type DashboardStats = {
   todayCount: number;
   weekCount: number;
   upcoming: Booking[];
+};
+
+// Type for raw database booking item (snake_case from Supabase)
+type RawBookingItem = {
+  id: string;
+  org_id?: string;
+  customer_name?: string;
+  customerName?: string;
+  service_name?: string;
+  serviceName?: string;
+  start_time?: string;
+  startTime?: string;
+  end_time?: string;
+  endTime?: string;
+  status?: string;
+  notes?: string | null;
+  source?: string | null;
 };
 
 function calculateStats(bookings: Booking[]): DashboardStats {
@@ -159,9 +177,9 @@ export default function DashboardClient() {
         }
 
         // Map database fields (snake_case) to TypeScript interface (camelCase)
-        const mappedBookings: Booking[] = json.map((item: any) => ({
+        const mappedBookings: Booking[] = json.map((item: RawBookingItem) => ({
           id: item.id,
-          orgId: item.org_id,
+          orgId: item.org_id || "",
           customerName:
             item.customer_name ||
             item.customerName ||
@@ -170,8 +188,8 @@ export default function DashboardClient() {
             item.service_name ||
             item.serviceName ||
             "Uspesifisert tjeneste",
-          startTime: item.start_time || item.startTime,
-          endTime: item.end_time || item.endTime,
+          startTime: item.start_time || item.startTime || null,
+          endTime: item.end_time || item.endTime || null,
           status: item.status || "pending",
           notes: item.notes,
           source: item.source,
@@ -369,7 +387,7 @@ export default function DashboardClient() {
               </p>
 
               <div className="mt-4 space-y-2 text-xs">
-                <a
+                <Link
                   href="/booking"
                   className="flex items-center justify-between rounded-xl border border-slate-800 bg-slate-900/80 px-3 py-2 hover:border-blue-500/60 hover:bg-slate-900 hover:text-slate-50"
                 >
@@ -377,8 +395,8 @@ export default function DashboardClient() {
                   <span className="text-[11px] text-slate-400">
                     Shift + B
                   </span>
-                </a>
-                <a
+                </Link>
+                <Link
                   href="/tjenester"
                   className="flex items-center justify-between rounded-xl border border-slate-800 bg-slate-900/80 px-3 py-2 hover:border-blue-500/60 hover:bg-slate-900 hover:text-slate-50"
                 >
@@ -386,8 +404,8 @@ export default function DashboardClient() {
                   <span className="text-[11px] text-slate-400">
                     Shift + T
                   </span>
-                </a>
-                <a
+                </Link>
+                <Link
                   href="/kunder"
                   className="flex items-center justify-between rounded-xl border border-slate-800 bg-slate-900/80 px-3 py-2 hover:border-blue-500/60 hover:bg-slate-900 hover:text-slate-50"
                 >
@@ -395,8 +413,8 @@ export default function DashboardClient() {
                   <span className="text-[11px] text-slate-400">
                     Shift + K
                   </span>
-                </a>
-                <a
+                </Link>
+                <Link
                   href="/markedsforing"
                   className="flex items-center justify-between rounded-xl border border-slate-800 bg-slate-900/80 px-3 py-2 hover:border-blue-500/60 hover:bg-slate-900 hover:text-slate-50"
                 >
@@ -404,7 +422,7 @@ export default function DashboardClient() {
                   <span className="text-[11px] text-slate-400">
                     Shift + M
                   </span>
-                </a>
+                </Link>
               </div>
             </div>
 
