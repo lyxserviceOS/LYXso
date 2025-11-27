@@ -177,11 +177,13 @@ export default function AutomationPageClient() {
     totalRules: rules.length,
     completedToday: events.filter(e => 
       e.status === "completed" && 
-      new Date(e.completed_at!).toDateString() === new Date().toDateString()
+      e.completed_at &&
+      new Date(e.completed_at).toDateString() === new Date().toDateString()
     ).length,
     failedToday: events.filter(e => 
       e.status === "failed" && 
-      new Date(e.completed_at!).toDateString() === new Date().toDateString()
+      e.completed_at &&
+      new Date(e.completed_at).toDateString() === new Date().toDateString()
     ).length,
   };
 

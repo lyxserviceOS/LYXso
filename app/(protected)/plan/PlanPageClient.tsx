@@ -138,7 +138,7 @@ export default function PlanPageClient() {
             <UsageBar 
               label="Brukere" 
               used={usage.users.used} 
-              limit={usage.users.limit} 
+              limit={plan === "paid" ? 10 : usage.users.limit} 
             />
             <UsageBar 
               label="Lokasjoner" 

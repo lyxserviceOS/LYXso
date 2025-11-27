@@ -491,8 +491,8 @@ export default function CoatingPageClient() {
                                 </div>
                                 {followup && (
                                   <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${getFollowupStatusColor(followup.status)}`}>
-                                    {followup.status === "completed" 
-                                      ? `Fullført ${new Date(followup.completed_at!).toLocaleDateString("nb-NO")}`
+                                    {followup.status === "completed" && followup.completed_at
+                                      ? `Fullført ${new Date(followup.completed_at).toLocaleDateString("nb-NO")}`
                                       : followup.status === "scheduled"
                                       ? `Planlagt ${new Date(followup.scheduled_at).toLocaleDateString("nb-NO")}`
                                       : followup.status}
