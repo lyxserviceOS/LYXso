@@ -3,11 +3,17 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "../lib/supabaseClient";
+import { useOrgPlan } from "./OrgPlanContext";
+import type { ModuleCode } from "@/types/industry";
 
 type NavItem = {
   label: string;
   href: string;
   description?: string;
+  /** Module code required to show this item. If undefined, always show. */
+  requiresModule?: ModuleCode;
+  /** Only show for admin users */
+  adminOnly?: boolean;
 };
 
 type NavSection = {
@@ -28,11 +34,13 @@ const sections: NavSection[] = [
         label: "Bookinger",
         href: "/booking",
         description: "Kalender og timebok for hele bedriften.",
+        requiresModule: "booking",
       },
       {
         label: "Kunder & CRM",
         href: "/kunder",
         description: "Kundekort, historikk, kjøretøy og eiendeler.",
+        requiresModule: "crm",
       },
       {
         label: "Tjenester",
@@ -43,21 +51,25 @@ const sections: NavSection[] = [
         label: "Produkter",
         href: "/produkter",
         description: "Produkter brukt i tjenester og salg.",
+        requiresModule: "products",
       },
       {
         label: "Dekkhotell",
         href: "/dekkhotell",
         description: "Oversikt over felg- og dekksett.",
+        requiresModule: "dekkhotell",
       },
       {
         label: "Coating PRO",
         href: "/coating",
         description: "Coatingjobber og 5-års garantiløp.",
+        requiresModule: "coating",
       },
       {
         label: "Ansatte",
         href: "/ansatte",
         description: "Rettigheter, kapasitet og roller.",
+        requiresModule: "employees",
       },
     ],
   },
@@ -68,31 +80,37 @@ const sections: NavSection[] = [
         label: "Markedsføring",
         href: "/markedsforing",
         description: "Kampanjer, poster og kanalstatistikk.",
+        requiresModule: "markedsforing",
       },
       {
         label: "LYXba – Booking Agent",
         href: "/ai-agent",
         description: "AI som ringer, sender SMS og booker automagisk.",
+        requiresModule: "ai_agent",
       },
       {
         label: "Landingsside",
         href: "/landingsside",
         description: "Bygg partnerens egen nettside for bookinger.",
+        requiresModule: "landing_page",
       },
       {
         label: "Leads",
         href: "/leads",
         description: "Alle henvendelser fra skjema, AI og kampanjer.",
+        requiresModule: "leads",
       },
       {
         label: "Partnere",
         href: "/partnere",
         description: "Brukt av admin – oversikt over alle partnere.",
+        adminOnly: true,
       },
       {
         label: "CEO Dashboard",
         href: "/ceo",
         description: "Aggregert oversikt over alle orgs og lokasjoner.",
+        adminOnly: true,
       },
     ],
   },
@@ -103,11 +121,13 @@ const sections: NavSection[] = [
         label: "Regnskap & betaling",
         href: "/regnskap",
         description: "Kobling mot terminal, Fiken m.m. (under arbeid).",
+        requiresModule: "regnskap",
       },
       {
         label: "Betaling",
         href: "/betaling",
         description: "Status på betalinger og transaksjoner.",
+        requiresModule: "kortterminal",
       },
     ],
   },
@@ -134,6 +154,7 @@ const sections: NavSection[] = [
         label: "Automatisering",
         href: "/automatisering",
         description: "Påminnelser, workflows og automatiske triggere.",
+        requiresModule: "automatisering",
       },
       {
         label: "Dataimport",
@@ -141,9 +162,9 @@ const sections: NavSection[] = [
         description: "Importer kunder, biler, dekk og historikk.",
       },
       {
-        label: "Onboarding & innstillinger",
-        href: "/onboarding",
-        description: "Grunnoppsett for partnerprofilen.",
+        label: "Innstillinger",
+        href: "/org-settings",
+        description: "Moduler, tjenestetype og bedriftsinnstillinger.",
       },
       {
         label: "Hjelp & support",
@@ -165,6 +186,7 @@ function isActive(pathname: string, href: string) {
 export default function SidebarNav() {
   const pathname = usePathname();
   const router = useRouter();
+  const { isModuleEnabled, loading: planLoading } = useOrgPlan();
 
   const handleLogout = async () => {
     try {
@@ -175,6 +197,23 @@ export default function SidebarNav() {
       router.push("/login");
     }
   };
+
+  // Filter nav items based on enabled modules
+  const filteredSections = sections.map((section) => ({
+    ...section,
+    items: section.items.filter((item) => {
+      // Always show items without module requirement
+      if (!item.requiresModule) return true;
+      // While loading, show all items to avoid flicker
+      if (planLoading) return true;
+      // Check if module is enabled
+      return isModuleEnabled(item.requiresModule);
+    }).filter((item) => {
+      // Hide admin-only items (these would require role check)
+      // For now, keep them visible but they could be hidden based on user role
+      return !item.adminOnly;
+    }),
+  })).filter((section) => section.items.length > 0); // Remove empty sections
 
   return (
     <nav className="flex h-full flex-col px-3 py-4 text-sm text-shellText">
@@ -190,7 +229,7 @@ export default function SidebarNav() {
 
       {/* Selve menyen */}
       <div className="flex-1 space-y-5 overflow-y-auto pr-1">
-        {sections.map((section) => (
+        {filteredSections.map((section) => (
           <div key={section.title} className="space-y-2">
             <p className="px-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-shellTextMuted">
               {section.title}

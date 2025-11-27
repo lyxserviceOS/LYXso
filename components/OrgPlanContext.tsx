@@ -12,6 +12,7 @@ import {
 } from "@/lib/orgPlan";
 import type { OrgPlan } from "@/types/org";
 import type { PlanFeatureKey } from "@/lib/orgPlan";
+import type { ModuleCode, Industry, WorkMode } from "@/types/industry";
 
 type OrgSettings = {
   id: string;
@@ -21,7 +22,20 @@ type OrgSettings = {
   secondaryColor: string | null;
   isActive: boolean | null;
   plan: OrgPlan;
+  // Extended settings for module/industry management
+  enabledModules: ModuleCode[];
+  industries: Industry[];
+  workMode: WorkMode;
 };
+
+// Default modules enabled for all orgs
+const DEFAULT_ENABLED_MODULES: ModuleCode[] = [
+  "booking",
+  "crm",
+  "products",
+  "employees",
+  "leads",
+];
 
 type OrgPlanContextValue = {
   loading: boolean;
@@ -29,6 +43,8 @@ type OrgPlanContextValue = {
   org: OrgSettings | null;
   plan: OrgPlan;
   features: Record<PlanFeatureKey, boolean>;
+  enabledModules: ModuleCode[];
+  isModuleEnabled: (module: ModuleCode) => boolean;
 };
 
 const OrgPlanContext = createContext<OrgPlanContextValue | undefined>(
@@ -46,6 +62,8 @@ export function OrgPlanProvider({
     org: null,
     plan: "trial",
     features: planFeatureFlags.trial,
+    enabledModules: DEFAULT_ENABLED_MODULES,
+    isModuleEnabled: (module: ModuleCode) => DEFAULT_ENABLED_MODULES.includes(module),
   });
 
   useEffect(() => {
@@ -86,6 +104,19 @@ export function OrgPlanProvider({
         const planStr: string | null | undefined = raw?.plan ?? null;
         const plan = normalizeOrgPlan(planStr);
 
+        // Parse enabled modules from API response (fallback to defaults)
+        const rawModules = raw?.enabledModules ?? raw?.enabled_modules ?? null;
+        const enabledModules: ModuleCode[] = Array.isArray(rawModules) 
+          ? rawModules 
+          : DEFAULT_ENABLED_MODULES;
+
+        // Parse industries from API response
+        const rawIndustries = raw?.industries ?? null;
+        const industries: Industry[] = Array.isArray(rawIndustries) ? rawIndustries : [];
+
+        // Parse work mode from API response
+        const workMode: WorkMode = raw?.workMode ?? raw?.work_mode ?? "fixed";
+
         const org: OrgSettings = {
           id: raw.id,
           name: raw.name ?? null,
@@ -95,6 +126,9 @@ export function OrgPlanProvider({
           isActive:
             typeof raw.isActive === "boolean" ? raw.isActive : null,
           plan,
+          enabledModules,
+          industries,
+          workMode,
         };
 
         if (!cancelled) {
@@ -104,16 +138,17 @@ export function OrgPlanProvider({
             org,
             plan,
             features: planFeatureFlags[plan],
+            enabledModules,
+            isModuleEnabled: (module: ModuleCode) => enabledModules.includes(module),
           });
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (!cancelled) {
+          const errorMessage = err instanceof Error ? err.message : "Ukjent feil ved henting av org settings.";
           setState((prev) => ({
             ...prev,
             loading: false,
-            error:
-              err?.message ??
-              "Ukjent feil ved henting av org settings.",
+            error: errorMessage,
           }));
         }
       }

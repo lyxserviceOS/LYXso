@@ -3,11 +3,13 @@
 
 import { useEffect, useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import type { Industry, ModuleCode } from "@/types/industry";
+import { INDUSTRIES, ORG_MODULES, getRecommendedModules } from "@/types/industry";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
 const ORG_ID = process.env.NEXT_PUBLIC_ORG_ID;
 
-type Step = 1 | 2;
+type Step = 1 | 2 | 3 | 4;
 
 type FormState = {
   // Steg 1 – bedriftsinfo
@@ -19,11 +21,20 @@ type FormState = {
   addressLine1: string;
   postcode: string;
   city: string;
-  // Tjenestetype
+  // Tjenestetype (work mode)
   hasFixedLocation: boolean;
   isMobile: boolean;
 
-  // Steg 2 – landingsside
+  // Steg 2 – bransjevalg (flervalg)
+  industries: Industry[];
+
+  // Steg 3 – modulvalg
+  enabledModules: ModuleCode[];
+  wantsLandingPage: boolean;
+  wantsWebshop: boolean;
+  showBookingInMenu: boolean;
+
+  // Steg 4 – landingsside
   heroTitle: string;
   heroSubtitle: string;
   primaryColor: string;
@@ -37,12 +48,15 @@ type LoadingState =
   | { status: "success"; message?: string }
   | { status: "error"; message: string };
 
+// Default modules all orgs get
+const DEFAULT_MODULES: ModuleCode[] = ["booking", "crm", "products", "employees", "leads"];
+
 export default function OnboardingPageClient() {
   const router = useRouter();
 
   const [step, setStep] = useState<Step>(1);
   const [initialLoaded, setInitialLoaded] = useState(false);
-  const [existingLandingPage, setExistingLandingPage] = useState<any | null>(
+  const [existingLandingPage, setExistingLandingPage] = useState<Record<string, unknown> | null>(
     null
   );
 
@@ -57,6 +71,14 @@ export default function OnboardingPageClient() {
     city: "",
     hasFixedLocation: true,
     isMobile: false,
+    // Bransje
+    industries: [],
+    // Moduler
+    enabledModules: [...DEFAULT_MODULES],
+    wantsLandingPage: false,
+    wantsWebshop: false,
+    showBookingInMenu: true,
+    // Landingsside
     heroTitle: "",
     heroSubtitle: "",
     primaryColor: "#2563eb",
@@ -110,6 +132,14 @@ export default function OnboardingPageClient() {
           city: config.city ?? prev.city,
           hasFixedLocation: config.hasFixedLocation ?? prev.hasFixedLocation,
           isMobile: config.isMobile ?? prev.isMobile,
+          // Industries
+          industries: Array.isArray(config.industries) ? config.industries : prev.industries,
+          // Modules
+          enabledModules: Array.isArray(config.enabledModules) ? config.enabledModules : prev.enabledModules,
+          wantsLandingPage: config.wantsLandingPage ?? config.landing_page_enabled ?? prev.wantsLandingPage,
+          wantsWebshop: config.wantsWebshop ?? config.webshop_enabled ?? prev.wantsWebshop,
+          showBookingInMenu: config.showBookingInMenu ?? config.show_booking_in_menu ?? prev.showBookingInMenu,
+          // Landing page
           heroTitle:
             config.heroTitle ??
             prev.heroTitle ??
@@ -127,7 +157,7 @@ export default function OnboardingPageClient() {
         }));
 
         setLoading({ status: "idle" });
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error("Feil ved henting av landingsside:", error);
         setLoading({
           status: "error",
@@ -152,20 +182,82 @@ export default function OnboardingPageClient() {
   }
 
   function handleNextStep() {
-    // Validate at least one service type is selected before moving to step 2
-    if (!form.hasFixedLocation && !form.isMobile) {
-      setLoading({
-        status: "error",
-        message: "Velg minst én tjenestetype (fast adresse eller mobil) før du fortsetter.",
-      });
+    setLoading({ status: "idle" });
+    
+    // Step 1 validation: work mode
+    if (step === 1) {
+      if (!form.hasFixedLocation && !form.isMobile) {
+        setLoading({
+          status: "error",
+          message: "Velg minst én tjenestetype (fast adresse eller mobil) før du fortsetter.",
+        });
+        return;
+      }
+      setStep(2);
       return;
     }
-    setLoading({ status: "idle" });
-    setStep((prev) => (prev === 1 ? 2 : prev));
+    
+    // Step 2 validation: industries
+    if (step === 2) {
+      if (form.industries.length === 0) {
+        setLoading({
+          status: "error",
+          message: "Velg minst én bransje før du fortsetter.",
+        });
+        return;
+      }
+      // Auto-suggest modules based on industries
+      const recommended = getRecommendedModules(form.industries);
+      setForm((prev) => ({
+        ...prev,
+        enabledModules: Array.from(new Set([...prev.enabledModules, ...recommended])),
+      }));
+      setStep(3);
+      return;
+    }
+    
+    // Step 3: modules - go to step 4 only if landing page is wanted
+    if (step === 3) {
+      if (form.wantsLandingPage) {
+        setStep(4);
+      }
+      // If no landing page wanted, submit is available directly from step 3
+      return;
+    }
   }
 
   function handlePrevStep() {
-    setStep((prev) => (prev === 2 ? 1 : prev));
+    if (step === 2) setStep(1);
+    else if (step === 3) setStep(2);
+    else if (step === 4) setStep(3);
+  }
+
+  function toggleIndustry(industry: Industry) {
+    setForm((prev) => {
+      const exists = prev.industries.includes(industry);
+      return {
+        ...prev,
+        industries: exists
+          ? prev.industries.filter((i) => i !== industry)
+          : [...prev.industries, industry],
+      };
+    });
+  }
+
+  function toggleModule(module: ModuleCode) {
+    setForm((prev) => {
+      const exists = prev.enabledModules.includes(module);
+      // Don't allow disabling core modules
+      if (DEFAULT_MODULES.includes(module) && exists) {
+        return prev;
+      }
+      return {
+        ...prev,
+        enabledModules: exists
+          ? prev.enabledModules.filter((m) => m !== module)
+          : [...prev.enabledModules, module],
+      };
+    });
   }
 
   async function handleSubmit(e: FormEvent) {
@@ -196,8 +288,16 @@ export default function OnboardingPageClient() {
       });
 
       // Vi pakker alt inn i et config-objekt.
+      // Compute work_mode from form checkboxes
+      const workMode = form.hasFixedLocation && form.isMobile 
+        ? "both" 
+        : form.isMobile 
+          ? "mobile" 
+          : "fixed";
+
       const newConfig = {
-        ...(existingLandingPage?.config ?? {}),
+        ...(typeof existingLandingPage?.config === 'object' ? existingLandingPage.config : {}),
+        // Basic info
         companyName: form.companyName,
         orgNumber: form.orgNumber,
         contactEmail: form.contactEmail,
@@ -206,8 +306,18 @@ export default function OnboardingPageClient() {
         addressLine1: form.addressLine1,
         postcode: form.postcode,
         city: form.city,
+        // Work mode
         hasFixedLocation: form.hasFixedLocation,
         isMobile: form.isMobile,
+        workMode,
+        // Industries
+        industries: form.industries,
+        // Modules
+        enabledModules: form.enabledModules,
+        wantsLandingPage: form.wantsLandingPage,
+        wantsWebshop: form.wantsWebshop,
+        showBookingInMenu: form.showBookingInMenu,
+        // Landing page settings
         heroTitle: form.heroTitle,
         heroSubtitle: form.heroSubtitle,
         primaryColor: form.primaryColor,
@@ -248,13 +358,12 @@ export default function OnboardingPageClient() {
       setTimeout(() => {
         router.push("/kontrollpanel");
       }, 900);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Feil ved onboarding-lagring:", error);
+      const errorMessage = error instanceof Error ? error.message : "Noe gikk galt ved lagring.";
       setLoading({
         status: "error",
-        message:
-          error?.message ??
-          "Noe gikk galt ved lagring. Prøv igjen om et øyeblikk.",
+        message: errorMessage,
       });
     }
   }
@@ -279,44 +388,37 @@ export default function OnboardingPageClient() {
         </header>
 
         {/* Stegindikator */}
-        <div className="mb-6 flex items-center gap-3 text-xs">
-          <div className="flex items-center gap-2">
-            <span
-              className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] ${
-                step === 1
-                  ? "bg-blue-600 text-white"
-                  : "bg-slate-800 text-slate-200"
-              }`}
-            >
-              1
-            </span>
-            <span
-              className={
-                step === 1 ? "font-medium text-slate-100" : "text-slate-400"
-              }
-            >
-              Bedriftsinformasjon
-            </span>
-          </div>
-          <div className="h-px flex-1 bg-slate-800" />
-          <div className="flex items-center gap-2">
-            <span
-              className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] ${
-                step === 2
-                  ? "bg-blue-600 text-white"
-                  : "bg-slate-800 text-slate-200"
-              }`}
-            >
-              2
-            </span>
-            <span
-              className={
-                step === 2 ? "font-medium text-slate-100" : "text-slate-400"
-              }
-            >
-              Landingsside & profil
-            </span>
-          </div>
+        <div className="mb-6 flex flex-wrap items-center gap-2 text-xs">
+          {[
+            { num: 1, label: "Bedriftsinfo" },
+            { num: 2, label: "Bransje" },
+            { num: 3, label: "Moduler" },
+            ...(form.wantsLandingPage ? [{ num: 4, label: "Landingsside" }] : []),
+          ].map((s, idx, arr) => (
+            <div key={s.num} className="flex items-center gap-2">
+              <span
+                className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] ${
+                  step === s.num
+                    ? "bg-blue-600 text-white"
+                    : step > s.num
+                    ? "bg-emerald-600 text-white"
+                    : "bg-slate-800 text-slate-200"
+                }`}
+              >
+                {step > s.num ? "✓" : s.num}
+              </span>
+              <span
+                className={
+                  step === s.num ? "font-medium text-slate-100" : "text-slate-400"
+                }
+              >
+                {s.label}
+              </span>
+              {idx < arr.length - 1 && (
+                <div className="mx-2 h-px w-6 bg-slate-800 sm:w-12" />
+              )}
+            </div>
+          ))}
         </div>
 
         {/* Status / meldinger */}
@@ -514,7 +616,187 @@ export default function OnboardingPageClient() {
           {step === 2 && (
             <div className="space-y-5">
               <h2 className="text-sm font-semibold text-slate-100">
-                2. Landingsside & profil
+                2. Hvilken bransje er du i?
+              </h2>
+              <p className="text-xs text-slate-400">
+                Velg én eller flere bransjer som passer bedriften din. Dette hjelper oss å tilpasse moduler og funksjoner.
+              </p>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                {INDUSTRIES.map((industry) => {
+                  const isSelected = form.industries.includes(industry.code);
+                  return (
+                    <label
+                      key={industry.code}
+                      className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition ${
+                        isSelected
+                          ? "border-blue-500 bg-blue-500/10"
+                          : "border-slate-700 hover:border-slate-600"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => toggleIndustry(industry.code)}
+                        className="mt-0.5 rounded border-slate-600 bg-slate-900"
+                      />
+                      <div>
+                        <span className="text-sm font-medium text-slate-100">
+                          {industry.label}
+                        </span>
+                        <p className="mt-0.5 text-xs text-slate-400">
+                          {industry.description}
+                        </p>
+                      </div>
+                    </label>
+                  );
+                })}
+              </div>
+
+              {form.industries.length > 0 && (
+                <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3">
+                  <p className="text-xs text-emerald-200">
+                    <strong>Valgt:</strong> {form.industries.map(i => 
+                      INDUSTRIES.find(ind => ind.code === i)?.label
+                    ).join(", ")}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {step === 3 && (
+            <div className="space-y-5">
+              <h2 className="text-sm font-semibold text-slate-100">
+                3. Hva vil du gjøre i LYXso?
+              </h2>
+              <p className="text-xs text-slate-400">
+                Vi har valgt noen moduler basert på bransjen din. Du kan aktivere/deaktivere moduler her og i innstillinger senere.
+              </p>
+
+              {/* Core features - landing page and webshop */}
+              <div className="border-t border-slate-800 pt-4">
+                <p className="text-xs font-medium text-slate-300 mb-3">
+                  Landingsside og nettbutikk
+                </p>
+                <div className="space-y-3">
+                  <label className="flex items-start gap-3 cursor-pointer p-3 rounded-lg border border-slate-700 hover:border-slate-600 transition">
+                    <input
+                      type="checkbox"
+                      checked={form.wantsLandingPage}
+                      onChange={(e) => handleChange("wantsLandingPage", e.target.checked)}
+                      className="mt-0.5 rounded border-slate-600"
+                    />
+                    <div>
+                      <span className="text-sm font-medium text-slate-100">
+                        Egen landingsside
+                      </span>
+                      <p className="text-xs text-slate-400 mt-1">
+                        Bygg en egen nettside for bedriften med booking, tjenester og kontaktinfo.
+                      </p>
+                    </div>
+                  </label>
+
+                  {form.wantsLandingPage && (
+                    <>
+                      <label className="flex items-start gap-3 cursor-pointer p-3 rounded-lg border border-slate-700 hover:border-slate-600 transition ml-4">
+                        <input
+                          type="checkbox"
+                          checked={form.showBookingInMenu}
+                          onChange={(e) => handleChange("showBookingInMenu", e.target.checked)}
+                          className="mt-0.5 rounded border-slate-600"
+                        />
+                        <div>
+                          <span className="text-sm font-medium text-slate-100">
+                            Vis booking i menyen
+                          </span>
+                          <p className="text-xs text-slate-400 mt-1">
+                            La kundene booke direkte fra landingssiden.
+                          </p>
+                        </div>
+                      </label>
+
+                      <label className="flex items-start gap-3 cursor-pointer p-3 rounded-lg border border-slate-700 hover:border-slate-600 transition ml-4">
+                        <input
+                          type="checkbox"
+                          checked={form.wantsWebshop}
+                          onChange={(e) => handleChange("wantsWebshop", e.target.checked)}
+                          className="mt-0.5 rounded border-slate-600"
+                        />
+                        <div>
+                          <span className="text-sm font-medium text-slate-100">
+                            Nettbutikk
+                          </span>
+                          <p className="text-xs text-slate-400 mt-1">
+                            Selg produkter via landingssiden – fra partnere eller eget lager.
+                          </p>
+                        </div>
+                      </label>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Module categories */}
+              {["drift", "ai_marketing", "okonomi"].map((category) => {
+                const categoryModules = ORG_MODULES.filter(m => m.category === category);
+                const categoryLabel = {
+                  drift: "Drift",
+                  ai_marketing: "AI & markedsføring",
+                  okonomi: "Økonomi",
+                }[category];
+                
+                return (
+                  <div key={category} className="border-t border-slate-800 pt-4">
+                    <p className="text-xs font-medium text-slate-300 mb-3">
+                      {categoryLabel}
+                    </p>
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      {categoryModules.map((module) => {
+                        const isEnabled = form.enabledModules.includes(module.code);
+                        const isCore = DEFAULT_MODULES.includes(module.code);
+                        
+                        return (
+                          <label
+                            key={module.code}
+                            className={`flex items-start gap-3 cursor-pointer p-2 rounded-lg border transition ${
+                              isEnabled
+                                ? "border-blue-500/50 bg-blue-500/5"
+                                : "border-slate-700/50 hover:border-slate-600"
+                            } ${isCore ? "opacity-75" : ""}`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={isEnabled}
+                              onChange={() => toggleModule(module.code)}
+                              disabled={isCore}
+                              className="mt-0.5 rounded border-slate-600"
+                            />
+                            <div>
+                              <span className="text-xs font-medium text-slate-100">
+                                {module.label}
+                                {isCore && (
+                                  <span className="ml-1 text-[10px] text-slate-500">(standard)</span>
+                                )}
+                              </span>
+                              <p className="text-[11px] text-slate-400 mt-0.5">
+                                {module.description}
+                              </p>
+                            </div>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {step === 4 && (
+            <div className="space-y-5">
+              <h2 className="text-sm font-semibold text-slate-100">
+                4. Landingsside & profil
               </h2>
 
               <div className="space-y-4">
@@ -630,11 +912,12 @@ export default function OnboardingPageClient() {
           {/* Knapper nederst */}
           <div className="flex items-center justify-between pt-2">
             <div className="text-[11px] text-slate-500">
-              Du kan endre dette senere fra kontrollpanelet.
+              Du kan endre dette senere fra innstillinger.
             </div>
 
             <div className="flex gap-2">
-              {step === 2 && (
+              {/* Back button - show on steps 2, 3, 4 */}
+              {step > 1 && (
                 <button
                   type="button"
                   onClick={handlePrevStep}
@@ -645,7 +928,8 @@ export default function OnboardingPageClient() {
                 </button>
               )}
 
-              {step === 1 && (
+              {/* Continue button - show on steps 1, 2, and 3 (if landing page selected) */}
+              {(step === 1 || step === 2 || (step === 3 && form.wantsLandingPage)) && (
                 <button
                   type="button"
                   onClick={handleNextStep}
@@ -655,7 +939,8 @@ export default function OnboardingPageClient() {
                 </button>
               )}
 
-              {step === 2 && (
+              {/* Submit button - show on step 3 (if no landing page) or step 4 */}
+              {((step === 3 && !form.wantsLandingPage) || step === 4) && (
                 <button
                   type="submit"
                   className="rounded-md bg-blue-600 px-4 py-1.5 text-xs font-medium text-white hover:bg-blue-500 disabled:opacity-60"
