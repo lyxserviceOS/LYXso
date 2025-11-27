@@ -5,6 +5,60 @@ import { createClient } from "@supabase/supabase-js";
 const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
 
+// Whitelist of allowed fields for landing page updates
+const ALLOWED_FIELDS = [
+  'hero_title',
+  'hero_subtitle',
+  'hero_image_url',
+  'hero_cta_text',
+  'hero_cta_link',
+  'about_title',
+  'about_content',
+  'about_image_url',
+  'services_title',
+  'services_content',
+  'show_contact',
+  'contact_title',
+  'contact_phone',
+  'contact_email',
+  'contact_address',
+  'contact_map_url',
+  'facebook_url',
+  'instagram_url',
+  'linkedin_url',
+  'primary_color',
+  'secondary_color',
+  'font_family',
+  'logo_url',
+  'opening_hours',
+  'meta_title',
+  'meta_description',
+  'meta_keywords',
+  'is_published',
+  'show_booking_widget',
+  'custom_css',
+  'gallery_images',
+  'testimonials',
+  'faq_items',
+  'show_gallery',
+  'show_testimonials',
+  'show_faq',
+  'gallery_title',
+  'testimonials_title',
+  'faq_title',
+] as const;
+
+// Filter request body to only include allowed fields
+function sanitizeInput(body: Record<string, unknown>): Record<string, unknown> {
+  const sanitized: Record<string, unknown> = {};
+  for (const field of ALLOWED_FIELDS) {
+    if (field in body) {
+      sanitized[field] = body[field];
+    }
+  }
+  return sanitized;
+}
+
 function getSupabase() {
   if (!supabaseUrl || !supabaseServiceKey) {
     throw new Error("Missing Supabase configuration");
@@ -73,6 +127,7 @@ export async function PUT(
     }
 
     const body = await request.json();
+    const sanitizedBody = sanitizeInput(body as Record<string, unknown>);
     const supabase = getSupabase();
 
     // Check if landing page exists
@@ -89,7 +144,7 @@ export async function PUT(
       result = await supabase
         .from("partner_landing_pages")
         .update({
-          ...body,
+          ...sanitizedBody,
           updated_at: new Date().toISOString(),
         })
         .eq("org_id", orgId)
@@ -101,7 +156,7 @@ export async function PUT(
         .from("partner_landing_pages")
         .insert({
           org_id: orgId,
-          ...body,
+          ...sanitizedBody,
         })
         .select()
         .single();
