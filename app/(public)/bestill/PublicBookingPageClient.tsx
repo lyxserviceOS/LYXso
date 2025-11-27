@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
@@ -31,6 +31,48 @@ type PublicBookingForm = {
   notes: string;
 };
 
+type AvailableSlot = {
+  date: string;
+  start: string;
+  end: string;
+  available: boolean;
+};
+
+// Mock booking settings (in production, fetch from API)
+const MOCK_BOOKING_SETTINGS = {
+  allow_auto_booking: true, // Partner has enabled auto-booking
+  show_available_slots: true,
+  booking_slot_duration_minutes: 60,
+};
+
+// Generate mock available slots for the next 7 days
+function generateMockSlots(): AvailableSlot[] {
+  const slots: AvailableSlot[] = [];
+  const now = new Date();
+  
+  for (let day = 1; day <= 7; day++) {
+    const date = new Date(now);
+    date.setDate(date.getDate() + day);
+    const dateStr = date.toISOString().split('T')[0];
+    
+    // Skip weekends
+    if (date.getDay() === 0 || date.getDay() === 6) continue;
+    
+    // Generate slots from 9:00 to 16:00
+    const hours = [9, 10, 11, 12, 13, 14, 15, 16];
+    hours.forEach(hour => {
+      slots.push({
+        date: dateStr,
+        start: `${hour.toString().padStart(2, '0')}:00`,
+        end: `${(hour + 1).toString().padStart(2, '0')}:00`,
+        available: Math.random() > 0.3, // 70% availability
+      });
+    });
+  }
+  
+  return slots;
+}
+
 const EMPTY_FORM: PublicBookingForm = {
   customerName: "",
   customerEmail: "",
@@ -46,12 +88,49 @@ export default function PublicBookingPageClient() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  
+  // Slot selection state
+  const [bookingMode, setBookingMode] = useState<"slots" | "manual">(
+    MOCK_BOOKING_SETTINGS.show_available_slots ? "slots" : "manual"
+  );
+  const [availableSlots, setAvailableSlots] = useState<AvailableSlot[]>([]);
+  const [selectedSlot, setSelectedSlot] = useState<AvailableSlot | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string>("");
+  
+  // Load available slots
+  useEffect(() => {
+    if (MOCK_BOOKING_SETTINGS.show_available_slots) {
+      setAvailableSlots(generateMockSlots());
+    }
+  }, []);
+  
+  // Get unique dates from available slots
+  const availableDates = [...new Set(availableSlots.map(s => s.date))];
+  
+  // Get slots for selected date
+  const slotsForSelectedDate = availableSlots.filter(s => s.date === selectedDate);
 
   function handleChange<K extends keyof PublicBookingForm>(
     key: K,
     value: PublicBookingForm[K]
   ) {
     setForm((prev) => ({ ...prev, [key]: value }));
+  }
+  
+  function handleSelectSlot(slot: AvailableSlot) {
+    if (!slot.available) return;
+    
+    setSelectedSlot(slot);
+    
+    // Convert to datetime-local format for form
+    const startDateTime = `${slot.date}T${slot.start}`;
+    const endDateTime = `${slot.date}T${slot.end}`;
+    
+    setForm(prev => ({
+      ...prev,
+      startLocal: startDateTime,
+      endLocal: endDateTime,
+    }));
   }
 
   function toIso(localValue: string): string | null {
