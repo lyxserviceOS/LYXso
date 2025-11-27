@@ -63,12 +63,10 @@ export default function PartnerePageClient() {
         if (!cancelled) {
           setOrgs((json?.orgs as OrgRow[]) ?? []);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (!cancelled) {
-          setError(
-            err?.message ??
-              "Ukjent feil ved henting av partner-oversikt.",
-          );
+          const errorMessage = err instanceof Error ? err.message : "Ukjent feil ved henting av partner-oversikt.";
+          setError(errorMessage);
         }
       } finally {
         if (!cancelled) {
@@ -123,10 +121,9 @@ export default function PartnerePageClient() {
           prev.map((org) => (org.id === orgId ? { ...org, ...updated } : org)),
         );
       }
-    } catch (err: any) {
-      setError(
-        err?.message ?? "Ukjent feil ved oppdatering av organisasjon.",
-      );
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Ukjent feil ved oppdatering av organisasjon.";
+      setError(errorMessage);
     } finally {
       setSavingId(null);
     }

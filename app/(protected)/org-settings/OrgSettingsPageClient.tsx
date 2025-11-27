@@ -42,8 +42,9 @@ export default function OrgSettingsPageClient() {
 
         const json = await res.json();
         setOrg(json.org as OrgSettings);
-      } catch (err: any) {
-        setError(err?.message ?? "Ukjent feil ved henting av org-settings");
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : "Ukjent feil ved henting av org-settings";
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }

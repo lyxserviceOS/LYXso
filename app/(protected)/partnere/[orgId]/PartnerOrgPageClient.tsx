@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
 
@@ -51,7 +51,6 @@ const PLAN_OPTIONS: { value: string; label: string; description: string }[] = [
 export default function PartnerOrgPageClient() {
   const params = useParams<{ orgId: string }>();
   const orgId = params.orgId;
-  const router = useRouter();
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -96,12 +95,10 @@ export default function PartnerOrgPageClient() {
         setOrgNumber(o.org_number ?? "");
         setPlan(o.plan ?? "free");
         setIsActive(o.is_active ?? true);
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (!cancelled) {
-          setError(
-            err?.message ||
-              "Uventet feil ved henting av organisasjonsdetaljer.",
-          );
+          const errorMessage = err instanceof Error ? err.message : "Uventet feil ved henting av organisasjonsdetaljer.";
+          setError(errorMessage);
         }
       } finally {
         if (!cancelled) {
@@ -153,11 +150,9 @@ export default function PartnerOrgPageClient() {
       const json = (await res.json()) as GetResponse;
       setOrg(json.org);
       setSaveMessage("Endringer lagret.");
-    } catch (err: any) {
-      setError(
-        err?.message ||
-          "Uventet feil ved lagring av organisasjonsdetaljer.",
-      );
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Uventet feil ved lagring av organisasjonsdetaljer.";
+      setError(errorMessage);
     } finally {
       setSaving(false);
     }
