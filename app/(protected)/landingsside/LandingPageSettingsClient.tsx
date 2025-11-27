@@ -91,11 +91,13 @@ const EMPTY_FORM: LandingPageSettings = {
   custom_css: "",
 };
 
+type TabId = 'hero' | 'about' | 'services' | 'contact' | 'appearance' | 'seo';
+
 export default function LandingPageSettingsClient() {
   const [form, setForm] = useState<LandingPageSettings>(EMPTY_FORM);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState<'hero' | 'about' | 'services' | 'contact' | 'appearance' | 'seo'>('hero');
+  const [activeTab, setActiveTab] = useState<TabId>('hero');
   const [showPreview, setShowPreview] = useState(false);
 
   const [error, setError] = useState<string | null>(null);
@@ -404,7 +406,7 @@ export default function LandingPageSettingsClient() {
           ].map(tab => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
+              onClick={() => setActiveTab(tab.id as TabId)}
               className={`pb-3 border-b-2 font-medium text-sm transition-colors ${
                 activeTab === tab.id
                   ? 'border-blue-600 text-blue-600'

@@ -35,6 +35,11 @@ type ProductCategoryFormState = {
   position: string;
 };
 
+type ProductCategoryPayload = {
+  name: string;
+  position?: number;
+};
+
 type ProductFormState = {
   id?: string;
   name: string;
@@ -111,9 +116,10 @@ export default function ProductsPageClient() {
 
       setCategories(catJson.categories ?? []);
       setProducts(prodJson.products ?? []);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("loadAll products error:", err);
-      setError(err?.message ?? "Uventet feil ved henting av data");
+      const errorMessage = err instanceof Error ? err.message : "Uventet feil ved henting av data";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -152,7 +158,7 @@ export default function ProductsPageClient() {
           ORG_ID,
         )}/product-categories`;
 
-    const payload: any = {
+    const payload: ProductCategoryPayload = {
       name: categoryForm.name.trim(),
     };
 

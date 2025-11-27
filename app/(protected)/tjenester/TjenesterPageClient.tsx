@@ -100,12 +100,10 @@ export default function ProdukterPageClient() {
 
         setCategories(catJson.categories ?? []);
         setProducts(prodJson.products ?? []);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Feil ved henting av produkter/kategorier:", err);
-        setError(
-          err?.message ??
-            "Uventet feil ved henting av produkter og kategorier.",
-        );
+        const errorMessage = err instanceof Error ? err.message : "Uventet feil ved henting av produkter og kategorier.";
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -184,9 +182,10 @@ export default function ProdukterPageClient() {
       );
       setNewCategoryName("");
       setNewCategoryPosition("");
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Feil ved lagring av produktkategori:", err);
-      setError(err?.message ?? "Feil ved lagring av produktkategori.");
+      const errorMessage = err instanceof Error ? err.message : "Feil ved lagring av produktkategori.";
+      setError(errorMessage);
     } finally {
       setSavingCategory(false);
     }
