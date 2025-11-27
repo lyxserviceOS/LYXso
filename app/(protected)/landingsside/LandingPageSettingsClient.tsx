@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState, FormEvent, useRef } from "react";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
 const ORG_ID = process.env.NEXT_PUBLIC_ORG_ID;
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -209,9 +208,9 @@ export default function LandingPageSettingsClient() {
   // Hent eksisterende innstillinger
   // -----------------------------
   useEffect(() => {
-    if (!API_BASE || !ORG_ID) {
+    if (!ORG_ID) {
       setError(
-        "Mangler API-konfigurasjon (NEXT_PUBLIC_API_BASE / NEXT_PUBLIC_ORG_ID)."
+        "Mangler ORG_ID-konfigurasjon (NEXT_PUBLIC_ORG_ID)."
       );
       setLoading(false);
       return;
@@ -224,7 +223,7 @@ export default function LandingPageSettingsClient() {
 
       try {
         const res = await fetch(
-          `${API_BASE}/api/orgs/${ORG_ID}/landing-page`
+          `/api/orgs/${ORG_ID}/landing-page`
         );
 
         if (!res.ok) {
@@ -296,7 +295,7 @@ export default function LandingPageSettingsClient() {
   // -----------------------------
   async function handleSave(e: FormEvent) {
     e.preventDefault();
-    if (!API_BASE || !ORG_ID) return;
+    if (!ORG_ID) return;
 
     setSaving(true);
     setError(null);
@@ -304,7 +303,7 @@ export default function LandingPageSettingsClient() {
 
     try {
       const res = await fetch(
-        `${API_BASE}/api/orgs/${ORG_ID}/landing-page`,
+        `/api/orgs/${ORG_ID}/landing-page`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
