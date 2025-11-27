@@ -103,7 +103,7 @@ export default function BliPartnerPageClient() {
         if (!cancelled) {
           setSuggestions(results);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Feil ved bedriftsøk:", err);
         if (!cancelled) {
           setSearchError(
@@ -253,13 +253,12 @@ export default function BliPartnerPageClient() {
       setTimeout(() => {
         router.push("/login");
       }, 2000);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Uventet feil ved innsending:", err);
+      const errorMessage = err instanceof Error ? err.message : "Noe gikk galt ved innsending. Prøv igjen om et øyeblikk.";
       setSubmitState({
         status: "error",
-        message:
-          err?.message ??
-          "Noe gikk galt ved innsending. Prøv igjen om et øyeblikk.",
+        message: errorMessage,
       });
     }
   }
