@@ -212,10 +212,16 @@ const MOCK_DATA: CEODashboardData = {
   ],
 };
 
-function formatCurrency(amount: number, compact = false): string {
+function formatCurrency(amount: number | null | undefined, compact = false): string {
+  if (amount == null || isNaN(amount)) return "—";
+  if (amount === 0) return "0";
+  
+  const absAmount = Math.abs(amount);
+  const sign = amount < 0 ? "-" : "";
+  
   if (compact) {
-    if (amount >= 1000000) return `${(amount / 1000000).toFixed(1)}M`;
-    if (amount >= 1000) return `${(amount / 1000).toFixed(0)}k`;
+    if (absAmount >= 1000000) return `${sign}${(absAmount / 1000000).toFixed(1)}M`;
+    if (absAmount >= 1000) return `${sign}${(absAmount / 1000).toFixed(0)}k`;
   }
   return amount.toLocaleString("nb-NO");
 }

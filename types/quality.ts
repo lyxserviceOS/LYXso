@@ -100,6 +100,15 @@ export interface PerformanceMetric {
   timestamp: string;
 }
 
+/** Represents a field change in an audit log entry */
+export interface AuditLogChange {
+  field: string;
+  /** The value before the change (string, number, boolean, or null) */
+  old_value: string | number | boolean | null;
+  /** The value after the change (string, number, boolean, or null) */
+  new_value: string | number | boolean | null;
+}
+
 export interface AuditLog {
   id: string;
   
@@ -114,11 +123,7 @@ export interface AuditLog {
   resource_id: string | null;
   
   // Details
-  changes: {
-    field: string;
-    old_value: unknown;
-    new_value: unknown;
-  }[] | null;
+  changes: AuditLogChange[] | null;
   
   // Context
   ip_address: string | null;

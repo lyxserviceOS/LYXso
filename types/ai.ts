@@ -112,7 +112,7 @@ export interface AIAgentKPIs {
   handed_off_count: number;
   no_response_count: number;
   
-  // Rates
+  // Rates (percentage 0-100)
   booking_rate: number;
   response_rate: number;
   handoff_rate: number;
@@ -121,6 +121,7 @@ export interface AIAgentKPIs {
   conversions_by_source: Record<string, {
     leads: number;
     bookings: number;
+    /** Conversion rate as percentage (0-100) */
     rate: number;
   }>;
   
