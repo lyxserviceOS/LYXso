@@ -2,7 +2,7 @@
 "use client";
 
 import React from "react";
-import PlanGate from "../../../components/PlanGate";
+import { PlanGate } from "../../../components/PlanGate";
 
 export default function BetalingPageClient() {
   return (
@@ -21,7 +21,7 @@ export default function BetalingPageClient() {
         </p>
       </div>
 
-      <PlanGate requiredPlan="pro" featureLabel="Betalingsintegrasjoner">
+      <PlanGate allowedPlans={["trial", "paid"]} title="Betalingsintegrasjoner krever oppgradert plan">
         <section className="grid gap-4 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1.6fr)]">
           {/* Venstre: terminaler */}
           <div className="rounded-xl border border-slate-200 bg-white p-4 space-y-4">

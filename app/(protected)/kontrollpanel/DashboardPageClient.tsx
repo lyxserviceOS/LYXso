@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import type { Booking } from "@/types/booking";
+import type { Booking, BookingStatus } from "@/types/booking";
 import { useOrgPlan } from "@/lib/useOrgPlan";
 import {
   getOrgPlanLabel,
@@ -152,22 +152,28 @@ export default function DashboardPageClient() {
           return;
         }
 
-        const mapped: Booking[] = json.map((item: any) => ({
-          id: item.id,
-          orgId: item.org_id,
+        const mapped: Booking[] = json.map((item: Record<string, unknown>) => ({
+          id: item.id as string,
+          orgId: (item.org_id as string) || "",
+          customerId: (item.customer_id as string) || null,
           customerName:
-            item.customer_name ||
-            item.customerName ||
+            (item.customer_name as string) ||
+            (item.customerName as string) ||
             "Ukjent kunde",
           serviceName:
-            item.service_name ||
-            item.serviceName ||
+            (item.service_name as string) ||
+            (item.serviceName as string) ||
             "Uspesifisert tjeneste",
-          startTime: item.start_time || item.startTime,
-          endTime: item.end_time || item.endTime,
-          status: item.status || "pending",
-          notes: item.notes,
-          source: item.source,
+          startTime: (item.start_time as string) || (item.startTime as string) || null,
+          endTime: (item.end_time as string) || (item.endTime as string) || null,
+          status: ((item.status as string) || "pending") as BookingStatus,
+          title: (item.title as string) || null,
+          notes: (item.notes as string) || null,
+          source: (item.source as string) || null,
+          totalAmount: (item.total_amount as number) || null,
+          currency: (item.currency as string) || null,
+          createdAt: (item.created_at as string) || null,
+          updatedAt: (item.updated_at as string) || null,
         }));
 
         setBookings(mapped);

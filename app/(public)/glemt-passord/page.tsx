@@ -1,13 +1,13 @@
 // app/(public)/glemt-passord/page.tsx
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "../../../lib/supabaseClient";
 
 type State = "idle" | "submitting" | "success" | "error";
 
-export default function ForgotPasswordPage() {
+function ForgotPasswordContent() {
   const searchParams = useSearchParams();
   const initialEmail = searchParams.get("email") ?? "";
 
@@ -48,12 +48,10 @@ export default function ForgotPasswordPage() {
       setMessage(
         "Hvis e-posten finnes i vårt system, har vi sendt en lenke for å sette nytt passord.",
       );
-    } catch (err: any) {
+    } catch (err: unknown) {
       setState("error");
-      setMessage(
-        err?.message ??
-          "Noe gikk galt ved forsøk på å sende nullstillings-epost. Prøv igjen senere.",
-      );
+      const errorMessage = err instanceof Error ? err.message : "Noe gikk galt ved forsøk på å sende nullstillings-epost. Prøv igjen senere.";
+      setMessage(errorMessage);
     }
   };
 
@@ -126,5 +124,13 @@ export default function ForgotPasswordPage() {
         </form>
       </div>
     </div>
+  );
+}
+
+export default function ForgotPasswordPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-slate-950 text-slate-50 flex items-center justify-center">Laster...</div>}>
+      <ForgotPasswordContent />
+    </Suspense>
   );
 }
