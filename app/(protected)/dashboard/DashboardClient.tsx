@@ -182,12 +182,10 @@ export function DashboardClient() {
         const data = (await res.json()) as Booking[];
         setBookings(Array.isArray(data) ? data : []);
         setError(null);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Feil ved henting av bookinger:", err);
-        setError(
-          err?.message ??
-            "Uventet feil ved henting av bookinger. Se konsoll for detaljer."
-        );
+        const errorMessage = err instanceof Error ? err.message : "Uventet feil ved henting av bookinger. Se konsoll for detaljer.";
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }

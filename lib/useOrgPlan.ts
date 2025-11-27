@@ -84,15 +84,14 @@ export function useOrgPlan(): OrgPlanHookState {
           orgName,
           isActive,
         });
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (cancelled) return;
 
+        const errorMessage = err instanceof Error ? err.message : "Ukjent feil ved henting av organisasjonsplan fra API.";
         setState((prev) => ({
           ...prev,
           loading: false,
-          error:
-            err?.message ??
-            "Ukjent feil ved henting av organisasjonsplan fra API.",
+          error: errorMessage,
         }));
       }
     }

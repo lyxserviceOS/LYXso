@@ -34,12 +34,23 @@ type LoadingState =
   | { status: "success"; message?: string }
   | { status: "error"; message: string };
 
+// Type for landing page data from API
+type LandingPageData = {
+  heroTitle?: string;
+  heroSubtitle?: string;
+  aboutTitle?: string;
+  aboutText?: string;
+  ctaLabel?: string;
+  ctaSecondaryLabel?: string;
+  [key: string]: string | undefined;
+};
+
 export default function OnboardingPageClient() {
   const router = useRouter();
 
   const [step, setStep] = useState<Step>(1);
   const [initialLoaded, setInitialLoaded] = useState(false);
-  const [existingLandingPage, setExistingLandingPage] = useState<any | null>(
+  const [existingLandingPage, setExistingLandingPage] = useState<LandingPageData | null>(
     null
   );
 
@@ -120,7 +131,7 @@ export default function OnboardingPageClient() {
         }));
 
         setLoading({ status: "idle" });
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error("Feil ved henting av landingsside:", error);
         setLoading({
           status: "error",
@@ -221,13 +232,12 @@ export default function OnboardingPageClient() {
       setTimeout(() => {
         router.push("/kontrollpanel");
       }, 900);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Feil ved onboarding-lagring:", error);
+      const errorMessage = error instanceof Error ? error.message : "Noe gikk galt ved lagring. Prøv igjen om et øyeblikk.";
       setLoading({
         status: "error",
-        message:
-          error?.message ??
-          "Noe gikk galt ved lagring. Prøv igjen om et øyeblikk.",
+        message: errorMessage,
       });
     }
   }

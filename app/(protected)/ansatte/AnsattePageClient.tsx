@@ -64,11 +64,10 @@ export default function AnsattePageClient() {
 
         const json = await res.json();
         setEmployees(json.employees ?? []);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Feil ved henting av ansatte:", err);
-        setError(
-          err?.message ?? "Uventet feil ved henting av ansatte.",
-        );
+        const errorMessage = err instanceof Error ? err.message : "Uventet feil ved henting av ansatte.";
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -156,9 +155,10 @@ export default function AnsattePageClient() {
       });
 
       resetForm();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Feil ved lagring av ansatt:", err);
-      setError(err?.message ?? "Feil ved lagring av ansatt.");
+      const errorMessage = err instanceof Error ? err.message : "Feil ved lagring av ansatt.";
+      setError(errorMessage);
     } finally {
       setSaving(false);
     }

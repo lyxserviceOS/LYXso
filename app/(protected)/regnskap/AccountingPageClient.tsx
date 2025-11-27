@@ -78,9 +78,10 @@ export default function AccountingPageClient() {
           payment_settings: {},
         },
       );
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setError(err.message ?? "Ukjent feil ved henting av innstillinger");
+      const errorMessage = err instanceof Error ? err.message : "Ukjent feil ved henting av innstillinger";
+      setError(errorMessage);
     } finally {
       setSettingsLoading(false);
     }
@@ -98,9 +99,10 @@ export default function AccountingPageClient() {
       }
       const data = await res.json();
       setSummary(data.summary ?? []);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setError(err.message ?? "Ukjent feil ved henting av omsetningsdata");
+      const errorMessage = err instanceof Error ? err.message : "Ukjent feil ved henting av omsetningsdata";
+      setError(errorMessage);
     } finally {
       setSummaryLoading(false);
     }
@@ -113,7 +115,7 @@ export default function AccountingPageClient() {
     }
     fetchSettings();
     fetchSummary("day");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, []);
 
   const handleSaveSettings = async (e: FormEvent) => {

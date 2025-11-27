@@ -185,7 +185,7 @@ export default function CustomersPageClient() {
   // Filtrering/sortering (kun sortering, filtrering gjøres i backend)
   // --------------------
   const filteredCustomers = useMemo(() => {
-    let list = customers.slice();
+    const list = customers.slice();
 
     if (sortKey === "createdAt") {
       list.sort((a, b) => {

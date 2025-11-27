@@ -64,12 +64,10 @@ export default function AdminPageClient() {
         if (!cancelled) {
           setOrgs(json.orgs ?? []);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (!cancelled) {
-          setError(
-            err?.message ??
-              "Ukjent feil ved henting av organisasjoner.",
-          );
+          const errorMessage = err instanceof Error ? err.message : "Ukjent feil ved henting av organisasjoner.";
+          setError(errorMessage);
         }
       } finally {
         if (!cancelled) {
@@ -118,11 +116,9 @@ export default function AdminPageClient() {
       setSuccessMessage(
         `Plan oppdatert til "${getOrgPlanLabel(newPlan)}".`,
       );
-    } catch (err: any) {
-      setError(
-        err?.message ??
-          "Ukjent feil ved oppdatering av organisasjonsplan.",
-      );
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Ukjent feil ved oppdatering av organisasjonsplan.";
+      setError(errorMessage);
     } finally {
       setSavingOrgId(null);
     }

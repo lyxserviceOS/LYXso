@@ -42,8 +42,9 @@ export default function LeadsPageClient() {
 
         const json = await res.json();
         setLeads(json.leads ?? []);
-      } catch (err: any) {
-        setError(err?.message ?? "Ukjent feil ved henting av leads");
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : "Ukjent feil ved henting av leads";
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }

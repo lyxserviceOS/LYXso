@@ -198,11 +198,10 @@ export default function PartnerDetailPageClient() {
         };
 
         setStats(s);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error(err);
-        setError(
-          err?.message ?? "Ukjent feil ved henting av partner-data."
-        );
+        const errorMessage = err instanceof Error ? err.message : "Ukjent feil ved henting av partner-data.";
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }

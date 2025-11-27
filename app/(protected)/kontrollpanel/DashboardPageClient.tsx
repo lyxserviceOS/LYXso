@@ -24,6 +24,23 @@ type DashboardStats = {
   upcoming: Booking[];
 };
 
+// Type for raw database booking item (snake_case from Supabase)
+type RawBookingItem = {
+  id: string;
+  org_id?: string;
+  customer_name?: string;
+  customerName?: string;
+  service_name?: string;
+  serviceName?: string;
+  start_time?: string;
+  startTime?: string;
+  end_time?: string;
+  endTime?: string;
+  status?: string;
+  notes?: string | null;
+  source?: string | null;
+};
+
 function calculateStats(bookings: Booking[]): DashboardStats {
   const now = new Date();
 
@@ -152,9 +169,9 @@ export default function DashboardPageClient() {
           return;
         }
 
-        const mapped: Booking[] = json.map((item: any) => ({
+        const mapped: Booking[] = json.map((item: RawBookingItem) => ({
           id: item.id,
-          orgId: item.org_id,
+          orgId: item.org_id || "",
           customerName:
             item.customer_name ||
             item.customerName ||
@@ -163,8 +180,8 @@ export default function DashboardPageClient() {
             item.service_name ||
             item.serviceName ||
             "Uspesifisert tjeneste",
-          startTime: item.start_time || item.startTime,
-          endTime: item.end_time || item.endTime,
+          startTime: item.start_time || item.startTime || null,
+          endTime: item.end_time || item.endTime || null,
           status: item.status || "pending",
           notes: item.notes,
           source: item.source,

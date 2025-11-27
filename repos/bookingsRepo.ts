@@ -24,7 +24,7 @@ const ORG_ID = process.env.NEXT_PUBLIC_ORG_ID ?? DEFAULT_ORG_ID;
 if (!ORG_ID) {
   // Dette skal i praksis aldri skje, men fint å feilsikre.
   // Sørg for at NEXT_PUBLIC_ORG_ID er satt i .env.local.
-  // eslint-disable-next-line no-console
+   
   console.error(
     "[bookingsRepo] Mangler NEXT_PUBLIC_ORG_ID – sett denne i .env.local",
   );
@@ -46,7 +46,7 @@ async function handleJsonResponse<T>(
 ): Promise<T> {
   if (!res.ok) {
     const text = await res.text().catch(() => "");
-    // eslint-disable-next-line no-console
+     
     console.error(`[bookingsRepo] ${context} feilet`, {
       status: res.status,
       statusText: res.statusText,

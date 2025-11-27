@@ -128,12 +128,10 @@ export default function MarketingPageClient() {
         if (!cancelled) {
           setChannels(json.channels ?? []);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (!cancelled) {
-          setChannelsError(
-            err?.message ??
-              "Ukjent feil ved henting av markedsføringskanaler.",
-          );
+          const errorMessage = err instanceof Error ? err.message : "Ukjent feil ved henting av markedsføringskanaler.";
+          setChannelsError(errorMessage);
         }
       } finally {
         if (!cancelled) {
@@ -172,12 +170,10 @@ export default function MarketingPageClient() {
         if (!cancelled) {
           setStats(json.stats ?? []);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (!cancelled) {
-          setStatsError(
-            err?.message ??
-              "Ukjent feil ved henting av kampanjestatistikk.",
-          );
+          const errorMessage = err instanceof Error ? err.message : "Ukjent feil ved henting av kampanjestatistikk.";
+          setStatsError(errorMessage);
         }
       } finally {
         if (!cancelled) {
@@ -236,10 +232,9 @@ export default function MarketingPageClient() {
           ? `Kanal "${CHANNEL_CONFIG[channel].label}" er aktivert.`
           : `Kanal "${CHANNEL_CONFIG[channel].label}" er deaktivert.`,
       );
-    } catch (err: any) {
-      setChannelsError(
-        err?.message ?? "Klarte ikke å oppdatere kanalstatus.",
-      );
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Klarte ikke å oppdatere kanalstatus.";
+      setChannelsError(errorMessage);
     }
   }
 

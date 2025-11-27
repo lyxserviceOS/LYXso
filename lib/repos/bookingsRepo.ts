@@ -2,6 +2,18 @@
 
 import { supabase } from "../supabaseClient";
 
+// Type for booking creation payload
+type CreateBookingPayload = {
+  customer_id?: string;
+  start_time?: string;
+  end_time?: string;
+  status?: string;
+  notes?: string;
+  service_name?: string;
+  customer_name?: string;
+  [key: string]: string | undefined;
+};
+
 // Henter alle bookinger for en gitt org
 export async function getBookingsForOrg(orgId: string) {
   const { data, error } = await supabase
@@ -20,7 +32,7 @@ export async function getBookingsForOrg(orgId: string) {
 
 // Oppretter en ny booking for en gitt org
 // payload er et objekt med resten av feltene (customer_id, timeslot osv.)
-export async function createBookingForOrg(orgId: string, payload: any) {
+export async function createBookingForOrg(orgId: string, payload: CreateBookingPayload) {
   const { data, error } = await supabase
     .from("bookings")
     .insert([{ org_id: orgId, ...payload }])

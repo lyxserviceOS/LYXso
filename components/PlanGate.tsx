@@ -86,12 +86,10 @@ export function PlanGate(props: PlanGateProps) {
           setOrg(json.org ?? null);
           setError(null);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (!cancelled) {
-          setError(
-            err?.message ??
-              "Ukjent feil ved henting av organisasjons-innstillinger.",
-          );
+          const errorMessage = err instanceof Error ? err.message : "Ukjent feil ved henting av organisasjons-innstillinger.";
+          setError(errorMessage);
         }
       } finally {
         if (!cancelled) {
