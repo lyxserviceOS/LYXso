@@ -47,7 +47,7 @@ export default function LoginPageClient() {
         // Riktig innlogging -> til partner-kontrollpanel
         router.push("/kontrollpanel");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Uventet login-feil:", err);
       setErrorType("generic");
       setShowErrorModal(true);

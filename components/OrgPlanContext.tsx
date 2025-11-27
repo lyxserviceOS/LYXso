@@ -105,14 +105,13 @@ export function OrgPlanProvider({
             features: planFeatureFlags[plan],
           });
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (!cancelled) {
+          const errorMessage = err instanceof Error ? err.message : "Ukjent feil ved henting av org settings.";
           setState((prev) => ({
             ...prev,
             loading: false,
-            error:
-              err?.message ??
-              "Ukjent feil ved henting av org settings.",
+            error: errorMessage,
           }));
         }
       }

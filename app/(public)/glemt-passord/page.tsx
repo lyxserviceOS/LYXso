@@ -48,12 +48,10 @@ export default function ForgotPasswordPage() {
       setMessage(
         "Hvis e-posten finnes i vårt system, har vi sendt en lenke for å sette nytt passord.",
       );
-    } catch (err: any) {
+    } catch (err: unknown) {
       setState("error");
-      setMessage(
-        err?.message ??
-          "Noe gikk galt ved forsøk på å sende nullstillings-epost. Prøv igjen senere.",
-      );
+      const errorMessage = err instanceof Error ? err.message : "Noe gikk galt ved forsøk på å sende nullstillings-epost. Prøv igjen senere.";
+      setMessage(errorMessage);
     }
   };
 
