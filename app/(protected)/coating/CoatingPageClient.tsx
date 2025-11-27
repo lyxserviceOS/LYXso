@@ -140,6 +140,17 @@ const MOCK_FOLLOWUPS: CoatingFollowup[] = [
   },
 ];
 
+// Mock existing customers for autocomplete
+const MOCK_CUSTOMERS = [
+  { id: "c1", name: "Ola Nordmann", phone: "912 34 567", email: "ola@example.com" },
+  { id: "c2", name: "Kari Hansen", phone: "987 65 432", email: "kari@example.com" },
+  { id: "c3", name: "Erik Olsen", phone: "456 78 901", email: "erik@example.com" },
+  { id: "c4", name: "Lisa Berg", phone: "321 98 765", email: "lisa@example.com" },
+  { id: "c5", name: "Per Johansen", phone: "654 32 109", email: "per@example.com" },
+  { id: "c6", name: "Anna Larsen", phone: "789 01 234", email: "anna@example.com" },
+  { id: "c7", name: "Jonas Pedersen", phone: "234 56 789", email: "jonas@example.com" },
+];
+
 export default function CoatingPageClient() {
   const { loading, error, plan, features } = useOrgPlan();
   const hasLyxVision = features.lyxVision;
@@ -154,6 +165,10 @@ export default function CoatingPageClient() {
   const [showFollowupModal, setShowFollowupModal] = useState(false);
   const [showCustomerTimeline, setShowCustomerTimeline] = useState(false);
   const [followupToRegister, setFollowupToRegister] = useState<{ job: ExtendedCoatingJob; followupNum: number } | null>(null);
+  
+  // Customer autocomplete state
+  const [customerSuggestions, setCustomerSuggestions] = useState<typeof MOCK_CUSTOMERS>([]);
+  const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
   
   // New job form state
   const [newJob, setNewJob] = useState({
@@ -170,6 +185,34 @@ export default function CoatingPageClient() {
     notes: "",
     performed_by: "",
   });
+  
+  // Handle customer name input with autocomplete
+  const handleCustomerNameChange = (value: string) => {
+    setNewJob({ ...newJob, customer_name: value });
+    
+    if (value.length >= 2) {
+      const matches = MOCK_CUSTOMERS.filter(c => 
+        c.name.toLowerCase().includes(value.toLowerCase())
+      );
+      setCustomerSuggestions(matches);
+      setShowCustomerDropdown(matches.length > 0);
+    } else {
+      setCustomerSuggestions([]);
+      setShowCustomerDropdown(false);
+    }
+  };
+  
+  // Select customer from dropdown
+  const handleSelectCustomer = (customer: typeof MOCK_CUSTOMERS[0]) => {
+    setNewJob({
+      ...newJob,
+      customer_name: customer.name,
+      customer_phone: customer.phone,
+      customer_email: customer.email,
+    });
+    setShowCustomerDropdown(false);
+    setCustomerSuggestions([]);
+  };
   
   // Followup registration form state
   const [followupForm, setFollowupForm] = useState({
@@ -824,13 +867,36 @@ export default function CoatingPageClient() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-medium text-slate-600 mb-1">Kundenavn *</label>
-                    <input
-                      type="text"
-                      value={newJob.customer_name}
-                      onChange={e => setNewJob({ ...newJob, customer_name: e.target.value })}
-                      className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
-                      placeholder="Ola Nordmann"
-                    />
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={newJob.customer_name}
+                        onChange={e => handleCustomerNameChange(e.target.value)}
+                        onBlur={() => setTimeout(() => setShowCustomerDropdown(false), 200)}
+                        className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                        placeholder="Ola Nordmann"
+                        autoComplete="off"
+                      />
+                      {/* Customer autocomplete dropdown */}
+                      {showCustomerDropdown && customerSuggestions.length > 0 && (
+                        <div className="absolute z-10 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                          {customerSuggestions.map(customer => (
+                            <button
+                              key={customer.id}
+                              type="button"
+                              onClick={() => handleSelectCustomer(customer)}
+                              className="w-full px-3 py-2 text-left text-sm hover:bg-blue-50 flex flex-col border-b border-slate-100 last:border-0"
+                            >
+                              <span className="font-medium text-slate-900">{customer.name}</span>
+                              <span className="text-xs text-slate-500">{customer.phone} • {customer.email}</span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-[10px] text-slate-400 mt-1">
+                      Skriv minst 2 tegn for å søke blant eksisterende kunder
+                    </p>
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-slate-600 mb-1">Telefon</label>
