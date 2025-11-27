@@ -361,28 +361,151 @@ export default function DashboardPageClient() {
 
           {/* Høyre kolonne – info / placeholders */}
           <div className="space-y-4">
-            <div className="rounded-2xl border border-[#E2E8F0] bg-white p-4 text-xs text-[#475569] shadow-sm">
+            {/* Health Meter */}
+            <div className="rounded-2xl border border-[#E2E8F0] bg-white p-4 shadow-sm">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#94A3B8]">
-                Omsetning (dummy-data)
+                Bedriftshelse
               </p>
-              <p className="mt-2">
-                Her kommer grafer for månedlig omsetning, snittpris per jobb og
-                fordeling mellom tjenester.
-              </p>
-              <div className="mt-4 h-28 rounded-xl border border-dashed border-[#E2E8F0] bg-[#F8FAFC]" />
+              <div className="mt-3 flex items-center gap-4">
+                <div className="relative h-20 w-20">
+                  <svg viewBox="0 0 36 36" className="h-20 w-20 -rotate-90">
+                    <path
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                      fill="none"
+                      stroke="#E2E8F0"
+                      strokeWidth="3"
+                    />
+                    <path
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                      fill="none"
+                      stroke="#22C55E"
+                      strokeWidth="3"
+                      strokeDasharray="75, 100"
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-lg font-bold text-[#0F172A]">75</span>
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-[#0F172A]">God</p>
+                  <p className="text-[11px] text-[#64748B]">
+                    Basert på utnyttelse, gjentakskunder og no-show rate
+                  </p>
+                </div>
+              </div>
+              <div className="mt-3 space-y-1 text-[10px]">
+                <div className="flex justify-between">
+                  <span className="text-[#64748B]">Kapasitetsutnyttelse</span>
+                  <span className="text-[#22C55E]">82%</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[#64748B]">Gjentakskunder</span>
+                  <span className="text-[#22C55E]">68%</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[#64748B]">No-show rate</span>
+                  <span className="text-[#F59E0B]">5%</span>
+                </div>
+              </div>
             </div>
 
+            {/* Revenue summary */}
             <div className="rounded-2xl border border-[#E2E8F0] bg-white p-4 text-xs text-[#475569] shadow-sm">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#94A3B8]">
-                Kapasitet & kalender
-              </p>
-              <p className="mt-2">
-                Visuell oversikt over hvor mye kapasitet du har igjen denne
-                uken, og hvilke dager som er fullbooket – koblet direkte mot
-                bookingmotoren.
-              </p>
-              <div className="mt-4 h-24 rounded-xl border border-dashed border-[#E2E8F0] bg-[#F8FAFC]" />
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#94A3B8]">
+                  Omsetning
+                </p>
+                <select className="text-[10px] border border-[#E2E8F0] rounded px-2 py-1">
+                  <option>Denne måned</option>
+                  <option>Forrige måned</option>
+                  <option>Siste 90 dager</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-baseline justify-between">
+                  <span className="text-[#64748B]">Total</span>
+                  <span className="text-lg font-semibold text-[#0F172A]">42 500 kr</span>
+                </div>
+                <div className="flex items-baseline justify-between">
+                  <span className="text-[#64748B]">Snitt per booking</span>
+                  <span className="font-medium text-[#0F172A]">1 890 kr</span>
+                </div>
+                <div className="flex items-baseline justify-between">
+                  <span className="text-[#64748B]">vs forrige periode</span>
+                  <span className="font-medium text-[#22C55E]">+12%</span>
+                </div>
+              </div>
+              <div className="mt-4 h-20 rounded-lg bg-gradient-to-r from-[#DBEAFE] to-[#E0F2FE] flex items-end justify-around px-2 pb-2">
+                {[35, 45, 55, 40, 60, 50, 70].map((h, i) => (
+                  <div 
+                    key={i} 
+                    className="w-3 bg-[#2563EB] rounded-t"
+                    style={{ height: `${h}%` }}
+                  />
+                ))}
+              </div>
             </div>
+
+            {/* Export buttons */}
+            <div className="rounded-2xl border border-[#E2E8F0] bg-white p-4 text-xs shadow-sm">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#94A3B8] mb-3">
+                Eksporter data
+              </p>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  className="flex-1 rounded-lg border border-[#E2E8F0] px-3 py-2 text-[11px] font-medium text-[#475569] hover:bg-[#F8FAFC]"
+                >
+                  📊 CSV
+                </button>
+                <button
+                  type="button"
+                  className="flex-1 rounded-lg border border-[#E2E8F0] px-3 py-2 text-[11px] font-medium text-[#475569] hover:bg-[#F8FAFC]"
+                >
+                  📈 Excel
+                </button>
+              </div>
+              <p className="mt-2 text-[10px] text-[#94A3B8]">
+                Eksporter bookinger, kunder eller omsetning for valgt periode.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Additional KPIs row */}
+        <section className="grid gap-4 md:grid-cols-4">
+          <div className="rounded-2xl border border-[#E2E8F0] bg-white p-4 shadow-sm">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#94A3B8]">
+              Fullførte
+            </p>
+            <p className="mt-2 text-2xl font-semibold text-[#22C55E]">
+              {bookings.filter(b => b.status === "completed").length}
+            </p>
+            <p className="mt-1 text-[10px] text-[#64748B]">denne måneden</p>
+          </div>
+          <div className="rounded-2xl border border-[#E2E8F0] bg-white p-4 shadow-sm">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#94A3B8]">
+              Kansellert
+            </p>
+            <p className="mt-2 text-2xl font-semibold text-[#EF4444]">
+              {bookings.filter(b => b.status === "cancelled").length}
+            </p>
+            <p className="mt-1 text-[10px] text-[#64748B]">denne måneden</p>
+          </div>
+          <div className="rounded-2xl border border-[#E2E8F0] bg-white p-4 shadow-sm">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#94A3B8]">
+              Coating-jobber
+            </p>
+            <p className="mt-2 text-2xl font-semibold text-[#8B5CF6]">0</p>
+            <p className="mt-1 text-[10px] text-[#64748B]">aktive garantier</p>
+          </div>
+          <div className="rounded-2xl border border-[#E2E8F0] bg-white p-4 shadow-sm">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#94A3B8]">
+              Dekkhotell
+            </p>
+            <p className="mt-2 text-2xl font-semibold text-[#0EA5E9]">0</p>
+            <p className="mt-1 text-[10px] text-[#64748B]">sett på lager</p>
           </div>
         </section>
 
@@ -390,8 +513,8 @@ export default function DashboardPageClient() {
         <section className="rounded-2xl border border-[#E2E8F0] bg-white p-4 text-xs text-[#64748B]">
           <p>
             Bookingtallene over er ekte, hentet fra Supabase for valgt
-            partner. Økonomi, kapasitet og AI-statistikk er foreløpig
-            placeholders mens vi bygger de neste modulene.
+            partner. Økonomi-tall og helse-score er demonstrasjonsdata som vil 
+            kobles mot ekte transaksjoner når betaling er satt opp.
           </p>
         </section>
       </div>
