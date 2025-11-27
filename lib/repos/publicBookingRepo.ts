@@ -23,6 +23,7 @@ export type PublicBookingPayload = {
   customerName?: string;
   customerEmail?: string;
   customerPhone?: string;
+  serviceId?: string;
   serviceName?: string;
   notes?: string;
 };

@@ -22,6 +22,7 @@ export default function BetalingPageClient() {
       </div>
 
       <PlanGate allowedPlans={["trial", "paid"]} title="Betalingsintegrasjoner krever oppgradert plan">
+      <PlanGate allowedPlans={["trial", "paid"]} title="Betalingsintegrasjoner" description="For å bruke betalingsintegrasjoner må du ha en prøve- eller betalt plan.">
         <section className="grid gap-4 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1.6fr)]">
           {/* Venstre: terminaler */}
           <div className="rounded-xl border border-slate-200 bg-white p-4 space-y-4">
