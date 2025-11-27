@@ -52,7 +52,7 @@ export default function OrgSettingsPageClient() {
   const [org, setOrg] = useState<OrgSettings | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"plan" | "dekkhotell" | "booking">("plan");
+  const [activeTab, setActiveTab] = useState<"plan" | "service" | "dekkhotell" | "booking">("plan");
   
   // Tyre threshold settings
   const [tyreSettings, setTyreSettings] = useState<TyreThresholdSettings>(DEFAULT_TYRE_THRESHOLDS);
@@ -61,6 +61,13 @@ export default function OrgSettingsPageClient() {
   // Booking settings
   const [bookingSettings, setBookingSettings] = useState<BookingSettings>(DEFAULT_BOOKING_SETTINGS);
   const [bookingSaving, setBookingSaving] = useState(false);
+  
+  // Service type settings
+  const [serviceSettings, setServiceSettings] = useState({
+    hasFixedLocation: true,
+    isMobile: false,
+  });
+  const [serviceSaving, setServiceSaving] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -112,6 +119,14 @@ export default function OrgSettingsPageClient() {
       setBookingSaving(false);
     }, 1000);
   };
+  
+  const handleSaveServiceSettings = () => {
+    setServiceSaving(true);
+    // Simulate API save
+    setTimeout(() => {
+      setServiceSaving(false);
+    }, 1000);
+  };
 
   return (
     <div className="space-y-6">
@@ -120,7 +135,7 @@ export default function OrgSettingsPageClient() {
           Organisasjonsinnstillinger
         </h1>
         <p className="text-sm text-slate-400">
-          Administrer plan, dekkhotell-grenser og bookinginnstillinger for din bedrift.
+          Administrer plan, tjenestetype, dekkhotell-grenser og bookinginnstillinger for din bedrift.
         </p>
       </header>
 
@@ -131,6 +146,7 @@ export default function OrgSettingsPageClient() {
       <div className="flex gap-1 rounded-lg bg-slate-800 p-1">
         {[
           { key: "plan", label: "Plan & moduler" },
+          { key: "service", label: "Tjenestetype" },
           { key: "dekkhotell", label: "Dekkhotell-grenser" },
           { key: "booking", label: "Booking-innstillinger" },
         ].map((tab) => (
@@ -247,6 +263,98 @@ export default function OrgSettingsPageClient() {
                 <li>• Flere brukere og tilleggsmoduler mot ekstra månedspris</li>
               </ul>
             </div>
+          </div>
+        </section>
+      )}
+
+      {/* Service Type Tab */}
+      {activeTab === "service" && (
+        <section className="space-y-4 rounded-xl border border-slate-800 bg-slate-950/60 p-4">
+          <div>
+            <h2 className="text-sm font-semibold text-slate-100">
+              Tjenestetype
+            </h2>
+            <p className="text-xs text-slate-400 mt-1">
+              Velg hvordan bedriften tilbyr tjenester til kundene. Dette påvirker 
+              hvordan bookingssiden og kundeopplevelsen fungerer.
+            </p>
+          </div>
+          
+          {/* Service type options */}
+          <div className="border-t border-slate-800 pt-4">
+            <p className="text-xs font-medium text-slate-300 mb-3">
+              Hvordan tilbyr dere tjenestene?
+            </p>
+            <div className="space-y-4">
+              <label className="flex items-start gap-3 cursor-pointer p-3 rounded-lg border border-slate-700 hover:border-slate-600 transition">
+                <input
+                  type="checkbox"
+                  checked={serviceSettings.hasFixedLocation}
+                  onChange={(e) => setServiceSettings(prev => ({
+                    ...prev,
+                    hasFixedLocation: e.target.checked
+                  }))}
+                  className="mt-0.5 rounded border-slate-600"
+                />
+                <div>
+                  <span className="text-sm font-medium text-slate-100">
+                    Fast adresse / lokaler
+                  </span>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Dere har et fast sted (verksted, bilpleiesenter, osv.) der kunder 
+                    kommer for å få utført tjenester. Adressen vises på bookingsiden.
+                  </p>
+                </div>
+              </label>
+              
+              <label className="flex items-start gap-3 cursor-pointer p-3 rounded-lg border border-slate-700 hover:border-slate-600 transition">
+                <input
+                  type="checkbox"
+                  checked={serviceSettings.isMobile}
+                  onChange={(e) => setServiceSettings(prev => ({
+                    ...prev,
+                    isMobile: e.target.checked
+                  }))}
+                  className="mt-0.5 rounded border-slate-600"
+                />
+                <div>
+                  <span className="text-sm font-medium text-slate-100">
+                    Mobil tjeneste
+                  </span>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Dere reiser ut til kunden for å utføre tjenester (hjemme hos kunden, 
+                    på arbeidsplassen, etc.). Kunden velger adresse ved booking.
+                  </p>
+                </div>
+              </label>
+            </div>
+            
+            <div className="mt-4 rounded-lg border border-blue-500/30 bg-blue-500/10 p-3">
+              <p className="text-xs text-blue-200">
+                <strong>Tips:</strong> Kryss av for begge hvis dere tilbyr både 
+                faste lokaler og mobil utrykning. Kunden kan da velge hva som passer best.
+              </p>
+            </div>
+            
+            {!serviceSettings.hasFixedLocation && !serviceSettings.isMobile && (
+              <div className="mt-4 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3">
+                <p className="text-xs text-amber-200">
+                  ⚠️ Minst én tjenestetype må være valgt for at booking skal fungere.
+                </p>
+              </div>
+            )}
+          </div>
+          
+          {/* Save button */}
+          <div className="border-t border-slate-800 pt-4 flex justify-end">
+            <button
+              type="button"
+              onClick={handleSaveServiceSettings}
+              disabled={serviceSaving}
+              className="rounded-lg bg-blue-600 px-4 py-2 text-xs font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+            >
+              {serviceSaving ? "Lagrer..." : "Lagre tjenestetype"}
+            </button>
           </div>
         </section>
       )}

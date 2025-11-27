@@ -19,6 +19,9 @@ type FormState = {
   addressLine1: string;
   postcode: string;
   city: string;
+  // Tjenestetype
+  hasFixedLocation: boolean;
+  isMobile: boolean;
 
   // Steg 2 – landingsside
   heroTitle: string;
@@ -52,6 +55,8 @@ export default function OnboardingPageClient() {
     addressLine1: "",
     postcode: "",
     city: "",
+    hasFixedLocation: true,
+    isMobile: false,
     heroTitle: "",
     heroSubtitle: "",
     primaryColor: "#2563eb",
@@ -103,6 +108,8 @@ export default function OnboardingPageClient() {
           addressLine1: config.addressLine1 ?? prev.addressLine1,
           postcode: config.postcode ?? prev.postcode,
           city: config.city ?? prev.city,
+          hasFixedLocation: config.hasFixedLocation ?? prev.hasFixedLocation,
+          isMobile: config.isMobile ?? prev.isMobile,
           heroTitle:
             config.heroTitle ??
             prev.heroTitle ??
@@ -181,6 +188,8 @@ export default function OnboardingPageClient() {
         addressLine1: form.addressLine1,
         postcode: form.postcode,
         city: form.city,
+        hasFixedLocation: form.hasFixedLocation,
+        isMobile: form.isMobile,
         heroTitle: form.heroTitle,
         heroSubtitle: form.heroSubtitle,
         primaryColor: form.primaryColor,
@@ -432,6 +441,54 @@ export default function OnboardingPageClient() {
                     placeholder="Oslo"
                   />
                 </div>
+              </div>
+
+              {/* Tjenestetype: Fast adresse, mobil, eller begge */}
+              <div className="mt-4 border-t border-slate-800 pt-4">
+                <p className="text-xs font-medium text-slate-300 mb-3">
+                  Tjenestetype – hvordan tilbyr dere tjenestene?
+                </p>
+                <div className="space-y-3">
+                  <label className="flex items-start gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={form.hasFixedLocation}
+                      onChange={(e) =>
+                        handleChange("hasFixedLocation", e.target.checked)
+                      }
+                      className="mt-0.5 rounded border-slate-600 bg-slate-900"
+                    />
+                    <div>
+                      <span className="text-sm text-slate-100">
+                        Fast adresse / lokaler
+                      </span>
+                      <p className="text-xs text-slate-400 mt-0.5">
+                        Dere har et fast sted der kunder kommer for å få utført tjenester.
+                      </p>
+                    </div>
+                  </label>
+                  <label className="flex items-start gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={form.isMobile}
+                      onChange={(e) =>
+                        handleChange("isMobile", e.target.checked)
+                      }
+                      className="mt-0.5 rounded border-slate-600 bg-slate-900"
+                    />
+                    <div>
+                      <span className="text-sm text-slate-100">
+                        Mobil tjeneste
+                      </span>
+                      <p className="text-xs text-slate-400 mt-0.5">
+                        Dere reiser ut til kunden for å utføre tjenester.
+                      </p>
+                    </div>
+                  </label>
+                </div>
+                <p className="mt-2 text-[11px] text-slate-500">
+                  Kryss av for begge hvis dere tilbyr både faste lokaler og mobil utrykning.
+                </p>
               </div>
             </div>
           )}
