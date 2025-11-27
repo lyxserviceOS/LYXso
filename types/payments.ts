@@ -59,3 +59,11 @@ export interface Invoice {
   created_at: string;
   updated_at: string;
 }
+
+export interface PaymentSummaryBucket {
+  bucket: string;
+  period?: string;
+  total_amount: number;
+  currency: string;
+  transaction_count?: number;
+}

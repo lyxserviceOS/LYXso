@@ -194,14 +194,14 @@ export default function DashboardPageClient() {
   return (
     <div className="h-full w-full bg-[#F8FAFC] px-6 py-8">
       <div className="mx-auto max-w-6xl space-y-8">
-        {/* Topp: tittel + plan-info */}
+        {/* Topp: tittel + plan-info (kun for gratis plan) */}
         <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#94A3B8]">
-              HJEM • KONTROLLPANEL
+              HJEM • DASHBOARD
             </p>
             <h1 className="mt-2 text-2xl font-semibold tracking-tight text-[#0F172A]">
-              Kontrollpanel
+              Dashboard
             </h1>
             <p className="mt-1 max-w-xl text-sm text-[#475569]">
               Oversikt over drift, bookinger og abonnement for din
@@ -209,44 +209,31 @@ export default function DashboardPageClient() {
             </p>
           </div>
 
-          <div className="rounded-2xl border border-[#E2E8F0] bg-white px-4 py-3 text-xs shadow-sm">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#94A3B8]">
-              LYXso-plan
-            </p>
-
-            {planLoading && (
-              <p className="mt-2 text-sm text-[#64748B]">
-                Henter plan …
+          {/* Vis plan-info kun for gratisplanen */}
+          {!planLoading && !planError && plan === "free" && (
+            <div className="rounded-2xl border border-[#E2E8F0] bg-white px-4 py-3 text-xs shadow-sm">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#94A3B8]">
+                LYXso-plan
               </p>
-            )}
 
-            {planError && (
-              <p className="mt-2 text-sm text-[#EF4444]">
-                Klarte ikke å hente plan.
+              <p className="mt-2 text-sm font-semibold text-[#0F172A]">
+                {getOrgPlanLabel(plan)}
               </p>
-            )}
+              <p className="text-[11px] text-[#64748B]">
+                {getOrgPlanPriceInfo(plan)}
+              </p>
+              <p className="mt-1 text-[11px] text-[#94A3B8]">
+                {getOrgPlanShortInfo(plan)}
+              </p>
 
-            {!planLoading && !planError && (
-              <>
-                <p className="mt-2 text-sm font-semibold text-[#0F172A]">
-                  {getOrgPlanLabel(plan)}
-                </p>
-                <p className="text-[11px] text-[#64748B]">
-                  {getOrgPlanPriceInfo(plan)}
-                </p>
-                <p className="mt-1 text-[11px] text-[#94A3B8]">
-                  {getOrgPlanShortInfo(plan)}
-                </p>
-              </>
-            )}
-
-            <Link
-              href="/plan"
-              className="mt-3 inline-flex items-center justify-center rounded-lg border border-[#2563EB] bg-[#DBEAFE] px-3 py-1.5 text-[11px] font-medium text-[#1D4ED8] hover:bg-[#BFDBFE]"
-            >
-              Se / endre plan
-            </Link>
-          </div>
+              <Link
+                href="/plan"
+                className="mt-3 inline-flex items-center justify-center rounded-lg border border-[#2563EB] bg-[#DBEAFE] px-3 py-1.5 text-[11px] font-medium text-[#1D4ED8] hover:bg-[#BFDBFE]"
+              >
+                Oppgrader plan
+              </Link>
+            </div>
+          )}
         </header>
 
         {/* KPI-kort */}
