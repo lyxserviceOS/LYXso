@@ -60,6 +60,14 @@ type EmployeeFormState = {
   isActive: boolean;
 };
 
+type EmployeePayload = {
+  name: string;
+  email: string | null;
+  phone: string | null;
+  role: string | null;
+  isActive: boolean;
+};
+
 export default function EmployeesPageClient() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -152,9 +160,10 @@ export default function EmployeesPageClient() {
       setServices(servJson.services ?? []);
       setCategories(catJson.categories ?? []);
       setEmployeeServices(empServJson.employeeServices ?? []);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("loadAll (ansatte) error:", err);
-      setError(err?.message ?? "Uventet feil ved henting av ansatte / tjenester");
+      const errorMessage = err instanceof Error ? err.message : "Uventet feil ved henting av ansatte / tjenester";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -199,7 +208,7 @@ export default function EmployeesPageClient() {
         )}/employees/${encodeURIComponent(employeeForm.id!)}`
       : `${API_BASE_URL}/api/orgs/${encodeURIComponent(ORG_ID)}/employees`;
 
-    const payload: any = {
+    const payload: EmployeePayload = {
       name: employeeForm.name.trim(),
       email: employeeForm.email.trim() || null,
       phone: employeeForm.phone.trim() || null,

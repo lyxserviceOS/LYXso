@@ -16,6 +16,17 @@ import type {
   BookingCustomerSummary,
 } from "@/types/booking";
 
+type NewBookingPayload = {
+  customerName: string;
+  serviceName: string;
+  startTime: string;
+  endTime: string;
+  status: BookingStatus;
+  employeeId?: string;
+  customerId?: string;
+  notes?: string;
+};
+
 const STATUS_LABELS: Record<BookingStatus, string> = {
   pending: "Venter",
   confirmed: "Bekreftet",
@@ -220,7 +231,7 @@ export default function BookingPageClient() {
 
     setSavingNew(true);
     try {
-      const payload: any = {
+      const payload: NewBookingPayload = {
         customerName: trimmedCustomerName,
         serviceName: trimmedServiceName,
         startTime: newForm.startTime,

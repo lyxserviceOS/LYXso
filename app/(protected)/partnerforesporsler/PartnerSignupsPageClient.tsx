@@ -157,11 +157,10 @@ export default function PartnerSignupsPageClient() {
 
       const json = (await res.json()) as ListResponse;
       setSignups(json.signups ?? []);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Feil ved henting av partner-signups:", err);
-      setError(
-        err?.message || "Uventet feil ved henting av partner-forespørsler.",
-      );
+      const errorMessage = err instanceof Error ? err.message : "Uventet feil ved henting av partner-forespørsler.";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
