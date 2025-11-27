@@ -121,8 +121,12 @@ export default function OrgSettingsPageClient() {
   };
   
   const handleSaveServiceSettings = () => {
+    // Validate at least one service type is selected
+    if (!serviceSettings.hasFixedLocation && !serviceSettings.isMobile) {
+      return; // Validation shown in UI, prevent save
+    }
     setServiceSaving(true);
-    // Simulate API save
+    // Simulate API save - will be connected to backend when available
     setTimeout(() => {
       setServiceSaving(false);
     }, 1000);

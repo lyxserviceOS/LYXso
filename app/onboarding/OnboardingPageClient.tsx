@@ -152,6 +152,15 @@ export default function OnboardingPageClient() {
   }
 
   function handleNextStep() {
+    // Validate at least one service type is selected before moving to step 2
+    if (!form.hasFixedLocation && !form.isMobile) {
+      setLoading({
+        status: "error",
+        message: "Velg minst én tjenestetype (fast adresse eller mobil) før du fortsetter.",
+      });
+      return;
+    }
+    setLoading({ status: "idle" });
     setStep((prev) => (prev === 1 ? 2 : prev));
   }
 
@@ -167,6 +176,15 @@ export default function OnboardingPageClient() {
         status: "error",
         message:
           "Mangler API-konfigurasjon. Sjekk NEXT_PUBLIC_API_BASE og NEXT_PUBLIC_ORG_ID.",
+      });
+      return;
+    }
+
+    // Validate service type selection
+    if (!form.hasFixedLocation && !form.isMobile) {
+      setLoading({
+        status: "error",
+        message: "Velg minst én tjenestetype (fast adresse eller mobil).",
       });
       return;
     }
