@@ -20,7 +20,7 @@ const sections: NavSection[] = [
     title: "Drift",
     items: [
       {
-        label: "Kontrollpanel",
+        label: "Dashboard",
         href: "/kontrollpanel",
         description: "Oversikt over kunder, bookinger og kapasitet.",
       },
@@ -156,7 +156,7 @@ const sections: NavSection[] = [
 
 function isActive(pathname: string, href: string) {
   if (href === "/kontrollpanel") {
-    // Kontrollpanel regnes som "hjem" for partner
+    // Dashboard regnes som "hjem" for partner
     return pathname === "/kontrollpanel";
   }
   return pathname.startsWith(href);
