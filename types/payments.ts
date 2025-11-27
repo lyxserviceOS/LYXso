@@ -3,14 +3,6 @@
 
 export type PaymentStatus = "pending" | "paid" | "refunded" | "failed";
 
-export interface PaymentSummaryBucket {
-  bucket: string;
-  total_amount: number;
-  transaction_count: number;
-  fee_amount?: number;
-  currency?: string;
-}
-
 export interface Payment {
   id: string;
   org_id: string;
