@@ -89,6 +89,11 @@ const sections: NavSection[] = [
         href: "/partnere",
         description: "Brukt av admin – oversikt over alle partnere.",
       },
+      {
+        label: "CEO Dashboard",
+        href: "/ceo",
+        description: "Aggregert oversikt over alle orgs og lokasjoner.",
+      },
     ],
   },
   {
@@ -121,9 +126,19 @@ const sections: NavSection[] = [
         description: "Tilleggstjenester og pakker.",
       },
       {
+        label: "Integrasjoner",
+        href: "/integrasjoner",
+        description: "Regnskap, betaling, SMS og e-post integrasjoner.",
+      },
+      {
         label: "Automatisering",
         href: "/automatisering",
         description: "Påminnelser, workflows og automatiske triggere.",
+      },
+      {
+        label: "Dataimport",
+        href: "/data-import",
+        description: "Importer kunder, biler, dekk og historikk.",
       },
       {
         label: "Onboarding & innstillinger",
