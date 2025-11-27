@@ -86,7 +86,9 @@ export default async function CustomerPortalPage({ params }: PageProps) {
 
   const { customer, bookings, coatingJobs, tireSets } = data;
 
-  // Use a server-safe date reference
+  // Calculate current timestamp for filtering bookings
+  // This is computed at server render time and will be consistent
+  // since this is a Server Component that doesn't hydrate on client
   const serverNow = new Date();
   const now = serverNow.getTime();
   

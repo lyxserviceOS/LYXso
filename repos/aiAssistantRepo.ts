@@ -1,9 +1,21 @@
 // repos/aiAssistantRepo.ts
-// AI-lag for kundeinteraksjoner i LYXso CRM
+// AI-laget for kundeinteraksjoner i LYXso CRM
+
+// Approximate days per month for calculating months since a date
+const APPROXIMATE_DAYS_PER_MONTH = 30;
+
+/**
+ * Calculate months since a given date using approximate month length
+ */
+function calculateMonthsSince(date: Date): number {
+  return Math.floor(
+    (Date.now() - date.getTime()) / (1000 * 60 * 60 * 24 * APPROXIMATE_DAYS_PER_MONTH)
+  );
+}
 
 // Dummy-lag som vi kobler til GPT-API senere
 export async function sendAIAssistantMessage(message: string) {
-  // Foreløpig bare logger vi – i neste versjon kobles OpenAI/LYXba
+  // Foreløpig bare logger vi – i neste versjon kobles OpenAI
   console.log("[AI-assistent] melding sendt:", message);
   return {
     reply:
@@ -59,9 +71,7 @@ export async function generateCustomerSummary(
   // Siste besøk-analyse
   if (lastVisitDate) {
     const lastVisit = new Date(lastVisitDate);
-    const monthsSinceVisit = Math.floor(
-      (Date.now() - lastVisit.getTime()) / (1000 * 60 * 60 * 24 * 30)
-    );
+    const monthsSinceVisit = calculateMonthsSince(lastVisit);
 
     if (monthsSinceVisit > 12) {
       summaryParts.push(`Kunden har ikke vært innom på over ett år.`);
@@ -83,9 +93,7 @@ export async function generateCustomerSummary(
     
     if (lastVisitDate) {
       const lastVisit = new Date(lastVisitDate);
-      const monthsSinceVisit = Math.floor(
-        (Date.now() - lastVisit.getTime()) / (1000 * 60 * 60 * 24 * 30)
-      );
+      const monthsSinceVisit = calculateMonthsSince(lastVisit);
       if (monthsSinceVisit >= 12) {
         suggestedNextAction = "Foreslå årskontroll av coating + innvendig rens.";
       }
