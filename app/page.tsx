@@ -1,64 +1,272 @@
-import Image from "next/image";
+// app/page.tsx
+import Link from "next/link";
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div className="min-h-screen bg-slate-950 text-slate-50">
+      {/* Topplinje / navbar */}
+      <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 lg:px-8">
+          {/* Logo – lenker til / */}
+          <Link href="/" className="flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-blue-600 text-[11px] font-semibold tracking-[0.2em]">
+              L
+            </div>
+            <div className="leading-tight">
+              <div className="text-sm font-semibold">LYXso</div>
+              <div className="text-[11px] uppercase tracking-[0.18em] text-slate-400">
+                ServiceOS for bilpleie
+              </div>
+            </div>
+          </Link>
+
+          <nav className="hidden items-center gap-6 text-sm text-slate-200 md:flex">
+            <Link
+              href="#produkt"
+              className="hover:text-white hover:underline hover:underline-offset-4"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              Produkt
+            </Link>
+            <Link
+              href="#moduler"
+              className="hover:text-white hover:underline hover:underline-offset-4"
             >
-              Learning
-            </a>{" "}
-            center.
+              Moduler
+            </Link>
+            <Link
+              href="#fordeler"
+              className="hover:text-white hover:underline hover:underline-offset-4"
+            >
+              Fordeler
+            </Link>
+            <Link
+              href="#om-lyxso"
+              className="hover:text-white hover:underline hover:underline-offset-4"
+            >
+              Om LYXso
+            </Link>
+            <Link
+              href="#kontakt"
+              className="hover:text-white hover:underline hover:underline-offset-4"
+            >
+              Kontakt
+            </Link>
+
+            <Link
+              href="/login"
+              className="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-500"
+            >
+              Logg inn som partner
+            </Link>
+          </nav>
+        </div>
+      </header>
+
+      {/* Innhold */}
+      <main className="mx-auto max-w-6xl space-y-12 px-4 py-10 lg:px-8 lg:py-14">
+        {/* Hero */}
+        <section
+          id="produkt"
+          className="grid gap-10 lg:grid-cols-[minmax(0,3fr)_minmax(0,2.2fr)]"
+        >
+          <div className="space-y-6">
+            <p className="inline-flex items-center rounded-full border border-blue-500/40 bg-blue-500/10 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.2em] text-blue-200">
+              LYXso • ServiceOS for bilpleie
+            </p>
+
+            <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
+              Ett system for hele{" "}
+              <span className="text-blue-400">
+                bil-driften, systemet bedriften din har savnet.
+              </span>
+            </h1>
+
+            <p className="max-w-xl text-sm text-slate-200">
+              LYXso samler booking, kalender, kundekort, markedsføring,
+              regnskap og AI-oppfølging i én plattform –{" "}
+              <span className="font-medium">
+                spesielt tilpasset bedrifter innen bilbransjen.
+              </span>
+            </p>
+
+            <div className="flex flex-wrap gap-3 text-xs">
+              <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-1 text-emerald-200">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                Optimalisert for keramisk coating og dekkhotell
+              </div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-purple-400/40 bg-purple-500/10 px-3 py-1 text-purple-100">
+                <span className="h-1.5 w-1.5 rounded-full bg-purple-300" />
+                Klar for AI-markedsføring og LYXba Booking Agent
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/login"
+                className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500"
+              >
+                Logg inn som partner
+              </Link>
+              <Link
+                href="#moduler"
+                className="rounded-md border border-slate-700 px-4 py-2 text-sm font-medium text-slate-100 hover:border-slate-500"
+              >
+                Book en gjennomgang
+              </Link>
+            </div>
+
+            <p className="pt-2 text-[11px] text-slate-400">
+              LYXso er utviklet i Norge – og laget for å være det beste
+              alt-i-ett-systemet for bilbransjen i Norden.
+            </p>
+          </div>
+
+          {/* Høyre: partnerpanel-glimt */}
+          <aside className="space-y-3 rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">
+              Et glimt inn i partnerpanelet
+            </p>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="rounded-xl border border-slate-700 bg-slate-950/80 p-4">
+                <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
+                  I dag
+                </p>
+                <p className="mt-1 text-2xl font-semibold text-slate-50">
+                  8 bookinger
+                </p>
+                <p className="mt-1 text-[11px] text-slate-400">
+                  Coating, rens, hjulskift og dekkhotell.
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-emerald-700/70 bg-emerald-900/20 p-4">
+                <p className="text-[11px] font-medium uppercase tracking-wide text-emerald-300">
+                  Omsetning denne måneden
+                </p>
+                <p className="mt-1 text-2xl font-semibold text-emerald-200">
+                  287 100,-
+                </p>
+                <p className="mt-1 text-[11px] text-emerald-200/80">
+                  Hentet direkte fra bankterminal og booking.
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-slate-700 bg-slate-950/80 p-4">
+                <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
+                  Årskontroller coating
+                </p>
+                <p className="mt-1 text-xl font-semibold text-slate-50">
+                  23 avtaler
+                </p>
+                <p className="mt-1 text-[11px] text-slate-400">
+                  LYXso følger opp kundene for deg.
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-purple-700/70 bg-purple-900/25 p-4">
+                <p className="text-[11px] font-medium uppercase tracking-wide text-purple-200">
+                  Leads klare for AI
+                </p>
+                <p className="mt-1 text-xl font-semibold text-purple-100">
+                  14 nye
+                </p>
+                <p className="mt-1 text-[11px] text-purple-100/80">
+                  LYXba ringer, svarer og booker automatisk.
+                </p>
+              </div>
+            </div>
+
+            <p className="pt-1 text-[10px] text-slate-500">
+              Skjermbildene er illustrasjoner, men basert på ekte moduler i
+              partnerpanelet.
+            </p>
+          </aside>
+        </section>
+
+        {/* Moduler i LYXso */}
+        <section id="moduler" className="space-y-4">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-slate-400">
+            Moduler i LYXso
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+          <h2 className="text-xl font-semibold text-slate-50">
+            Alt du trenger – bygd for bilbransjen, ikke generiske
+            “one-size-fits-all”-systemer.
+          </h2>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
+              <p className="text-sm font-semibold text-slate-50">
+                Booking &amp; kalender
+              </p>
+              <p className="mt-1 text-xs text-slate-400">
+                Smarte kalendere, kapasitet per ansatt og tydelig oversikt over
+                dag, uke og måned.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
+              <p className="text-sm font-semibold text-slate-50">
+                Kunder &amp; CRM
+              </p>
+              <p className="mt-1 text-xs text-slate-400">
+                Kundekort, historikk, kjøretøy og dekkhotell – alt på ett sted.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
+              <p className="text-sm font-semibold text-slate-50">
+                Regnskap &amp; betaling
+              </p>
+              <p className="mt-1 text-xs text-slate-400">
+                Klar for integrasjoner mot bankterminal og regnskap – med
+                AI-støtte for bokføring.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Fordeler */}
+        <section id="fordeler" className="space-y-2 pt-6 text-sm text-slate-300">
+          <h2 className="text-base font-semibold text-slate-50">Fordeler</h2>
+          <p>
+            Mindre tid i Excel og innboksen – mer tid på verkstedgulvet. LYXso
+            er laget sammen med bilpleie-miljøet og optimalisert for coating,
+            rens, dekk og skade.
+          </p>
+        </section>
+
+        {/* Om LYXso */}
+        <section id="om-lyxso" className="space-y-2 pt-4 text-sm text-slate-300">
+          <h2 className="text-base font-semibold text-slate-50">Om LYXso</h2>
+          <p>
+            LYXso er utviklet i Norge, for norske og nordiske bedrifter i
+            bilbransjen. Systemet rulles først ut hos LYX Bil sine egne
+            lokasjoner, før plattformen åpnes for utvalgte partnere i Norge og
+            resten av Norden.
+          </p>
+          <p>
+            Målet er enkelt: å være det mest komplette alt-i-ett-systemet for
+            bil-driften – fra første lead til ferdig betalt jobb.
+          </p>
+        </section>
+
+        {/* Kontakt */}
+        <section
+          id="kontakt"
+          className="mt-8 border-t border-slate-800 pt-6 space-y-2 text-sm text-slate-300"
+        >
+          <h2 className="text-base font-semibold text-slate-50">Kontakt</h2>
+          <p>Interessert i å bli pilotpartner eller vil du se en demo?</p>
+          <p className="text-sm text-slate-200">
+            Send en e-post til{" "}
+            <a
+              href="mailto:post@lyxso.no"
+              className="text-blue-400 hover:underline"
+            >
+              post@lyxso.no
+            </a>{" "}
+            eller book en gjennomgang direkte i partnerportalen.
+          </p>
+        </section>
       </main>
     </div>
   );
