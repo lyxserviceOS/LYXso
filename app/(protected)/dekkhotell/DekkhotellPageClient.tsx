@@ -1126,4 +1126,3 @@ function StatCard({ label, value, color = "slate" }: { label: string; value: num
     </div>
   );
 }
-}
