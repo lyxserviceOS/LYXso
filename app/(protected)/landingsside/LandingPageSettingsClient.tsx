@@ -1,11 +1,10 @@
 "use client";
 
 import React, { useEffect, useState, FormEvent, useRef } from "react";
+import { supabase } from "@/lib/supabaseClient";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
 const ORG_ID = process.env.NEXT_PUBLIC_ORG_ID;
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 type Service = {
   title: string;
@@ -137,32 +136,32 @@ export default function LandingPageSettingsClient() {
   // IMAGE UPLOAD TO SUPABASE STORAGE
   // -----------------------------
   const uploadImage = async (file: File, bucket: string = 'landing-pages'): Promise<string> => {
-    if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !ORG_ID) {
-      throw new Error('Mangler Supabase-konfigurasjon');
+    if (!ORG_ID) {
+      throw new Error('Mangler org ID');
     }
 
     const fileExt = file.name.split('.').pop();
     const fileName = `${ORG_ID}/${Date.now()}.${fileExt}`;
 
-    const formData = new FormData();
-    formData.append('file', file);
+    // Upload to Supabase using SDK (includes user's auth token automatically)
+    const { data, error } = await supabase.storage
+      .from(bucket)
+      .upload(fileName, file, {
+        cacheControl: '3600',
+        upsert: false,
+      });
 
-    const uploadRes = await fetch(
-      `${SUPABASE_URL}/storage/v1/object/${bucket}/${fileName}`,
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-        },
-        body: formData,
-      }
-    );
-
-    if (!uploadRes.ok) {
-      throw new Error('Opplasting feilet');
+    if (error) {
+      console.error('Supabase upload error:', error);
+      throw new Error('Opplasting feilet: ' + error.message);
     }
 
-    return `${SUPABASE_URL}/storage/v1/object/public/${bucket}/${fileName}`;
+    // Get public URL
+    const { data: urlData } = supabase.storage
+      .from(bucket)
+      .getPublicUrl(fileName);
+
+    return urlData.publicUrl;
   };
 
   const handleHeroImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
