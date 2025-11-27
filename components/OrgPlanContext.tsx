@@ -10,7 +10,8 @@ import {
   normalizeOrgPlan,
   planFeatureFlags,
 } from "@/lib/orgPlan";
-import type { OrgPlan, PlanFeatureKey } from "@/lib/orgPlan";
+import type { OrgPlan } from "@/types/org";
+import type { PlanFeatureKey } from "@/lib/orgPlan";
 
 type OrgSettings = {
   id: string;

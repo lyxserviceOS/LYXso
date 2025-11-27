@@ -12,11 +12,18 @@ import {
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:4000";
 
+type PlanFeatures = {
+  basicBooking: boolean;
+  ads: boolean;
+  aiMarketing: boolean;
+  lyxVision: boolean;
+};
+
 type OrgPlanHookState = {
   loading: boolean;
   error: string | null;
   plan: OrgPlan;
-  features: (typeof planFeatureFlags)["free"];
+  features: PlanFeatures;
   orgName: string | null;
   isActive: boolean | null;
 };

@@ -50,6 +50,11 @@ const sections: NavSection[] = [
         description: "Oversikt over felg- og dekksett.",
       },
       {
+        label: "Coating PRO",
+        href: "/coating",
+        description: "Coatingjobber og 5-års garantiløp.",
+      },
+      {
         label: "Ansatte",
         href: "/ansatte",
         description: "Rettigheter, kapasitet og roller.",
@@ -116,9 +121,19 @@ const sections: NavSection[] = [
         description: "Tilleggstjenester og pakker.",
       },
       {
+        label: "Automatisering",
+        href: "/automatisering",
+        description: "Påminnelser, workflows og automatiske triggere.",
+      },
+      {
         label: "Onboarding & innstillinger",
         href: "/onboarding",
         description: "Grunnoppsett for partnerprofilen.",
+      },
+      {
+        label: "Hjelp & support",
+        href: "/hjelp",
+        description: "Dokumentasjon, FAQ og kontakt.",
       },
     ],
   },
