@@ -2,7 +2,7 @@
 "use client";
 
 import React from "react";
-import PlanGate from "../../../components/PlanGate";
+import { PlanGate } from "../../../components/PlanGate";
 
 export default function BetalingPageClient() {
   return (
