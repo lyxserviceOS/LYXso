@@ -153,6 +153,7 @@ export function BestillPageClient() {
       customerName: form.customerName.trim(),
       customerEmail: form.customerEmail.trim() || undefined,
       customerPhone: form.customerPhone.trim() || undefined,
+      serviceId: selectedService.id,
       serviceName: selectedService.name,
       notes: form.notes.trim() || undefined,
     };
@@ -165,10 +166,10 @@ export function BestillPageClient() {
       );
       setForm(EMPTY_FORM);
       setStep(1);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("[BestillPageClient] createPublicBooking error", err);
       const msg =
-        typeof err?.message === "string"
+        err instanceof Error
           ? err.message
           : "Det oppstod en feil ved sending av booking. Prøv igjen.";
       setSubmitError(msg);

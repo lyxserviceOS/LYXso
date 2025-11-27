@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import type { Booking } from "../types/booking";
+import type { Booking, BookingStatus } from "../types/booking";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -159,22 +159,28 @@ export default function DashboardClient() {
         }
 
         // Map database fields (snake_case) to TypeScript interface (camelCase)
-        const mappedBookings: Booking[] = json.map((item: any) => ({
-          id: item.id,
-          orgId: item.org_id,
+        const mappedBookings: Booking[] = json.map((item: Record<string, unknown>) => ({
+          id: item.id as string,
+          orgId: (item.org_id as string) || "",
+          customerId: (item.customer_id as string) || null,
           customerName:
-            item.customer_name ||
-            item.customerName ||
+            (item.customer_name as string) ||
+            (item.customerName as string) ||
             "Ukjent kunde",
           serviceName:
-            item.service_name ||
-            item.serviceName ||
+            (item.service_name as string) ||
+            (item.serviceName as string) ||
             "Uspesifisert tjeneste",
-          startTime: item.start_time || item.startTime,
-          endTime: item.end_time || item.endTime,
-          status: item.status || "pending",
-          notes: item.notes,
-          source: item.source,
+          startTime: (item.start_time as string) || (item.startTime as string) || null,
+          endTime: (item.end_time as string) || (item.endTime as string) || null,
+          status: ((item.status as string) || "pending") as BookingStatus,
+          title: (item.title as string) || null,
+          notes: (item.notes as string) || null,
+          source: (item.source as string) || null,
+          totalAmount: (item.total_amount as number) || null,
+          currency: (item.currency as string) || null,
+          createdAt: (item.created_at as string) || null,
+          updatedAt: (item.updated_at as string) || null,
         }));
 
         setBookings(mappedBookings);

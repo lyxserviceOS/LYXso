@@ -14,6 +14,13 @@ type Service = {
   price?: string;
 };
 
+type OpeningHour = {
+  day: string;
+  open: string;
+  close: string;
+  closed: boolean;
+};
+
 type LandingPageSettings = {
   // Hero section
   hero_title: string;
@@ -48,6 +55,10 @@ type LandingPageSettings = {
   primary_color: string;
   secondary_color: string;
   font_family: string;
+  logo_url: string;
+
+  // Opening hours (Module 21)
+  opening_hours: OpeningHour[];
 
   // SEO
   meta_title: string;
@@ -59,6 +70,16 @@ type LandingPageSettings = {
   show_booking_widget: boolean;
   custom_css: string;
 };
+
+const DEFAULT_OPENING_HOURS: OpeningHour[] = [
+  { day: 'Mandag', open: '08:00', close: '17:00', closed: false },
+  { day: 'Tirsdag', open: '08:00', close: '17:00', closed: false },
+  { day: 'Onsdag', open: '08:00', close: '17:00', closed: false },
+  { day: 'Torsdag', open: '08:00', close: '17:00', closed: false },
+  { day: 'Fredag', open: '08:00', close: '17:00', closed: false },
+  { day: 'Lørdag', open: '10:00', close: '15:00', closed: false },
+  { day: 'Søndag', open: '', close: '', closed: true },
+];
 
 const EMPTY_FORM: LandingPageSettings = {
   hero_title: "",
@@ -83,6 +104,8 @@ const EMPTY_FORM: LandingPageSettings = {
   primary_color: "#3B82F6",
   secondary_color: "#10B981",
   font_family: "Inter",
+  logo_url: "",
+  opening_hours: DEFAULT_OPENING_HOURS,
   meta_title: "",
   meta_description: "",
   meta_keywords: "",
@@ -95,7 +118,7 @@ export default function LandingPageSettingsClient() {
   const [form, setForm] = useState<LandingPageSettings>(EMPTY_FORM);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState<'hero' | 'about' | 'services' | 'contact' | 'appearance' | 'seo'>('hero');
+  const [activeTab, setActiveTab] = useState<'hero' | 'about' | 'services' | 'contact' | 'hours' | 'appearance' | 'seo'>('hero');
   const [showPreview, setShowPreview] = useState(false);
 
   const [error, setError] = useState<string | null>(null);
@@ -248,6 +271,8 @@ export default function LandingPageSettingsClient() {
           primary_color: lp.primary_color || "#3B82F6",
           secondary_color: lp.secondary_color || "#10B981",
           font_family: lp.font_family || "Inter",
+          logo_url: lp.logo_url || "",
+          opening_hours: Array.isArray(lp.opening_hours) && lp.opening_hours.length > 0 ? lp.opening_hours : DEFAULT_OPENING_HOURS,
           meta_title: lp.meta_title || "",
           meta_description: lp.meta_description || "",
           meta_keywords: lp.meta_keywords || "",
@@ -399,6 +424,7 @@ export default function LandingPageSettingsClient() {
             { id: 'about', label: 'Om oss' },
             { id: 'services', label: 'Tjenester' },
             { id: 'contact', label: 'Kontakt' },
+            { id: 'hours', label: 'Åpningstider' },
             { id: 'appearance', label: 'Utseende' },
             { id: 'seo', label: 'SEO' },
           ].map(tab => (
@@ -785,10 +811,107 @@ export default function LandingPageSettingsClient() {
               </div>
             )}
 
+            {/* Opening Hours Section */}
+            {activeTab === 'hours' && (
+              <div className="bg-white rounded-lg border p-6 space-y-4">
+                <h2 className="text-xl font-semibold">Åpningstider</h2>
+                <p className="text-sm text-slate-600">
+                  Sett åpningstider som vises på landingssiden din
+                </p>
+
+                <div className="space-y-3">
+                  {form.opening_hours.map((hour, index) => (
+                    <div key={hour.day} className="flex items-center gap-4 p-3 bg-slate-50 rounded-lg">
+                      <div className="w-24 font-medium text-sm">{hour.day}</div>
+                      
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={!hour.closed}
+                          onChange={e => {
+                            const newHours = [...form.opening_hours];
+                            newHours[index] = { ...newHours[index], closed: !e.target.checked };
+                            setForm(p => ({ ...p, opening_hours: newHours }));
+                          }}
+                          className="rounded"
+                        />
+                        <span className="text-sm text-slate-600">Åpent</span>
+                      </label>
+
+                      {!hour.closed && (
+                        <>
+                          <input
+                            type="time"
+                            value={hour.open}
+                            onChange={e => {
+                              const newHours = [...form.opening_hours];
+                              newHours[index] = { ...newHours[index], open: e.target.value };
+                              setForm(p => ({ ...p, opening_hours: newHours }));
+                            }}
+                            className="px-3 py-1.5 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                          />
+                          <span className="text-slate-400">–</span>
+                          <input
+                            type="time"
+                            value={hour.close}
+                            onChange={e => {
+                              const newHours = [...form.opening_hours];
+                              newHours[index] = { ...newHours[index], close: e.target.value };
+                              setForm(p => ({ ...p, opening_hours: newHours }));
+                            }}
+                            className="px-3 py-1.5 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                          />
+                        </>
+                      )}
+
+                      {hour.closed && (
+                        <span className="text-sm text-slate-500 italic">Stengt</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                <div className="pt-4 border-t">
+                  <p className="text-xs text-slate-500">
+                    Åpningstidene vises i kontaktseksjonen på landingssiden og i kundeportalen.
+                  </p>
+                </div>
+              </div>
+            )}
+
             {/* Appearance Section */}
             {activeTab === 'appearance' && (
               <div className="bg-white rounded-lg border p-6 space-y-4">
                 <h2 className="text-xl font-semibold">Utseende</h2>
+
+                {/* Logo */}
+                <div>
+                  <label className="block text-sm font-medium mb-2">Logo</label>
+                  <div className="space-y-2">
+                    <input
+                      type="text"
+                      value={form.logo_url}
+                      onChange={e => setForm(p => ({ ...p, logo_url: e.target.value }))}
+                      className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="https://example.com/logo.png"
+                    />
+                    {form.logo_url && (
+                      <div className="flex items-center gap-4 p-3 bg-slate-50 rounded-lg">
+                        <img src={form.logo_url} alt="Logo preview" className="h-12 w-auto" />
+                        <button
+                          type="button"
+                          onClick={() => setForm(p => ({ ...p, logo_url: '' }))}
+                          className="text-red-600 text-sm hover:text-red-700"
+                        >
+                          Fjern
+                        </button>
+                      </div>
+                    )}
+                    <p className="text-xs text-slate-500">
+                      Logoen vises i headeren på landingssiden og i kundeportalen
+                    </p>
+                  </div>
+                </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
