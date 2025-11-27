@@ -67,8 +67,25 @@ export default function DekkhotellPageClient() {
   const [showNewModal, setShowNewModal] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [showTyrePositionsModal, setShowTyrePositionsModal] = useState(false);
+  const [showImageCaptureModal, setShowImageCaptureModal] = useState(false);
+  const [showAIAnalysisModal, setShowAIAnalysisModal] = useState(false);
   const [newForm, setNewForm] = useState<NewTyreSetForm>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
+  
+  // AI Analysis state
+  const [aiAnalysisResult, setAiAnalysisResult] = useState<{
+    positions: {
+      position: string;
+      tread_depth_mm: number;
+      condition: TyreCondition;
+      production_year: number;
+      production_week: number;
+    }[];
+    overall_condition: TyreCondition;
+    overall_tread_depth_mm: number;
+    recommendation: string;
+  } | null>(null);
   
   // Stats
   const [stats, setStats] = useState({
@@ -95,6 +112,8 @@ export default function DekkhotellPageClient() {
       season: "winter",
       condition: "good",
       tread_depth_mm: 6.5,
+      production_year: 2022,
+      production_week: 34,
       storage_location_id: null,
       location: "Hovedlager",
       shelf: "A",
@@ -102,6 +121,8 @@ export default function DekkhotellPageClient() {
       position: "12",
       status: "stored",
       notes: "Kunde ønsker dekkskift i oktober",
+      images: null,
+      ai_analysis: null,
       stored_at: "2024-10-15T10:00:00Z",
       last_mounted_at: "2024-04-01T09:00:00Z",
       mileage_at_storage: 45000,
@@ -121,6 +142,8 @@ export default function DekkhotellPageClient() {
       season: "summer",
       condition: "worn",
       tread_depth_mm: 3.2,
+      production_year: 2021,
+      production_week: 15,
       storage_location_id: null,
       location: "Hovedlager",
       shelf: "B",
@@ -128,6 +151,8 @@ export default function DekkhotellPageClient() {
       position: "5",
       status: "stored",
       notes: "Anbefaler nye dekk til neste sesong",
+      images: null,
+      ai_analysis: null,
       stored_at: "2024-11-01T14:00:00Z",
       last_mounted_at: "2024-05-15T11:00:00Z",
       mileage_at_storage: 78000,
@@ -147,6 +172,8 @@ export default function DekkhotellPageClient() {
       season: "summer",
       condition: "good",
       tread_depth_mm: 5.8,
+      production_year: 2023,
+      production_week: 20,
       storage_location_id: null,
       location: "Hovedlager",
       shelf: "C",
@@ -154,6 +181,8 @@ export default function DekkhotellPageClient() {
       position: "8",
       status: "stored",
       notes: null,
+      images: null,
+      ai_analysis: null,
       stored_at: "2024-10-20T09:30:00Z",
       last_mounted_at: "2024-04-15T10:00:00Z",
       mileage_at_storage: 32000,
@@ -173,6 +202,8 @@ export default function DekkhotellPageClient() {
       season: "winter",
       condition: "replace",
       tread_depth_mm: 2.1,
+      production_year: 2019,
+      production_week: 42,
       storage_location_id: null,
       location: "Hovedlager",
       shelf: "A",
@@ -180,6 +211,8 @@ export default function DekkhotellPageClient() {
       position: "3",
       status: "stored",
       notes: "MÅ BYTTES - for lav mønsterdybde",
+      images: null,
+      ai_analysis: null,
       stored_at: "2024-04-10T08:00:00Z",
       last_mounted_at: "2023-11-01T10:00:00Z",
       mileage_at_storage: 95000,
@@ -199,6 +232,8 @@ export default function DekkhotellPageClient() {
       season: "allseason",
       condition: "good",
       tread_depth_mm: 7.2,
+      production_year: 2024,
+      production_week: 8,
       storage_location_id: null,
       location: "Hovedlager",
       shelf: "D",
@@ -206,6 +241,8 @@ export default function DekkhotellPageClient() {
       position: "1",
       status: "mounted",
       notes: "Helårsdekk - alltid montert",
+      images: null,
+      ai_analysis: null,
       stored_at: null,
       last_mounted_at: "2024-09-01T11:00:00Z",
       mileage_at_storage: null,
@@ -365,6 +402,8 @@ export default function DekkhotellPageClient() {
       season: newForm.season,
       condition: newForm.condition,
       tread_depth_mm: newForm.tread_depth_mm ? parseFloat(newForm.tread_depth_mm) : null,
+      production_year: null,
+      production_week: null,
       storage_location_id: null,
       location: null,
       shelf: newForm.shelf || null,
@@ -372,6 +411,8 @@ export default function DekkhotellPageClient() {
       position: newForm.position || null,
       status: "stored",
       notes: newForm.notes || null,
+      images: null,
+      ai_analysis: null,
       stored_at: new Date().toISOString(),
       last_mounted_at: null,
       mileage_at_storage: null,
@@ -744,6 +785,14 @@ export default function DekkhotellPageClient() {
               
               {/* Actions */}
               <div className="border-t border-slate-100 pt-4 space-y-2">
+                {/* AI Image Analysis Button */}
+                <button
+                  type="button"
+                  onClick={() => setShowImageCaptureModal(true)}
+                  className="w-full rounded-lg bg-purple-600 px-3 py-2 text-xs font-medium text-white hover:bg-purple-700 flex items-center justify-center gap-2"
+                >
+                  📷 Ta bilde for AI-analyse
+                </button>
                 <button
                   type="button"
                   className="w-full rounded-lg bg-blue-600 px-3 py-2 text-xs font-medium text-white hover:bg-blue-700"
@@ -774,6 +823,225 @@ export default function DekkhotellPageClient() {
           )}
         </section>
       </div>
+
+      {/* Image Capture Modal for AI Analysis */}
+      {showImageCaptureModal && selectedSet && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-lg">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-slate-900">
+                AI Dekkanalyse – {selectedSet.registration_number}
+              </h2>
+              <button
+                type="button"
+                onClick={() => setShowImageCaptureModal(false)}
+                className="text-slate-400 hover:text-slate-600"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                <p className="text-xs text-purple-800">
+                  <strong>AI-analyse:</strong> Ta bilde av hvert dekk for automatisk å måle 
+                  mønsterdybde, produksjonsår og slitasjemønster.
+                </p>
+              </div>
+              
+              {/* Image capture grid */}
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { id: "FL", label: "Foran venstre" },
+                  { id: "FR", label: "Foran høyre" },
+                  { id: "RL", label: "Bak venstre" },
+                  { id: "RR", label: "Bak høyre" },
+                ].map((pos) => (
+                  <div key={pos.id} className="border-2 border-dashed border-slate-300 rounded-lg p-4 text-center">
+                    <div className="text-2xl mb-2">📷</div>
+                    <p className="text-xs font-medium text-slate-700">{pos.label}</p>
+                    <button
+                      type="button"
+                      className="mt-2 text-xs text-blue-600 hover:text-blue-700"
+                    >
+                      Ta bilde
+                    </button>
+                  </div>
+                ))}
+              </div>
+              
+              {/* Or upload images */}
+              <div className="border-t border-slate-100 pt-4">
+                <p className="text-xs text-slate-500 mb-2">Eller last opp bilder:</p>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="w-full text-xs"
+                />
+              </div>
+            </div>
+            
+            <div className="mt-6 flex gap-3">
+              <button
+                type="button"
+                onClick={() => setShowImageCaptureModal(false)}
+                className="flex-1 rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+              >
+                Avbryt
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setAnalyzing(true);
+                  // Simulate AI analysis
+                  setTimeout(() => {
+                    setAiAnalysisResult({
+                      positions: [
+                        { position: "FL", tread_depth_mm: 5.2, condition: "good", production_year: 2022, production_week: 34 },
+                        { position: "FR", tread_depth_mm: 5.0, condition: "good", production_year: 2022, production_week: 34 },
+                        { position: "RL", tread_depth_mm: 4.8, condition: "worn", production_year: 2022, production_week: 34 },
+                        { position: "RR", tread_depth_mm: 4.5, condition: "worn", production_year: 2022, production_week: 34 },
+                      ],
+                      overall_condition: "worn",
+                      overall_tread_depth_mm: 4.5,
+                      recommendation: "Bakdekkene viser mer slitasje. Anbefaler rotasjon ved neste skift."
+                    });
+                    setAnalyzing(false);
+                    setShowImageCaptureModal(false);
+                    setShowAIAnalysisModal(true);
+                  }, 2000);
+                }}
+                disabled={analyzing}
+                className="flex-1 rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-700 disabled:opacity-50"
+              >
+                {analyzing ? "Analyserer..." : "Start AI-analyse"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* AI Analysis Results Modal */}
+      {showAIAnalysisModal && aiAnalysisResult && selectedSet && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-lg max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-slate-900">
+                AI-analyse resultat
+              </h2>
+              <button
+                type="button"
+                onClick={() => setShowAIAnalysisModal(false)}
+                className="text-slate-400 hover:text-slate-600"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              {/* Overall summary */}
+              <div className={`rounded-lg p-4 ${
+                aiAnalysisResult.overall_condition === "good" 
+                  ? "bg-emerald-50 border border-emerald-200"
+                  : aiAnalysisResult.overall_condition === "worn"
+                  ? "bg-amber-50 border border-amber-200"
+                  : "bg-red-50 border border-red-200"
+              }`}>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-medium text-slate-700">Samlet tilstand</span>
+                  <span className={`text-sm font-bold ${
+                    aiAnalysisResult.overall_condition === "good" ? "text-emerald-700" :
+                    aiAnalysisResult.overall_condition === "worn" ? "text-amber-700" : "text-red-700"
+                  }`}>
+                    {aiAnalysisResult.overall_condition === "good" ? "God" :
+                     aiAnalysisResult.overall_condition === "worn" ? "Slitt" : "Må byttes"}
+                  </span>
+                </div>
+                <p className="text-xs text-slate-600">
+                  Minste mønsterdybde: <strong>{aiAnalysisResult.overall_tread_depth_mm} mm</strong>
+                </p>
+                {aiAnalysisResult.recommendation && (
+                  <p className="text-xs text-slate-600 mt-2">
+                    💡 {aiAnalysisResult.recommendation}
+                  </p>
+                )}
+              </div>
+              
+              {/* Per-position results */}
+              <div>
+                <p className="text-xs font-medium text-slate-700 mb-2">Dekkposisjoner</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {aiAnalysisResult.positions.map((pos) => (
+                    <div 
+                      key={pos.position}
+                      className={`rounded-lg border p-3 ${
+                        pos.condition === "good" ? "border-emerald-200 bg-emerald-50" :
+                        pos.condition === "worn" ? "border-amber-200 bg-amber-50" :
+                        "border-red-200 bg-red-50"
+                      }`}
+                    >
+                      <p className="text-xs font-medium text-slate-700">
+                        {pos.position === "FL" ? "Foran venstre" :
+                         pos.position === "FR" ? "Foran høyre" :
+                         pos.position === "RL" ? "Bak venstre" : "Bak høyre"}
+                      </p>
+                      <p className="text-lg font-bold text-slate-900">{pos.tread_depth_mm} mm</p>
+                      <p className="text-[10px] text-slate-500">
+                        Prod: {pos.production_week}/{pos.production_year}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Production info */}
+              <div className="border-t border-slate-100 pt-4">
+                <p className="text-xs font-medium text-slate-700 mb-2">Produksjonsinformasjon</p>
+                <div className="bg-slate-50 rounded-lg p-3 text-xs">
+                  <p className="text-slate-600">
+                    Alle dekk er produsert i <strong>uke {aiAnalysisResult.positions[0].production_week}, {aiAnalysisResult.positions[0].production_year}</strong>
+                  </p>
+                  <p className="text-slate-500 mt-1">
+                    Alder: {new Date().getFullYear() - aiAnalysisResult.positions[0].production_year} år
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="mt-6 flex gap-3">
+              <button
+                type="button"
+                onClick={() => setShowAIAnalysisModal(false)}
+                className="flex-1 rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+              >
+                Lukk
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  // Update the selected set with AI analysis results
+                  if (selectedSet && aiAnalysisResult) {
+                    const updatedSet = {
+                      ...selectedSet,
+                      tread_depth_mm: aiAnalysisResult.overall_tread_depth_mm,
+                      condition: aiAnalysisResult.overall_condition,
+                      production_year: aiAnalysisResult.positions[0].production_year,
+                      production_week: aiAnalysisResult.positions[0].production_week,
+                    };
+                    setTyreSets(prev => prev.map(s => s.id === selectedSet.id ? updatedSet : s));
+                    setSelectedSet(updatedSet);
+                  }
+                  setShowAIAnalysisModal(false);
+                }}
+                className="flex-1 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+              >
+                Lagre resultater
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* New Tyre Set Modal */}
       {showNewModal && (
