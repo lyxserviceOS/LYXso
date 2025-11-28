@@ -1,326 +1,410 @@
 // app/(protected)/admin/orgs/AdminOrgsPageClient.tsx
 "use client";
 
-import React from "react";
+import { useEffect, useState } from "react";
+import {
+  fetchAdminOrgs,
+  updateOrgActiveStatus,
+  updateOrgPlan,
+  type AdminOrg,
+} from "@/lib/repos/adminOrgsRepo";
+
+const PLAN_LABELS: Record<NonNullable<AdminOrg["plan"]>, string> = {
+  free: "Free • Gratis grunnpakke",
+  trial: "Trial • Prøveperiode",
+  paid: "Paid • Betalt plan",
+};
+
+function formatDate(dateStr: string | null): string {
+  if (!dateStr) return "—";
+  const d = new Date(dateStr);
+  if (Number.isNaN(d.getTime())) return dateStr;
+  return d.toLocaleDateString("nb-NO", {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+  });
+}
 
 export default function AdminOrgsPageClient() {
+  const [orgs, setOrgs] = useState<AdminOrg[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [initialError, setInitialError] = useState<string | null>(null);
+  const [savingOrgId, setSavingOrgId] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+
+  // Førstegangs-load
+  useEffect(() => {
+    let cancelled = false;
+
+    async function load() {
+      try {
+        setLoading(true);
+        setInitialError(null);
+        const data = await fetchAdminOrgs();
+
+        if (!cancelled) {
+          setOrgs(data);
+        }
+      } catch (err: any) {
+        if (!cancelled) {
+          setInitialError(
+            err?.message ||
+              "Klarte ikke å hente organisasjoner. Sjekk at API-et (4000) kjører.",
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    load();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  async function handleRefresh() {
+    try {
+      setRefreshing(true);
+      const data = await fetchAdminOrgs();
+      setOrgs(data);
+    } catch (err: any) {
+      // Vi vil ikke ta ned hele UI for en refresh-feil: vis kun console-error
+      console.error("Feil ved refresh av orgs:", err);
+    } finally {
+      setRefreshing(false);
+    }
+  }
+
+  async function handleChangePlan(orgId: string, plan: AdminOrg["plan"]) {
+    if (!plan) return;
+
+    setSavingOrgId(orgId);
+    try {
+      const updated = await updateOrgPlan(orgId, plan);
+      setOrgs((prev) =>
+        prev.map((org) => (org.id === orgId ? updated : org)),
+      );
+    } catch (err: any) {
+      alert(
+        err?.message ||
+          "Klarte ikke å oppdatere plan. Sjekk API-loggene (admin/orgs).",
+      );
+    } finally {
+      setSavingOrgId((current) => (current === orgId ? null : current));
+    }
+  }
+
+  async function handleToggleActive(org: AdminOrg) {
+    setSavingOrgId(org.id);
+    try {
+      const updated = await updateOrgActiveStatus(org.id, !org.isActive);
+      setOrgs((prev) =>
+        prev.map((o) => (o.id === org.id ? updated : o)),
+      );
+    } catch (err: any) {
+      alert(
+        err?.message ||
+          "Klarte ikke å oppdatere aktiv-status. Sjekk API-loggene.",
+      );
+    } finally {
+      setSavingOrgId((current) => (current === org.id ? null : current));
+    }
+  }
+
+  const anyOrgs = orgs.length > 0;
+
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 space-y-6">
-      <header className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+    <div className="mx-auto max-w-6xl space-y-6 px-4 py-8">
+      {/* Header */}
+      <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
             ADMIN • ORGANISASJONER
           </p>
           <h1 className="mt-1 text-2xl font-semibold text-slate-900">
-            Organisasjoner & partnere
+            Organisasjoner &amp; partnere
           </h1>
           <p className="mt-1 text-sm text-slate-500">
-            Her kommer oversikt over alle orgs, planer, status og nøkkeltall.
+            Full oversikt over alle partnere i LYXso – med plan, status og
+            nøkkeltall du senere kan utvide med omsetning, bookingvolum og
+            AI-bruk.
           </p>
         </div>
-        <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs text-slate-500 shadow-sm">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-            STATUS
-          </p>
-          <p className="mt-1 text-sm text-slate-900">
-            Admin-modul under utvikling
-          </p>
-          <p className="text-[11px]">
-            Vi starter med enkel org-liste og kobling mot planer.
-          </p>
+
+        <div className="flex flex-col items-stretch gap-2 sm:items-end">
+          <button
+            type="button"
+            onClick={handleRefresh}
+            disabled={loading || refreshing}
+            className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {refreshing ? "Oppdaterer …" : "Oppdater liste"}
+          </button>
+
+          <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-[11px] text-slate-600 shadow-sm">
+            <p className="font-semibold uppercase tracking-[0.18em] text-slate-400">
+              STATUS
+            </p>
+            <p className="mt-1 text-sm text-slate-900">
+              Admin-modulen er aktiv
+            </p>
+            <p className="text-[11px] leading-snug">
+              Data hentes fra <code className="font-mono text-[10px]">
+                /api/admin/orgs
+              </code>{" "}
+              i LYXso API-et. Endringer på plan/aktivitet lagres direkte.
+            </p>
+          </div>
         </div>
       </header>
 
-      <section className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-6 text-sm text-slate-500">
-        <p className="mb-2 font-medium text-slate-700">
-          Admin-oversikt kommer
-        </p>
-        <p className="text-xs">
-          Foreløpig er dette en placeholder. Her vil du senere se alle
-          organisasjoner med plan, omsetning, bookingvolum og status.
-        </p>
-      </section>
+      {/* Feil / loading */}
+      {initialError && (
+        <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <p className="font-semibold">Klarte ikke å laste organisasjoner</p>
+          <p className="text-xs">{initialError}</p>
+        </div>
+      )}
 
+      {loading && !initialError && (
+        <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-500">
+          Laster organisasjoner …
+        </div>
+      )}
+
+      {!loading && !initialError && !anyOrgs && (
+        <section className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-6 text-sm text-slate-500">
+          <p className="mb-2 font-medium text-slate-700">
+            Ingen organisasjoner registrert ennå
+          </p>
+          <p className="text-xs">
+            Når partnere registreres via <code>/bli-partner</code> eller
+            onboardes direkte i Supabase, vil de dukke opp her. Du kan så sette
+            plan, aktivere/inaktivere og senere se nøkkeltall.
+          </p>
+        </section>
+      )}
+
+      {/* Hovedtabell */}
+      {anyOrgs && (
+        <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="border-b border-slate-100 bg-slate-50/60 px-4 py-3">
+            <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
+              ORG-LISTE
+            </p>
+            <p className="mt-1 text-[11px] text-slate-500">
+              Logo-plassholder, plan, aktiv/inaktiv, trial og farger. Perfekt
+              for å styre hvem som har hvilke moduler.
+            </p>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-slate-100 text-sm">
+              <thead className="bg-slate-50">
+                <tr className="text-xs uppercase tracking-[0.16em] text-slate-500">
+                  <th className="px-4 py-2 text-left">Partner</th>
+                  <th className="px-4 py-2 text-left">Plan</th>
+                  <th className="px-4 py-2 text-left">Trial</th>
+                  <th className="px-4 py-2 text-left">Farger</th>
+                  <th className="px-4 py-2 text-left">Org.nr</th>
+                  <th className="px-4 py-2 text-left">Opprettet</th>
+                  <th className="px-4 py-2 text-left">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 bg-white">
+                {orgs.map((org) => {
+                  const isSaving = savingOrgId === org.id;
+                  const planKey = org.plan ?? "free";
+
+                  return (
+                    <tr key={org.id} className="align-top">
+                      {/* Partner + logo-plassholder */}
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          <div className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg border border-slate-200 bg-slate-50 text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-400">
+                            {org.logoUrl ? (
+                              <>
+                                {/* 
+                                  Anbefalt oppløsning for logo:
+                                  160x160 px, kvadratisk, PNG eller SVG.
+                                  Du kan senere erstatte <img> med Next.js <Image>.
+                                */}
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                  src={org.logoUrl}
+                                  alt={`Logo for ${org.name}`}
+                                  className="h-full w-full object-cover"
+                                />
+                              </>
+                            ) : (
+                              <span>LOGO</span>
+                            )}
+                          </div>
+                          <div className="space-y-0.5">
+                            <p className="text-sm font-medium text-slate-900">
+                              {org.name}
+                            </p>
+                            <p className="text-[11px] text-slate-500">
+                              ID:{" "}
+                              <span className="font-mono text-[10px]">
+                                {org.id}
+                              </span>
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Plan */}
+                      <td className="px-4 py-3">
+                        <div className="space-y-1">
+                          <select
+                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-800 outline-none ring-0 focus:border-sky-400 focus:ring-0"
+                            value={planKey}
+                            disabled={isSaving}
+                            onChange={(e) =>
+                              handleChangePlan(
+                                org.id,
+                                e.target.value as AdminOrg["plan"],
+                              )
+                            }
+                          >
+                            <option value="free">{PLAN_LABELS.free}</option>
+                            <option value="trial">{PLAN_LABELS.trial}</option>
+                            <option value="paid">{PLAN_LABELS.paid}</option>
+                          </select>
+                          <p className="text-[11px] text-slate-400">
+                            Styr hvilke moduler partneren får i LYXso.
+                          </p>
+                        </div>
+                      </td>
+
+                      {/* Trial info */}
+                      <td className="px-4 py-3 text-xs text-slate-600">
+                        <div className="space-y-0.5">
+                          <p>
+                            Start:{" "}
+                            <span className="font-medium">
+                              {formatDate(org.trialStartedAt)}
+                            </span>
+                          </p>
+                          <p>
+                            Slutt:{" "}
+                            <span className="font-medium">
+                              {formatDate(org.trialEndsAt)}
+                            </span>
+                          </p>
+                        </div>
+                      </td>
+
+                      {/* Farger */}
+                      <td className="px-4 py-3">
+                        <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
+                          <div className="flex items-center gap-1">
+                            <span className="rounded-full bg-slate-100 px-2 py-0.5">
+                              Primær
+                            </span>
+                            <span className="font-mono text-[10px]">
+                              {org.primaryColor || "–"}
+                            </span>
+                            {org.primaryColor && (
+                              <span
+                                className="ml-1 inline-block h-3 w-3 rounded-full border border-slate-200"
+                                style={{
+                                  backgroundColor: org.primaryColor,
+                                }}
+                              />
+                            )}
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <span className="rounded-full bg-slate-100 px-2 py-0.5">
+                              Sekundær
+                            </span>
+                            <span className="font-mono text-[10px]">
+                              {org.secondaryColor || "–"}
+                            </span>
+                            {org.secondaryColor && (
+                              <span
+                                className="ml-1 inline-block h-3 w-3 rounded-full border border-slate-200"
+                                style={{
+                                  backgroundColor: org.secondaryColor,
+                                }}
+                              />
+                            )}
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Org-nummer */}
+                      <td className="px-4 py-3 text-xs text-slate-600">
+                        {org.orgNumber ? (
+                          <span className="font-mono text-[11px]">
+                            {org.orgNumber}
+                          </span>
+                        ) : (
+                          <span className="text-slate-400">Ikke satt</span>
+                        )}
+                      </td>
+
+                      {/* Opprettet */}
+                      <td className="px-4 py-3 text-xs text-slate-600">
+                        {formatDate(org.createdAt)}
+                      </td>
+
+                      {/* Status */}
+                      <td className="px-4 py-3 text-xs text-slate-600">
+                        <div className="flex flex-col items-start gap-2">
+                          <span
+                            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium ${
+                              org.isActive
+                                ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100"
+                                : "bg-slate-100 text-slate-500 ring-1 ring-slate-200"
+                            }`}
+                          >
+                            <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-current" />
+                            {org.isActive ? "Aktiv" : "Inaktiv"}
+                          </span>
+
+                          <button
+                            type="button"
+                            onClick={() => handleToggleActive(org)}
+                            disabled={isSaving}
+                            className="text-[11px] font-medium text-sky-600 hover:text-sky-700 disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            {org.isActive ? "Deaktiver" : "Aktiver"} partner
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Undertekst */}
+          <div className="border-t border-slate-100 bg-slate-50 px-4 py-3 text-[11px] text-slate-500">
+            <p>
+              Denne admin-oversikten bygger direkte på{" "}
+              <code className="font-mono text-[10px]">
+                orgs
+              </code>{" "}
+              -tabellen i Supabase. Du kan trygt utvide med flere felter (f.eks.
+              AI-bruk, omsetning, antall bookinger) uten å endre grunnstrukturen
+              her.
+            </p>
+          </div>
+        </section>
+      )}
+
+      {/* Valgfritt: behold original SQL-kommentar dersom du vil ha referansen i samme fil */}
       {/*
-        NEDENFOR: original datamodell/SQL lagt som kommentar for referanse.
-        (Den kompilerer ikke som TS/JS, derfor flyttet hit.)
-
-Forslag: kjerne- og relasjonstabeller
-orgs (finnes allerede)
-customers: kundeinfo per org
-resources: hva som bookes (rom, tjeneste, personell)
-bookings: selve bookingen
-booking_items: linjer knyttet til booking (f.eks. flere ressurser/prislister)
-booking_status_history: audit trail
-booking_notes: interne notater
-payments: betalinger knyttet til en booking
-Optional: availability/blackouts for resources
-
-SQL-migrasjon (org-basert med RLS)
-
--- Customers
-create table if not exists public.customers (
-  id uuid primary key default gen_random_uuid(),
-  org_id uuid not null references public.orgs(id) on delete cascade,
-  external_id text,
-  name text not null,
-  email text,
-  phone text,
-  notes text,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
-  unique (org_id, email)
-);
-
-create index if not exists customers_org_idx on public.customers(org_id);
-alter table public.customers enable row level security;
-
-create policy customers_select_org
-  on public.customers for select to authenticated
-  using (org_id = (auth.jwt() ->> 'org_id')::uuid);
-
-create policy customers_insert_org
-  on public.customers for insert to authenticated
-  with check (org_id = (auth.jwt() ->> 'org_id')::uuid);
-
-create policy customers_update_org
-  on public.customers for update to authenticated
-  using (org_id = (auth.jwt() ->> 'org_id')::uuid)
-  with check (org_id = (auth.jwt() ->> 'org_id')::uuid);
-
-create policy customers_delete_org
-  on public.customers for delete to authenticated
-  using (org_id = (auth.jwt() ->> 'org_id')::uuid);
-
-
--- Resources (rom, tjenester, personell, etc.)
-create table if not exists public.resources (
-  id uuid primary key default gen_random_uuid(),
-  org_id uuid not null references public.orgs(id) on delete cascade,
-  type text not null default 'generic',
-  name text not null,
-  description text,
-  is_active boolean not null default true,
-  capacity integer,
-  metadata jsonb,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
-
-create index if not exists resources_org_idx on public.resources(org_id);
-create index if not exists resources_org_active_idx on public.resources(org_id, is_active);
-alter table public.resources enable row level security;
-
-create policy resources_select_org
-  on public.resources for select to authenticated
-  using (org_id = (auth.jwt() ->> 'org_id')::uuid);
-
-create policy resources_insert_org
-  on public.resources for insert to authenticated
-  with check (org_id = (auth.jwt() ->> 'org_id')::uuid);
-
-create policy resources_update_org
-  on public.resources for update to authenticated
-  using (org_id = (auth.jwt() ->> 'org_id')::uuid)
-  with check (org_id = (auth.jwt() ->> 'org_id')::uuid);
-
-create policy resources_delete_org
-  on public.resources for delete to authenticated
-  using (org_id = (auth.jwt() ->> 'org_id')::uuid);
-
-
--- Bookings (hovedtabell)
-create table if not exists public.bookings (
-  id uuid primary key default gen_random_uuid(),
-  org_id uuid not null references public.orgs(id) on delete cascade,
-  customer_id uuid references public.customers(id) on delete set null,
-  status text not null default 'pending',
-  title text,
-  notes text,
-  starts_at timestamptz not null,
-  ends_at timestamptz not null,
-  timezone text,
-  total_amount numeric(12,2) default 0,
-  currency text default 'NOK',
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
-  constraint bookings_time_chk check (ends_at > starts_at),
-  constraint bookings_status_chk check (status in ('pending','confirmed','in_progress','completed','cancelled','no_show'))
-);
-
-create index if not exists bookings_org_times_idx on public.bookings(org_id, starts_at, ends_at);
-create index if not exists bookings_org_status_idx on public.bookings(org_id, status);
-create index if not exists bookings_customer_idx on public.bookings(customer_id);
-alter table public.bookings enable row level security;
-
-create policy bookings_select_org
-  on public.bookings for select to authenticated
-  using (org_id = (auth.jwt() ->> 'org_id')::uuid);
-
-create policy bookings_insert_org
-  on public.bookings for insert to authenticated
-  with check (org_id = (auth.jwt() ->> 'org_id')::uuid);
-
-create policy bookings_update_org
-  on public.bookings for update to authenticated
-  using (org_id = (auth.jwt() ->> 'org_id')::uuid)
-  with check (org_id = (auth.jwt() ->> 'org_id')::uuid);
-
-create policy bookings_delete_org
-  on public.bookings for delete to authenticated
-  using (org_id = (auth.jwt() ->> 'org_id')::uuid);
-
-
--- Booking items
-create table if not exists public.booking_items (
-  id uuid primary key default gen_random_uuid(),
-  org_id uuid not null references public.orgs(id) on delete cascade,
-  booking_id uuid not null references public.bookings(id) on delete cascade,
-  resource_id uuid references public.resources(id) on delete set null,
-  name text not null,
-  quantity numeric(12,2) not null default 1,
-  unit_price numeric(12,2) not null default 0,
-  tax_rate numeric(5,2) default 0,
-  amount numeric(12,2) generated always as (round(quantity * unit_price, 2)) stored,
-  created_at timestamptz not null default now()
-);
-
-create index if not exists booking_items_org_booking_idx on public.booking_items(org_id, booking_id);
-create index if not exists booking_items_resource_idx on public.booking_items(resource_id);
-alter table public.booking_items enable row level security;
-
-create policy booking_items_select_org
-  on public.booking_items for select to authenticated
-  using (org_id = (auth.jwt() ->> 'org_id')::uuid);
-
-create policy booking_items_insert_org
-  on public.booking_items for insert to authenticated
-  with check (org_id = (auth.jwt() ->> 'org_id')::uuid);
-
-create policy booking_items_update_org
-  on public.booking_items for update to authenticated
-  using (org_id = (auth.jwt() ->> 'org_id')::uuid)
-  with check (org_id = (auth.jwt() ->> 'org_id')::uuid);
-
-create policy booking_items_delete_org
-  on public.booking_items for delete to authenticated
-  using (org_id = (auth.jwt() ->> 'org_id')::uuid);
-
-
--- Statushistorikk
-create table if not exists public.booking_status_history (
-  id uuid primary key default gen_random_uuid(),
-  org_id uuid not null references public.orgs(id) on delete cascade,
-  booking_id uuid not null references public.bookings(id) on delete cascade,
-  from_status text,
-  to_status text not null,
-  changed_by uuid,
-  changed_at timestamptz not null default now()
-);
-
-create index if not exists booking_status_history_org_booking_idx on public.booking_status_history(org_id, booking_id);
-alter table public.booking_status_history enable row level security;
-
-create policy booking_status_history_select_org
-  on public.booking_status_history for select to authenticated
-  using (org_id = (auth.jwt() ->> 'org_id')::uuid);
-
-create policy booking_status_history_insert_org
-  on public.booking_status_history for insert to authenticated
-  with check (org_id = (auth.jwt() ->> 'org_id')::uuid);
-
-
--- Notater
-create table if not exists public.booking_notes (
-  id uuid primary key default gen_random_uuid(),
-  org_id uuid not null references public.orgs(id) on delete cascade,
-  booking_id uuid not null references public.bookings(id) on delete cascade,
-  author_id uuid,
-  note text not null,
-  created_at timestamptz not null default now()
-);
-
-create index if not exists booking_notes_org_booking_idx on public.booking_notes(org_id, booking_id);
-alter table public.booking_notes enable row level security;
-
-create policy booking_notes_select_org
-  on public.booking_notes for select to authenticated
-  using (org_id = (auth.jwt() ->> 'org_id')::uuid);
-
-create policy booking_notes_insert_org
-  on public.booking_notes for insert to authenticated
-  with check (org_id = (auth.jwt() ->> 'org_id')::uuid);
-
-create policy booking_notes_delete_org
-  on public.booking_notes for delete to authenticated
-  using (org_id = (auth.jwt() ->> 'org_id')::uuid);
-
-
--- Betalinger
-create table if not exists public.payments (
-  id uuid primary key default gen_random_uuid(),
-  org_id uuid not null references public.orgs(id) on delete cascade,
-  booking_id uuid not null references public.bookings(id) on delete cascade,
-  amount numeric(12,2) not null,
-  currency text default 'NOK',
-  method text,
-  external_id text,
-  status text not null default 'unpaid',
-  paid_at timestamptz,
-  created_at timestamptz not null default now(),
-  constraint payments_status_chk check (status in ('unpaid','paid','refunded','failed','partially_refunded'))
-);
-
-create index if not exists payments_org_booking_idx on public.payments(org_id, booking_id);
-alter table public.payments enable row level security;
-
-create policy payments_select_org
-  on public.payments for select to authenticated
-  using (org_id = (auth.jwt() ->> 'org_id')::uuid);
-
-create policy payments_insert_org
-  on public.payments for insert to authenticated
-  with check (org_id = (auth.jwt() ->> 'org_id')::uuid);
-
-create policy payments_update_org
-  on public.payments for update to authenticated
-  using (org_id = (auth.jwt() ->> 'org_id')::uuid)
-  with check (org_id = (auth.jwt() ->> 'org_id')::uuid);
-
-
--- Blackouts
-create table if not exists public.resource_blackouts (
-  id uuid primary key default gen_random_uuid(),
-  org_id uuid not null references public.orgs(id) on delete cascade,
-  resource_id uuid not null references public.resources(id) on delete cascade,
-  starts_at timestamptz not null,
-  ends_at timestamptz not null,
-  reason text,
-  created_at timestamptz not null default now(),
-  constraint resource_blackouts_time_chk check (ends_at > starts_at)
-);
-
-create index if not exists resource_blackouts_org_res_idx on public.resource_blackouts(org_id, resource_id, starts_at, ends_at);
-alter table public.resource_blackouts enable row level security;
-
-create policy resource_blackouts_select_org
-  on public.resource_blackouts for select to authenticated
-  using (org_id = (auth.jwt() ->> 'org_id')::uuid);
-
-create policy resource_blackouts_cud_org
-  on public.resource_blackouts for all to authenticated
-  using (org_id = (auth.jwt() ->> 'org_id')::uuid)
-  with check (org_id = (auth.jwt() ->> 'org_id')::uuid);
-
-Kolonnelister (kort)
-customers: id, org_id, external_id, name, email, phone, notes, created_at, updated_at
-resources: id, org_id, type, name, description, is_active, capacity, metadata, created_at, updated_at
-bookings: id, org_id, customer_id, status, title, notes, starts_at, ends_at, timezone, total_amount, currency, created_at, updated_at
-booking_items: id, org_id, booking_id, resource_id, name, quantity, unit_price, tax_rate, amount, created_at
-booking_status_history: id, org_id, booking_id, from_status, to_status, changed_by, changed_at
-booking_notes: id, org_id, booking_id, author_id, note, created_at
-payments: id, org_id, booking_id, amount, currency, method, external_id, status, paid_at, created_at
-resource_blackouts: id, org_id, resource_id, starts_at, ends_at, reason, created_at
+        NEDENFOR: original datamodell/SQL lå tidligere her som kommentar.
+        Hele datamodellen ligger nå også i "SQL supabase.txt".
       */}
     </div>
   );
