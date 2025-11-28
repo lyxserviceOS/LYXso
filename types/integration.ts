@@ -259,3 +259,164 @@ export interface IntegrationWebhookEvent {
   
   created_at: string;
 }
+
+// =====================================================
+// Accounting Export Types
+// =====================================================
+
+/**
+ * Accounting entry ready for export to Fiken or PowerOffice.
+ */
+export interface AccountingEntry {
+  id: string;
+  org_id: string;
+  
+  // Reference
+  booking_id: string | null;
+  payment_id: string | null;
+  order_id: string | null;
+  
+  // Entry details
+  date: string;
+  description: string;
+  
+  // Line items
+  lines: AccountingEntryLine[];
+  
+  // Totals
+  total_net: number;
+  total_vat: number;
+  total_gross: number;
+  currency: string;
+  
+  // Customer
+  customer_id: string | null;
+  customer_name: string | null;
+  customer_org_number: string | null;
+  
+  // Export status
+  export_status: "pending" | "exported" | "failed" | "skipped";
+  exported_at: string | null;
+  exported_to: IntegrationProvider | null;
+  external_id: string | null; // ID in external system
+  export_error: string | null;
+  
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AccountingEntryLine {
+  description: string;
+  account: string;
+  vat_type: string;
+  quantity: number;
+  unit_price: number;
+  net_amount: number;
+  vat_amount: number;
+  gross_amount: number;
+}
+
+/**
+ * Accounting export batch for sending multiple entries at once.
+ */
+export interface AccountingExportBatch {
+  id: string;
+  org_id: string;
+  integration_id: string;
+  
+  // Period
+  period_start: string;
+  period_end: string;
+  
+  // Entries
+  entry_ids: string[];
+  entry_count: number;
+  
+  // Totals
+  total_net: number;
+  total_vat: number;
+  total_gross: number;
+  
+  // Status
+  status: "pending" | "processing" | "completed" | "failed" | "partial";
+  
+  // Results
+  successful_count: number;
+  failed_count: number;
+  errors: string[];
+  
+  // File export (if applicable)
+  export_file_url: string | null;
+  export_file_format: "csv" | "xml" | "json" | null;
+  
+  created_at: string;
+  completed_at: string | null;
+}
+
+/**
+ * Payment terminal settlement import.
+ */
+export interface TerminalSettlementImport {
+  id: string;
+  org_id: string;
+  integration_id: string;
+  
+  // Settlement period
+  settlement_date: string;
+  
+  // Totals from terminal
+  gross_amount: number;
+  fees_amount: number;
+  net_amount: number;
+  transaction_count: number;
+  
+  // Matching status
+  matched_bookings: string[];
+  unmatched_transactions: TerminalTransaction[];
+  
+  // Reconciliation
+  is_reconciled: boolean;
+  reconciled_at: string | null;
+  reconciled_by_user_id: string | null;
+  
+  // Discrepancy
+  discrepancy_amount: number;
+  discrepancy_notes: string | null;
+  
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * VAT types used in Norway.
+ */
+export const NORWEGIAN_VAT_TYPES = {
+  HIGH: { code: "HIGH", rate: 25, description: "Standard sats (25%)" },
+  MEDIUM: { code: "MEDIUM", rate: 15, description: "Mat og drikke (15%)" },
+  LOW: { code: "LOW", rate: 12, description: "Persontransport, kino (12%)" },
+  ZERO: { code: "ZERO", rate: 0, description: "Nullsats (0%)" },
+  EXEMPT: { code: "EXEMPT", rate: 0, description: "Fritatt for MVA" },
+} as const;
+
+/**
+ * Common account codes for Norwegian accounting.
+ */
+export const NORWEGIAN_ACCOUNT_CODES = {
+  // Income accounts
+  SALES_SERVICES: "3000",
+  SALES_PRODUCTS: "3010",
+  SALES_PARTS: "3020",
+  
+  // Expense accounts
+  COST_OF_GOODS: "4000",
+  SALARIES: "5000",
+  RENT: "6300",
+  
+  // Asset accounts
+  BANK: "1920",
+  RECEIVABLES: "1500",
+  
+  // Liability accounts
+  VAT_PAYABLE: "2700",
+  PAYABLES: "2400",
+} as const;
