@@ -20,8 +20,10 @@ import type { Location, Resource, ResourceType } from "@/types/location";
 const STATUS_LABELS: Record<BookingStatus, string> = {
   pending: "Venter",
   confirmed: "Bekreftet",
+  in_progress: "Pågår",
   completed: "Fullført",
   cancelled: "Kansellert",
+  no_show: "Ikke møtt",
 };
 
 type ViewMode = "list" | "day" | "resource";
@@ -738,7 +740,7 @@ export default function BookingPageClient() {
                       // Mock booking assignments to resources
                       const resourceBookings = filteredBookings.slice(0, 2).map((b, idx) => ({
                         ...b,
-                        resourceId: idx === 0 ? resource.id : undefined
+                        resourceId: idx === 0 ? resource.id : null
                       })).filter(b => b.resourceId === resource.id);
                       
                       return (

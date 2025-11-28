@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import type { Booking, BookingStatus } from "../types/booking";
+import type { Booking, BookingStatus, BookingSource, PaymentStatus } from "../types/booking";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -163,6 +163,10 @@ export default function DashboardClient() {
           id: item.id as string,
           orgId: (item.org_id as string) || "",
           customerId: (item.customer_id as string) || null,
+          serviceId: (item.service_id as string) || null,
+          employeeId: (item.employee_id as string) || null,
+          locationId: (item.location_id as string) || null,
+          resourceId: (item.resource_id as string) || null,
           customerName:
             (item.customer_name as string) ||
             (item.customerName as string) ||
@@ -176,11 +180,23 @@ export default function DashboardClient() {
           status: ((item.status as string) || "pending") as BookingStatus,
           title: (item.title as string) || null,
           notes: (item.notes as string) || null,
-          source: (item.source as string) || null,
+          internalNotes: (item.internal_notes as string) || null,
+          source: ((item.source as string) || "manual") as BookingSource,
+          referralCode: (item.referral_code as string) || null,
+          campaignId: (item.campaign_id as string) || null,
           totalAmount: (item.total_amount as number) || null,
+          depositAmount: (item.deposit_amount as number) || null,
+          discountAmount: (item.discount_amount as number) || null,
           currency: (item.currency as string) || null,
+          paymentStatus: ((item.payment_status as string) || "not_required") as PaymentStatus,
+          isRecurring: (item.is_recurring as boolean) || false,
+          recurrenceRule: (item.recurrence_rule as string) || null,
+          parentBookingId: (item.parent_booking_id as string) || null,
           createdAt: (item.created_at as string) || null,
           updatedAt: (item.updated_at as string) || null,
+          confirmedAt: (item.confirmed_at as string) || null,
+          completedAt: (item.completed_at as string) || null,
+          cancelledAt: (item.cancelled_at as string) || null,
         }));
 
         setBookings(mappedBookings);
