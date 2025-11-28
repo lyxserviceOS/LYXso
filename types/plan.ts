@@ -22,7 +22,7 @@ export interface PlanLimits {
 
 /**
  * Default plan limits by plan code.
- * "payd" is the standard paid plan with 1 location and 3 employees.
+ * "paid" is the standard paid plan with 1 location and 3 employees.
  */
 export const PLAN_LIMITS: Record<string, PlanLimits> = {
   free: {
