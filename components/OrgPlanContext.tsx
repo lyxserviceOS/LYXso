@@ -14,6 +14,7 @@ import type { OrgPlan } from "@/types/org";
 import type { PlanFeatureKey } from "@/lib/orgPlan";
 import type { ModuleCode, Industry, WorkMode } from "@/types/industry";
 import { DEFAULT_MODULES } from "@/types/industry";
+import { getPlanLimits, isLimitReached, type PlanLimits } from "@/types/plan";
 
 type OrgSettings = {
   id: string;
@@ -27,6 +28,10 @@ type OrgSettings = {
   enabledModules: ModuleCode[];
   industries: Industry[];
   workMode: WorkMode;
+  // Landing page settings
+  landingPageEnabled: boolean;
+  webshopEnabled: boolean;
+  showBookingInMenu: boolean;
 };
 
 type OrgPlanContextValue = {
@@ -34,9 +39,11 @@ type OrgPlanContextValue = {
   error: string | null;
   org: OrgSettings | null;
   plan: OrgPlan;
+  planLimits: PlanLimits;
   features: Record<PlanFeatureKey, boolean>;
   enabledModules: ModuleCode[];
   isModuleEnabled: (module: ModuleCode) => boolean;
+  isLimitReached: (resource: keyof PlanLimits, current: number) => boolean;
 };
 
 const OrgPlanContext = createContext<OrgPlanContextValue | undefined>(
@@ -48,14 +55,19 @@ export function OrgPlanProvider({
 }: {
   children: React.ReactNode;
 }) {
+  const defaultLimits = getPlanLimits("trial");
+  
   const [state, setState] = useState<OrgPlanContextValue>({
     loading: true,
     error: null,
     org: null,
     plan: "trial",
+    planLimits: defaultLimits,
     features: planFeatureFlags.trial,
     enabledModules: DEFAULT_MODULES,
     isModuleEnabled: (module: ModuleCode) => DEFAULT_MODULES.includes(module),
+    isLimitReached: (resource: keyof PlanLimits, current: number) => 
+      isLimitReached(current, defaultLimits[resource]),
   });
 
   useEffect(() => {
@@ -95,6 +107,7 @@ export function OrgPlanProvider({
         const raw = json?.org;
         const planStr: string | null | undefined = raw?.plan ?? null;
         const plan = normalizeOrgPlan(planStr);
+        const limits = getPlanLimits(plan);
 
         // Parse enabled modules from API response (fallback to defaults)
         const rawModules = raw?.enabledModules ?? raw?.enabled_modules ?? null;
@@ -109,6 +122,11 @@ export function OrgPlanProvider({
         // Parse work mode from API response
         const workMode: WorkMode = raw?.workMode ?? raw?.work_mode ?? "fixed";
 
+        // Parse landing page settings
+        const landingPageEnabled = raw?.landing_page_enabled ?? raw?.landingPageEnabled ?? false;
+        const webshopEnabled = raw?.webshop_enabled ?? raw?.webshopEnabled ?? false;
+        const showBookingInMenu = raw?.show_booking_in_menu ?? raw?.showBookingInMenu ?? true;
+
         const org: OrgSettings = {
           id: raw.id,
           name: raw.name ?? null,
@@ -121,6 +139,9 @@ export function OrgPlanProvider({
           enabledModules,
           industries,
           workMode,
+          landingPageEnabled,
+          webshopEnabled,
+          showBookingInMenu,
         };
 
         if (!cancelled) {
@@ -129,9 +150,12 @@ export function OrgPlanProvider({
             error: null,
             org,
             plan,
+            planLimits: limits,
             features: planFeatureFlags[plan],
             enabledModules,
             isModuleEnabled: (module: ModuleCode) => enabledModules.includes(module),
+            isLimitReached: (resource: keyof PlanLimits, current: number) => 
+              isLimitReached(current, limits[resource]),
           });
         }
       } catch (err: unknown) {
