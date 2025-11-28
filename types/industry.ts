@@ -215,10 +215,15 @@ export const ORG_MODULES: OrgModule[] = [
 ];
 
 /**
+ * Default modules that all organizations receive.
+ */
+export const DEFAULT_MODULES: ModuleCode[] = ["booking", "crm", "products", "employees", "leads"];
+
+/**
  * Get recommended modules based on selected industries.
  */
 export function getRecommendedModules(industries: Industry[]): ModuleCode[] {
-  const modules: Set<ModuleCode> = new Set(["booking", "crm", "products", "employees", "leads"]);
+  const modules: Set<ModuleCode> = new Set(DEFAULT_MODULES);
 
   for (const industry of industries) {
     switch (industry) {

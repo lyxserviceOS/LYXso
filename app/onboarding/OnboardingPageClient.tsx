@@ -4,7 +4,7 @@
 import { useEffect, useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import type { Industry, ModuleCode } from "@/types/industry";
-import { INDUSTRIES, ORG_MODULES, getRecommendedModules } from "@/types/industry";
+import { INDUSTRIES, ORG_MODULES, getRecommendedModules, DEFAULT_MODULES } from "@/types/industry";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
 const ORG_ID = process.env.NEXT_PUBLIC_ORG_ID;
@@ -47,9 +47,6 @@ type LoadingState =
   | { status: "loading"; message?: string }
   | { status: "success"; message?: string }
   | { status: "error"; message: string };
-
-// Default modules all orgs get
-const DEFAULT_MODULES: ModuleCode[] = ["booking", "crm", "products", "employees", "leads"];
 
 export default function OnboardingPageClient() {
   const router = useRouter();
@@ -295,8 +292,17 @@ export default function OnboardingPageClient() {
           ? "mobile" 
           : "fixed";
 
+      // Safely extract existing config
+      const existingConfig = existingLandingPage?.config;
+      const safeExistingConfig = 
+        existingConfig && 
+        typeof existingConfig === 'object' && 
+        !Array.isArray(existingConfig) 
+          ? existingConfig 
+          : {};
+
       const newConfig = {
-        ...(typeof existingLandingPage?.config === 'object' ? existingLandingPage.config : {}),
+        ...safeExistingConfig,
         // Basic info
         companyName: form.companyName,
         orgNumber: form.orgNumber,

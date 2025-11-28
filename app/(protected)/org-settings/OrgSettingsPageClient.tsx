@@ -3,13 +3,13 @@
 import React, { useEffect, useState } from "react";
 import type { TyreThresholdSettings } from "@/types/tyre";
 import type { ModuleCode, Industry } from "@/types/industry";
-import { ORG_MODULES, INDUSTRIES } from "@/types/industry";
+import { ORG_MODULES, INDUSTRIES, DEFAULT_MODULES } from "@/types/industry";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
 const ORG_ID = process.env.NEXT_PUBLIC_ORG_ID;
 
-// Default modules that are always enabled
-const CORE_MODULES: ModuleCode[] = ["booking", "crm", "products", "employees", "leads"];
+// Core modules that cannot be disabled (re-export for local usage)
+const CORE_MODULES = DEFAULT_MODULES;
 
 type OrgSettings = {
   id: string;

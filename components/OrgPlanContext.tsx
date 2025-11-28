@@ -13,6 +13,7 @@ import {
 import type { OrgPlan } from "@/types/org";
 import type { PlanFeatureKey } from "@/lib/orgPlan";
 import type { ModuleCode, Industry, WorkMode } from "@/types/industry";
+import { DEFAULT_MODULES } from "@/types/industry";
 
 type OrgSettings = {
   id: string;
@@ -27,15 +28,6 @@ type OrgSettings = {
   industries: Industry[];
   workMode: WorkMode;
 };
-
-// Default modules enabled for all orgs
-const DEFAULT_ENABLED_MODULES: ModuleCode[] = [
-  "booking",
-  "crm",
-  "products",
-  "employees",
-  "leads",
-];
 
 type OrgPlanContextValue = {
   loading: boolean;
@@ -62,8 +54,8 @@ export function OrgPlanProvider({
     org: null,
     plan: "trial",
     features: planFeatureFlags.trial,
-    enabledModules: DEFAULT_ENABLED_MODULES,
-    isModuleEnabled: (module: ModuleCode) => DEFAULT_ENABLED_MODULES.includes(module),
+    enabledModules: DEFAULT_MODULES,
+    isModuleEnabled: (module: ModuleCode) => DEFAULT_MODULES.includes(module),
   });
 
   useEffect(() => {
@@ -108,7 +100,7 @@ export function OrgPlanProvider({
         const rawModules = raw?.enabledModules ?? raw?.enabled_modules ?? null;
         const enabledModules: ModuleCode[] = Array.isArray(rawModules) 
           ? rawModules 
-          : DEFAULT_ENABLED_MODULES;
+          : DEFAULT_MODULES;
 
         // Parse industries from API response
         const rawIndustries = raw?.industries ?? null;
