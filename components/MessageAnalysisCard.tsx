@@ -74,6 +74,12 @@ const INTENT_LABELS: Record<string, string> = {
   general: "Generell henvendelse",
 };
 
+const SENTIMENT_LABELS: Record<string, string> = {
+  positive: "Positiv",
+  neutral: "Nøytral",
+  negative: "Negativ",
+};
+
 const SENTIMENT_COLORS: Record<string, string> = {
   positive: "bg-emerald-100 text-emerald-700",
   neutral: "bg-slate-100 text-slate-700",
@@ -183,11 +189,7 @@ export default function MessageAnalysisCard({
             <span
               className={`rounded-full px-2.5 py-1 text-xs font-medium ${SENTIMENT_COLORS[textAnalysis.sentiment]}`}
             >
-              {textAnalysis.sentiment === "positive"
-                ? "Positiv"
-                : textAnalysis.sentiment === "negative"
-                  ? "Negativ"
-                  : "Nøytral"}
+              {SENTIMENT_LABELS[textAnalysis.sentiment] || textAnalysis.sentiment}
             </span>
             {textAnalysis.urgency !== "low" && (
               <span

@@ -84,8 +84,12 @@ export function useMessageAnalysis({ orgId, includeEstimates = true }: UseMessag
       }
 
       // Convert single image result to message analysis format
+      const analysisId = typeof crypto !== "undefined" && crypto.randomUUID 
+        ? `img-${crypto.randomUUID().substring(0, 8)}`
+        : `img-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
+      
       const result: AnalyzeResponseBody["data"] = {
-        analysisId: `img-${Date.now()}`,
+        analysisId,
         summary: data.data.analysis,
         recommendedAction: data.data.recommendations[0] || "Ingen spesifikke anbefalinger",
         analyzedAt: data.data.analyzedAt,

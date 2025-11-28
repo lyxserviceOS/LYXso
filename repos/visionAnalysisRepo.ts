@@ -80,10 +80,18 @@ export type MessageAnalysisResult = {
 };
 
 /**
- * Generates a unique ID for analysis results
+ * Generates a unique ID for analysis results using crypto if available
  */
 function generateAnalysisId(): string {
-  return `analysis-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+  const timestamp = Date.now();
+  // Use crypto for better randomness if available
+  let randomPart: string;
+  if (typeof crypto !== "undefined" && crypto.randomUUID) {
+    randomPart = crypto.randomUUID().substring(0, 8);
+  } else {
+    randomPart = Math.random().toString(36).substring(2, 10);
+  }
+  return `analysis-${timestamp}-${randomPart}`;
 }
 
 /**
@@ -262,7 +270,6 @@ export async function analyzeText(text: string): Promise<TextAnalysisResult> {
   if (
     lowerText.includes("haster") ||
     lowerText.includes("raskt") ||
-    lowerText.includes("snart") ||
     lowerText.includes("i dag") ||
     lowerText.includes("nå")
   ) {
@@ -375,10 +382,19 @@ export async function analyzeMessage(
   // Generate combined summary
   const summaryParts: string[] = [];
 
+  // Intent descriptions lookup
+  const intentDescriptions: Record<string, string> = {
+    booking: "Ønsker å bestille time",
+    inquiry: "Har spørsmål",
+    complaint: "Klage/problem",
+    feedback: "Tilbakemelding",
+    support: "Trenger hjelp",
+    general: "Generell henvendelse",
+  };
+
   if (textAnalysis) {
-    summaryParts.push(
-      `Melding analysert: ${textAnalysis.intent === "booking" ? "Ønsker å bestille time" : textAnalysis.intent === "inquiry" ? "Har spørsmål" : textAnalysis.intent === "complaint" ? "Klage/problem" : textAnalysis.intent === "feedback" ? "Tilbakemelding" : textAnalysis.intent === "support" ? "Trenger hjelp" : "Generell henvendelse"}.`
-    );
+    const intentDesc = intentDescriptions[textAnalysis.intent] || "Generell henvendelse";
+    summaryParts.push(`Melding analysert: ${intentDesc}.`);
     if (textAnalysis.serviceInterest) {
       summaryParts.push(`Interessert i: ${textAnalysis.serviceInterest}.`);
     }
