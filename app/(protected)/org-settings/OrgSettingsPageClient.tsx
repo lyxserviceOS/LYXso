@@ -2,9 +2,14 @@
 
 import React, { useEffect, useState } from "react";
 import type { TyreThresholdSettings } from "@/types/tyre";
+import type { ModuleCode, Industry } from "@/types/industry";
+import { ORG_MODULES, INDUSTRIES, DEFAULT_MODULES } from "@/types/industry";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
 const ORG_ID = process.env.NEXT_PUBLIC_ORG_ID;
+
+// Core modules that cannot be disabled (re-export for local usage)
+const CORE_MODULES = DEFAULT_MODULES;
 
 type OrgSettings = {
   id: string;
@@ -14,6 +19,8 @@ type OrgSettings = {
   secondaryColor: string | null;
   isActive: boolean | null;
   plan: string | null; // f.eks. "free", "trial", "pro"
+  enabledModules?: ModuleCode[];
+  industries?: Industry[];
 };
 
 type BookingSettings = {
@@ -52,7 +59,7 @@ export default function OrgSettingsPageClient() {
   const [org, setOrg] = useState<OrgSettings | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"plan" | "service" | "dekkhotell" | "booking">("plan");
+  const [activeTab, setActiveTab] = useState<"plan" | "modules" | "service" | "dekkhotell" | "booking">("plan");
   
   // Tyre threshold settings
   const [tyreSettings, setTyreSettings] = useState<TyreThresholdSettings>(DEFAULT_TYRE_THRESHOLDS);
@@ -68,6 +75,10 @@ export default function OrgSettingsPageClient() {
     isMobile: false,
   });
   const [serviceSaving, setServiceSaving] = useState(false);
+
+  // Module settings
+  const [enabledModules, setEnabledModules] = useState<ModuleCode[]>([...CORE_MODULES]);
+  const [modulesSaving, setModulesSaving] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -90,7 +101,13 @@ export default function OrgSettingsPageClient() {
         }
 
         const json = await res.json();
-        setOrg(json.org as OrgSettings);
+        const orgData = json.org as OrgSettings;
+        setOrg(orgData);
+        
+        // Load enabled modules from org settings
+        if (Array.isArray(orgData.enabledModules)) {
+          setEnabledModules(orgData.enabledModules);
+        }
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : "Ukjent feil ved henting av org-settings";
         setError(message);
@@ -132,6 +149,26 @@ export default function OrgSettingsPageClient() {
     }, 1000);
   };
 
+  const toggleModule = (module: ModuleCode) => {
+    // Don't allow disabling core modules
+    if (CORE_MODULES.includes(module) && enabledModules.includes(module)) {
+      return;
+    }
+    setEnabledModules(prev => 
+      prev.includes(module)
+        ? prev.filter(m => m !== module)
+        : [...prev, module]
+    );
+  };
+
+  const handleSaveModules = () => {
+    setModulesSaving(true);
+    // Simulate API save - will be connected to backend when available
+    setTimeout(() => {
+      setModulesSaving(false);
+    }, 1000);
+  };
+
   return (
     <div className="space-y-6">
       <header>
@@ -147,18 +184,19 @@ export default function OrgSettingsPageClient() {
       {loading && <p className="text-sm text-slate-400">Laster …</p>}
 
       {/* Tabs */}
-      <div className="flex gap-1 rounded-lg bg-slate-800 p-1">
+      <div className="flex flex-wrap gap-1 rounded-lg bg-slate-800 p-1">
         {[
-          { key: "plan", label: "Plan & moduler" },
+          { key: "plan", label: "Plan" },
+          { key: "modules", label: "Moduler" },
           { key: "service", label: "Tjenestetype" },
-          { key: "dekkhotell", label: "Dekkhotell-grenser" },
-          { key: "booking", label: "Booking-innstillinger" },
+          { key: "dekkhotell", label: "Dekkhotell" },
+          { key: "booking", label: "Booking" },
         ].map((tab) => (
           <button
             key={tab.key}
             type="button"
             onClick={() => setActiveTab(tab.key as typeof activeTab)}
-            className={`flex-1 rounded-md px-4 py-2 text-xs font-medium transition ${
+            className={`flex-1 rounded-md px-3 py-2 text-xs font-medium transition ${
               activeTab === tab.key
                 ? "bg-slate-700 text-white"
                 : "text-slate-400 hover:text-slate-200"
@@ -267,6 +305,107 @@ export default function OrgSettingsPageClient() {
                 <li>• Flere brukere og tilleggsmoduler mot ekstra månedspris</li>
               </ul>
             </div>
+          </div>
+        </section>
+      )}
+
+      {/* Modules Tab */}
+      {activeTab === "modules" && (
+        <section className="space-y-4 rounded-xl border border-slate-800 bg-slate-950/60 p-4">
+          <div>
+            <h2 className="text-sm font-semibold text-slate-100">
+              Aktive moduler
+            </h2>
+            <p className="text-xs text-slate-400 mt-1">
+              Aktiver eller deaktiver moduler for å tilpasse menyen og funksjonene i LYXso.
+              Noen kjernemoduler kan ikke deaktiveres.
+            </p>
+          </div>
+
+          {/* Industries info */}
+          {org?.industries && org.industries.length > 0 && (
+            <div className="rounded-lg border border-blue-500/30 bg-blue-500/10 p-3">
+              <p className="text-xs text-blue-200">
+                <strong>Bransjer:</strong>{" "}
+                {org.industries.map(i => INDUSTRIES.find(ind => ind.code === i)?.label).join(", ")}
+              </p>
+            </div>
+          )}
+
+          {/* Module categories */}
+          {(["drift", "ai_marketing", "okonomi", "system"] as const).map((category) => {
+            const categoryModules = ORG_MODULES.filter(m => m.category === category);
+            if (categoryModules.length === 0) return null;
+            
+            const categoryLabel: Record<string, string> = {
+              drift: "Drift",
+              ai_marketing: "AI & markedsføring",
+              okonomi: "Økonomi",
+              system: "System",
+            };
+            
+            return (
+              <div key={category} className="border-t border-slate-800 pt-4">
+                <p className="text-xs font-medium text-slate-300 mb-3">
+                  {categoryLabel[category]}
+                </p>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {categoryModules.map((module) => {
+                    const isEnabled = enabledModules.includes(module.code);
+                    const isCore = CORE_MODULES.includes(module.code);
+                    
+                    return (
+                      <label
+                        key={module.code}
+                        className={`flex items-start gap-3 cursor-pointer p-3 rounded-lg border transition ${
+                          isEnabled
+                            ? "border-emerald-500/50 bg-emerald-500/5"
+                            : "border-slate-700 hover:border-slate-600"
+                        } ${isCore ? "cursor-not-allowed" : ""}`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isEnabled}
+                          onChange={() => toggleModule(module.code)}
+                          disabled={isCore}
+                          className="mt-0.5 rounded border-slate-600"
+                        />
+                        <div>
+                          <span className="text-sm font-medium text-slate-100">
+                            {module.label}
+                            {isCore && (
+                              <span className="ml-2 rounded-full bg-slate-700 px-2 py-0.5 text-[10px] text-slate-400">
+                                Standard
+                              </span>
+                            )}
+                          </span>
+                          <p className="text-xs text-slate-400 mt-1">
+                            {module.description}
+                          </p>
+                          {module.requiredPlan && module.requiredPlan !== "free" && (
+                            <p className="text-[10px] text-amber-400 mt-1">
+                              Krever {module.requiredPlan === "paid" ? "betalt" : "prøve"} plan
+                            </p>
+                          )}
+                        </div>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+
+          {/* Save button */}
+          <div className="border-t border-slate-800 pt-4 flex justify-end">
+            <button
+              type="button"
+              onClick={handleSaveModules}
+              disabled={modulesSaving}
+              className="rounded-lg bg-blue-600 px-4 py-2 text-xs font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+            >
+              {modulesSaving ? "Lagrer..." : "Lagre modulinnstillinger"}
+            </button>
           </div>
         </section>
       )}
