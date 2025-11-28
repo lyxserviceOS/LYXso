@@ -2,6 +2,7 @@
 
 import type { Metadata } from "next";
 import Link from "next/link";
+import VisionAnalyzerDemo from "./VisionAnalyzerDemo";
 
 export const metadata: Metadata = {
   title: "LYX Vision – AI-bildeanalyse for coating og bilpleie",
@@ -35,7 +36,7 @@ export default function LyxVisionPage() {
               href="#demo"
               className="rounded-md bg-purple-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-purple-500"
             >
-              Se demo av Vision
+              Prøv demo
             </Link>
             <Link
               href="/kontakt"
@@ -138,6 +139,15 @@ export default function LyxVisionPage() {
               </p>
             </div>
           </div>
+        </section>
+
+        {/* Interactive Demo */}
+        <section id="demo" className="space-y-6 py-12">
+          <h2 className="text-2xl font-semibold">Prøv AI-analysen selv</h2>
+          <p className="text-sm text-slate-300">
+            Test hvordan LYX Vision analyserer kundemeldinger og bilder. Skriv inn tekst eller legg til bilde-URLer for å se analysen i aksjon.
+          </p>
+          <VisionAnalyzerDemo />
         </section>
 
         {/* CTA */}
