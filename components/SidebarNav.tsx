@@ -14,6 +14,8 @@ type NavItem = {
   requiresModule?: ModuleCode;
   /** Only show for admin users */
   adminOnly?: boolean;
+  /** Badge text to show (e.g., "Ny") */
+  badge?: string;
 };
 
 type NavSection = {
@@ -95,6 +97,13 @@ const sections: NavSection[] = [
         requiresModule: "landing_page",
       },
       {
+        label: "Nettbutikk",
+        href: "/nettbutikk",
+        description: "Selg produkter via landingssiden din.",
+        requiresModule: "webshop",
+        badge: "Ny",
+      },
+      {
         label: "Leads",
         href: "/leads",
         description: "Alle henvendelser fra skjema, AI og kampanjer.",
@@ -120,7 +129,7 @@ const sections: NavSection[] = [
       {
         label: "Regnskap & betaling",
         href: "/regnskap",
-        description: "Kobling mot terminal, Fiken m.m. (under arbeid).",
+        description: "Kobling mot terminal, Fiken m.m.",
         requiresModule: "regnskap",
       },
       {
@@ -186,7 +195,7 @@ function isActive(pathname: string, href: string) {
 export default function SidebarNav() {
   const pathname = usePathname();
   const router = useRouter();
-  const { isModuleEnabled, loading: planLoading } = useOrgPlan();
+  const { isModuleEnabled, loading: planLoading, org } = useOrgPlan();
 
   const handleLogout = async () => {
     try {
@@ -198,7 +207,7 @@ export default function SidebarNav() {
     }
   };
 
-  // Filter nav items based on enabled modules
+  // Filter nav items based on enabled modules and webshop settings
   const filteredSections = sections.map((section) => ({
     ...section,
     items: section.items.filter((item) => {
@@ -206,6 +215,17 @@ export default function SidebarNav() {
       if (!item.requiresModule) return true;
       // While loading, show all items to avoid flicker
       if (planLoading) return true;
+      
+      // Special handling for webshop - check org settings
+      if (item.requiresModule === "webshop") {
+        return org?.webshopEnabled ?? false;
+      }
+      
+      // Special handling for landing_page - check org settings
+      if (item.requiresModule === "landing_page") {
+        return org?.landingPageEnabled ?? isModuleEnabled(item.requiresModule);
+      }
+      
       // Check if module is enabled
       return isModuleEnabled(item.requiresModule);
     }).filter((item) => {
@@ -252,7 +272,14 @@ export default function SidebarNav() {
                         active ? activeClasses : inactiveClasses
                       }`}
                     >
-                      <div className="text-xs font-medium">{item.label}</div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-medium">{item.label}</span>
+                        {item.badge && (
+                          <span className="rounded-full bg-blue-600 px-1.5 py-0.5 text-[9px] font-semibold text-white">
+                            {item.badge}
+                          </span>
+                        )}
+                      </div>
                       {item.description && (
                         <div className="text-[10px] text-shellTextMuted">
                           {item.description}

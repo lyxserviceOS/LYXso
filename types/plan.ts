@@ -1,6 +1,99 @@
 // types/plan.ts
 // Types for Plans, Addons & Billing module (Module 19)
 
+/**
+ * Plan limits for each subscription tier.
+ * Used to enforce limits on locations, employees, bookings, etc.
+ */
+export interface PlanLimits {
+  /** Maximum number of locations/arbeidsplasser */
+  max_locations: number | null;
+  /** Maximum number of employees/users */
+  max_employees: number | null;
+  /** Maximum bookings per month (null = unlimited) */
+  max_bookings_per_month: number | null;
+  /** Maximum customers in CRM (null = unlimited) */
+  max_customers: number | null;
+  /** Maximum products in inventory (null = unlimited) */
+  max_products: number | null;
+  /** Maximum storage in MB */
+  max_storage_mb: number | null;
+}
+
+/**
+ * Default plan limits by plan code.
+ * "payd" is the standard paid plan with 1 location and 3 employees.
+ */
+export const PLAN_LIMITS: Record<string, PlanLimits> = {
+  free: {
+    max_locations: 1,
+    max_employees: 1,
+    max_bookings_per_month: 50,
+    max_customers: 100,
+    max_products: 10,
+    max_storage_mb: 100,
+  },
+  trial: {
+    max_locations: 1,
+    max_employees: 3,
+    max_bookings_per_month: null, // Unlimited during trial
+    max_customers: null,
+    max_products: null,
+    max_storage_mb: 500,
+  },
+  paid: {
+    max_locations: 1,
+    max_employees: 3,
+    max_bookings_per_month: null,
+    max_customers: null,
+    max_products: null,
+    max_storage_mb: 1000,
+  },
+  starter: {
+    max_locations: 1,
+    max_employees: 3,
+    max_bookings_per_month: null,
+    max_customers: null,
+    max_products: null,
+    max_storage_mb: 1000,
+  },
+  pro: {
+    max_locations: 3,
+    max_employees: 10,
+    max_bookings_per_month: null,
+    max_customers: null,
+    max_products: null,
+    max_storage_mb: 5000,
+  },
+  enterprise: {
+    max_locations: null, // Unlimited
+    max_employees: null,
+    max_bookings_per_month: null,
+    max_customers: null,
+    max_products: null,
+    max_storage_mb: null,
+  },
+};
+
+/**
+ * Get plan limits for a given plan code.
+ * Defaults to free plan limits if plan code is not found.
+ */
+export function getPlanLimits(planCode: string | null | undefined): PlanLimits {
+  if (!planCode) return PLAN_LIMITS.free;
+  return PLAN_LIMITS[planCode] ?? PLAN_LIMITS.free;
+}
+
+/**
+ * Check if a limit has been reached.
+ * Returns true if the current count equals or exceeds the limit.
+ * Returns false if limit is null (unlimited).
+ */
+export function isLimitReached(current: number, limit: number | null): boolean {
+  if (limit === null) return false;
+  return current >= limit;
+}
+
 export interface Plan {
   id: string;
   name: string;

@@ -1,0 +1,440 @@
+"use client";
+
+import React, { useState } from "react";
+import { useOrgPlan } from "@/components/OrgPlanContext";
+import { PARTNER_DEFINITIONS, type ProductCategory } from "@/types/product";
+
+type TabKey = "oversikt" | "egne-produkter" | "partnere" | "ordrer" | "innstillinger";
+
+const CATEGORIES: { code: ProductCategory; label: string }[] = [
+  { code: "dekk", label: "Dekk" },
+  { code: "felger", label: "Felger" },
+  { code: "bilpleie", label: "Bilpleie" },
+  { code: "tilbehor", label: "Tilbehør" },
+  { code: "verksted", label: "Verksteddeler" },
+  { code: "vedlikehold", label: "Vedlikehold" },
+  { code: "annet", label: "Annet" },
+];
+
+export default function NettbutikkPageClient() {
+  const { org, loading } = useOrgPlan();
+  const [activeTab, setActiveTab] = useState<TabKey>("oversikt");
+
+  // Check if webshop is enabled
+  const webshopEnabled = org?.webshopEnabled ?? false;
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <p className="text-sm text-slate-400">Laster nettbutikk...</p>
+      </div>
+    );
+  }
+
+  if (!webshopEnabled) {
+    return (
+      <div className="space-y-6">
+        <header>
+          <h1 className="text-lg font-semibold text-slate-100">Nettbutikk</h1>
+          <p className="text-sm text-slate-400">
+            Selg produkter direkte fra landingssiden din.
+          </p>
+        </header>
+
+        <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-6 text-center">
+          <p className="text-sm text-amber-200">
+            Nettbutikk er ikke aktivert for din bedrift.
+          </p>
+          <p className="mt-2 text-xs text-amber-200/80">
+            Gå til <strong>Innstillinger → Moduler</strong> for å aktivere nettbutikk,
+            eller aktiver den under onboarding.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <header>
+        <h1 className="text-lg font-semibold text-slate-100">Nettbutikk</h1>
+        <p className="text-sm text-slate-400">
+          Administrer produkter, priser og ordrer for nettbutikken din.
+        </p>
+      </header>
+
+      {/* Tabs */}
+      <div className="flex flex-wrap gap-1 rounded-lg bg-slate-800 p-1">
+        {[
+          { key: "oversikt", label: "Oversikt" },
+          { key: "egne-produkter", label: "Egne produkter" },
+          { key: "partnere", label: "Partnerprodukter" },
+          { key: "ordrer", label: "Ordrer" },
+          { key: "innstillinger", label: "Innstillinger" },
+        ].map((tab) => (
+          <button
+            key={tab.key}
+            type="button"
+            onClick={() => setActiveTab(tab.key as TabKey)}
+            className={`flex-1 rounded-md px-3 py-2 text-xs font-medium transition ${
+              activeTab === tab.key
+                ? "bg-slate-700 text-white"
+                : "text-slate-400 hover:text-slate-200"
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Oversikt Tab */}
+      {activeTab === "oversikt" && (
+        <div className="space-y-4">
+          {/* Stats */}
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <StatCard label="Egne produkter" value="0" trend="—" />
+            <StatCard label="Partnerprodukter" value="0" trend="—" />
+            <StatCard label="Ordrer denne måneden" value="0" trend="—" />
+            <StatCard label="Omsetning" value="kr 0" trend="—" />
+          </div>
+
+          {/* Quick actions */}
+          <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-4">
+            <h2 className="text-sm font-semibold text-slate-100 mb-3">
+              Kom i gang
+            </h2>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <ActionCard
+                title="Legg til produkt"
+                description="Legg til dine egne produkter fra eget lager."
+                onClick={() => setActiveTab("egne-produkter")}
+              />
+              <ActionCard
+                title="Aktiver partnerprodukter"
+                description="Velg produkter fra våre partnere å selge."
+                onClick={() => setActiveTab("partnere")}
+              />
+              <ActionCard
+                title="Konfigurer butikk"
+                description="Sett opp frakt, priser og visningsinnstillinger."
+                onClick={() => setActiveTab("innstillinger")}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Egne produkter Tab */}
+      {activeTab === "egne-produkter" && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-sm font-semibold text-slate-100">
+                Egne produkter
+              </h2>
+              <p className="text-xs text-slate-400">
+                Produkter du selger fra eget lager
+              </p>
+            </div>
+            <button
+              type="button"
+              className="rounded-lg bg-blue-600 px-4 py-2 text-xs font-medium text-white hover:bg-blue-700"
+            >
+              + Legg til produkt
+            </button>
+          </div>
+
+          {/* Empty state */}
+          <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-8 text-center">
+            <p className="text-sm text-slate-400">
+              Du har ingen egne produkter ennå.
+            </p>
+            <p className="mt-1 text-xs text-slate-500">
+              Klikk &quot;Legg til produkt&quot; for å legge til ditt første produkt.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Partnerprodukter Tab */}
+      {activeTab === "partnere" && (
+        <div className="space-y-4">
+          <div>
+            <h2 className="text-sm font-semibold text-slate-100">
+              Partnerprodukter
+            </h2>
+            <p className="text-xs text-slate-400">
+              Produkter fra LYXso-partnere som du kan selge via nettbutikken din
+            </p>
+          </div>
+
+          {/* Partner list */}
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {PARTNER_DEFINITIONS.map((partner) => (
+              <div
+                key={partner.slug}
+                className="rounded-xl border border-slate-800 bg-slate-950/60 p-4"
+              >
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h3 className="text-sm font-semibold text-slate-100">
+                      {partner.name}
+                    </h3>
+                    <span className="mt-1 inline-block rounded-full bg-slate-700 px-2 py-0.5 text-[10px] text-slate-300">
+                      {partner.type}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    className="rounded-lg border border-slate-700 px-3 py-1.5 text-xs font-medium text-slate-300 hover:border-blue-500 hover:text-blue-400"
+                  >
+                    Aktiver
+                  </button>
+                </div>
+                <p className="mt-2 text-xs text-slate-400">
+                  {partner.description}
+                </p>
+                <p className="mt-2 text-[10px] text-slate-500">
+                  Anbefalt for: {partner.target_industries.join(", ")}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <div className="rounded-lg border border-blue-500/30 bg-blue-500/10 p-3">
+            <p className="text-xs text-blue-200">
+              <strong>Tips:</strong> Når du aktiverer en partner, blir deres 
+              produktkatalog tilgjengelig i nettbutikken din. Du kan velge 
+              egne priser og hvilke produkter som skal vises.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Ordrer Tab */}
+      {activeTab === "ordrer" && (
+        <div className="space-y-4">
+          <div>
+            <h2 className="text-sm font-semibold text-slate-100">Ordrer</h2>
+            <p className="text-xs text-slate-400">
+              Oversikt over kundeordrer fra nettbutikken
+            </p>
+          </div>
+
+          {/* Empty state */}
+          <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-8 text-center">
+            <p className="text-sm text-slate-400">Ingen ordrer ennå.</p>
+            <p className="mt-1 text-xs text-slate-500">
+              Ordrer vil vises her når kunder handler i nettbutikken din.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Innstillinger Tab */}
+      {activeTab === "innstillinger" && (
+        <div className="space-y-4">
+          <div>
+            <h2 className="text-sm font-semibold text-slate-100">
+              Nettbutikk-innstillinger
+            </h2>
+            <p className="text-xs text-slate-400">
+              Konfigurer hvordan nettbutikken fungerer
+            </p>
+          </div>
+
+          {/* Display settings */}
+          <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-4 space-y-4">
+            <h3 className="text-xs font-medium text-slate-300">Visning</h3>
+            
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                defaultChecked
+                className="mt-0.5 rounded border-slate-600"
+              />
+              <div>
+                <span className="text-sm text-slate-100">Vis i meny</span>
+                <p className="text-xs text-slate-400">
+                  Vis nettbutikk-lenke i menyen på landingssiden
+                </p>
+              </div>
+            </label>
+
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                className="mt-0.5 rounded border-slate-600"
+              />
+              <div>
+                <span className="text-sm text-slate-100">Vis partnernes logo</span>
+                <p className="text-xs text-slate-400">
+                  Vis logo for partnere ved siden av deres produkter
+                </p>
+              </div>
+            </label>
+          </div>
+
+          {/* Pricing settings */}
+          <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-4 space-y-4">
+            <h3 className="text-xs font-medium text-slate-300">Prissetting</h3>
+            
+            <div>
+              <label className="block text-xs text-slate-400 mb-1">
+                Standard påslag (%)
+              </label>
+              <input
+                type="number"
+                defaultValue={20}
+                min={0}
+                max={100}
+                className="w-32 rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100"
+              />
+              <p className="mt-1 text-[10px] text-slate-500">
+                Prosentpåslag på innkjøpspris fra partnere
+              </p>
+            </div>
+
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                className="mt-0.5 rounded border-slate-600"
+              />
+              <div>
+                <span className="text-sm text-slate-100">Vis opprinnelig pris</span>
+                <p className="text-xs text-slate-400">
+                  Vis &quot;var&quot;-pris ved siden av din pris
+                </p>
+              </div>
+            </label>
+          </div>
+
+          {/* Shipping settings */}
+          <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-4 space-y-4">
+            <h3 className="text-xs font-medium text-slate-300">Levering</h3>
+            
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                defaultChecked
+                className="mt-0.5 rounded border-slate-600"
+              />
+              <div>
+                <span className="text-sm text-slate-100">Tilby henting</span>
+                <p className="text-xs text-slate-400">
+                  La kunder hente varer hos dere
+                </p>
+              </div>
+            </label>
+
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                className="mt-0.5 rounded border-slate-600"
+              />
+              <div>
+                <span className="text-sm text-slate-100">Tilby frakt</span>
+                <p className="text-xs text-slate-400">
+                  Send varer til kunden
+                </p>
+              </div>
+            </label>
+
+            <div>
+              <label className="block text-xs text-slate-400 mb-1">
+                Fraktpris (fast)
+              </label>
+              <input
+                type="number"
+                defaultValue={99}
+                min={0}
+                className="w-32 rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100"
+              />
+              <p className="mt-1 text-[10px] text-slate-500">
+                Fast fraktpris i NOK
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-xs text-slate-400 mb-1">
+                Gratis frakt over (NOK)
+              </label>
+              <input
+                type="number"
+                defaultValue={500}
+                min={0}
+                className="w-32 rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100"
+              />
+              <p className="mt-1 text-[10px] text-slate-500">
+                0 = ingen gratis frakt
+              </p>
+            </div>
+          </div>
+
+          {/* Categories */}
+          <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-4 space-y-4">
+            <h3 className="text-xs font-medium text-slate-300">Kategorier</h3>
+            <p className="text-xs text-slate-400">
+              Velg hvilke produktkategorier du vil vise i nettbutikken
+            </p>
+            
+            <div className="grid gap-2 sm:grid-cols-2">
+              {CATEGORIES.map((category) => (
+                <label key={category.code} className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    defaultChecked
+                    className="rounded border-slate-600"
+                  />
+                  <span className="text-xs text-slate-300">{category.label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Save button */}
+          <div className="flex justify-end">
+            <button
+              type="button"
+              className="rounded-lg bg-blue-600 px-4 py-2 text-xs font-medium text-white hover:bg-blue-700"
+            >
+              Lagre innstillinger
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Helper components
+function StatCard({ label, value, trend }: { label: string; value: string; trend: string }) {
+  return (
+    <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-4">
+      <p className="text-[10px] uppercase tracking-wide text-slate-500">{label}</p>
+      <p className="mt-1 text-xl font-semibold text-slate-100">{value}</p>
+      <p className="mt-1 text-[11px] text-slate-400">{trend}</p>
+    </div>
+  );
+}
+
+function ActionCard({ 
+  title, 
+  description, 
+  onClick 
+}: { 
+  title: string; 
+  description: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="rounded-lg border border-slate-700 bg-slate-900/50 p-4 text-left hover:border-blue-500/50 transition"
+    >
+      <h3 className="text-sm font-medium text-slate-100">{title}</h3>
+      <p className="mt-1 text-xs text-slate-400">{description}</p>
+    </button>
+  );
+}
