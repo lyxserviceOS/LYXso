@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import PublicHeader from "@/components/PublicHeader";
 
 export const metadata: Metadata = {
   title: "LYXso – ServiceOS for bilbransjen",
@@ -18,14 +19,7 @@ export default function RootLayout({
       className="font-sans"
     >
       <body className="min-h-screen bg-shellBg text-shellText antialiased selection:bg-primary/30 selection:text-white">
-        {/* 
-          Viktig:
-          - Ingen header / navbar her.
-          - Dette skal være en "ren" shell som både 
-            markeds-sidene og partner-portalen bruker.
-          - Offentlige sider (/, /kontakt osv.) har sin egen header i selve sidene.
-          - Partner-sidene får sin layout via app/(protected)/layout.tsx.
-        */}
+        <PublicHeader />
         {children}
       </body>
     </html>

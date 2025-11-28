@@ -4,64 +4,6 @@ import Link from "next/link";
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50">
-      {/* Topplinje / navbar */}
-      <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 lg:px-8">
-          {/* Logo – lenker til / */}
-          <Link href="/" className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-blue-600 text-[11px] font-semibold tracking-[0.2em]">
-              L
-            </div>
-            <div className="leading-tight">
-              <div className="text-sm font-semibold">LYXso</div>
-              <div className="text-[11px] uppercase tracking-[0.18em] text-slate-400">
-                ServiceOS for bilpleie
-              </div>
-            </div>
-          </Link>
-
-          <nav className="hidden items-center gap-6 text-sm text-slate-200 md:flex">
-            <Link
-              href="#produkt"
-              className="hover:text-white hover:underline hover:underline-offset-4"
-            >
-              Produkt
-            </Link>
-            <Link
-              href="#moduler"
-              className="hover:text-white hover:underline hover:underline-offset-4"
-            >
-              Moduler
-            </Link>
-            <Link
-              href="#fordeler"
-              className="hover:text-white hover:underline hover:underline-offset-4"
-            >
-              Fordeler
-            </Link>
-            <Link
-              href="#om-lyxso"
-              className="hover:text-white hover:underline hover:underline-offset-4"
-            >
-              Om LYXso
-            </Link>
-            <Link
-              href="#kontakt"
-              className="hover:text-white hover:underline hover:underline-offset-4"
-            >
-              Kontakt
-            </Link>
-
-            <Link
-              href="/login"
-              className="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-500"
-            >
-              Logg inn som partner
-            </Link>
-          </nav>
-        </div>
-      </header>
-
       {/* Innhold */}
       <main className="mx-auto max-w-6xl space-y-12 px-4 py-10 lg:px-8 lg:py-14">
         {/* Hero */}
@@ -90,14 +32,20 @@ export default function HomePage() {
             </p>
 
             <div className="flex flex-wrap gap-3 text-xs">
-              <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-1 text-emerald-200">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                Optimalisert for keramisk coating og dekkhotell
-              </div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-purple-400/40 bg-purple-500/10 px-3 py-1 text-purple-100">
+              <Link 
+                href="/lyx-vision"
+                className="inline-flex items-center gap-2 rounded-full border border-purple-400/40 bg-purple-500/10 px-3 py-1 text-purple-100 hover:bg-purple-500/20 transition-colors"
+              >
                 <span className="h-1.5 w-1.5 rounded-full bg-purple-300" />
-                Klar for AI-markedsføring og LYXba Booking Agent
-              </div>
+                LYX Vision – AI bildeanalyse
+              </Link>
+              <Link
+                href="/lyxba"
+                className="inline-flex items-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-1 text-emerald-200 hover:bg-emerald-500/20 transition-colors"
+              >
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                LYXba – AI Booking Agent
+              </Link>
             </div>
 
             <div className="flex flex-wrap gap-3">
@@ -219,6 +167,33 @@ export default function HomePage() {
               <p className="mt-1 text-xs text-slate-400">
                 Klar for integrasjoner mot bankterminal og regnskap – med
                 AI-støtte for bokføring.
+              </p>
+            </div>
+            
+            <Link href="/lyx-vision" className="rounded-2xl border border-purple-700/70 bg-purple-900/20 p-4 hover:bg-purple-900/30 transition-colors">
+              <p className="text-sm font-semibold text-purple-100">
+                LYX Vision – AI bildeanalyse
+              </p>
+              <p className="mt-1 text-xs text-purple-200/80">
+                AI-analyse av lakk, coating og tilstand. Konsistente vurderinger og estimater på sekunder.
+              </p>
+            </Link>
+            
+            <Link href="/lyxba" className="rounded-2xl border border-emerald-700/70 bg-emerald-900/20 p-4 hover:bg-emerald-900/30 transition-colors">
+              <p className="text-sm font-semibold text-emerald-200">
+                LYXba – AI Booking Agent
+              </p>
+              <p className="mt-1 text-xs text-emerald-200/80">
+                AI som tar telefoner, booker timer og følger opp kunder 24/7. Aldri gå glipp av en lead.
+              </p>
+            </Link>
+            
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
+              <p className="text-sm font-semibold text-slate-50">
+                Coating-løp &amp; årskontroller
+              </p>
+              <p className="mt-1 text-xs text-slate-400">
+                Automatisk oppfølging av coating-kunder, påminnelser om årskontroll og dokumentasjon.
               </p>
             </div>
           </div>
