@@ -158,11 +158,14 @@ export interface BookingSettings {
   sendReminderSms: boolean;
   reminderHoursBefore: number;
   
-  // Working hours (JSON)
-  workingHours: Record<string, { open: string; close: string } | null>;
+  // Working hours by day of week
+  workingHours: Record<
+    'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday',
+    { open: string; close: string } | null
+  >;
   
-  // Holidays/closures
-  holidays: string[]; // Array of date strings
+  // Holidays/closures (ISO date strings)
+  holidays: string[];
   
   createdAt: string | null;
   updatedAt: string | null;

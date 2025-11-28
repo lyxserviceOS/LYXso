@@ -43,10 +43,24 @@ export type Service = {
   updatedAt?: string | null;
 };
 
-// Helper to calculate display price
+/**
+ * Calculates the effective display price for a service, taking into account active offers.
+ * 
+ * @param service - The service to calculate the display price for
+ * @returns An object containing:
+ *   - price: The effective price to display (offer price if on valid offer, otherwise regular price)
+ *   - originalPrice: The original price (only set if an offer is active, null otherwise)
+ *   - isOffer: Boolean indicating if the current price is an offer price
+ * 
+ * @example
+ * const { price, originalPrice, isOffer } = getDisplayPrice(service);
+ * if (isOffer && originalPrice) {
+ *   // Show strikethrough on originalPrice, display price as offer
+ * }
+ */
 export function getDisplayPrice(service: Service): { price: number | null; originalPrice: number | null; isOffer: boolean } {
   if (service.isOnOffer && service.offerPrice !== null) {
-    // Check if offer is valid
+    // Check if offer is valid based on date range
     const now = new Date();
     const validFrom = service.offerValidFrom ? new Date(service.offerValidFrom) : null;
     const validTo = service.offerValidTo ? new Date(service.offerValidTo) : null;

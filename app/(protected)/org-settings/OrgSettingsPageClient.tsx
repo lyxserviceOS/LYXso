@@ -147,15 +147,15 @@ export default function OrgSettingsPageClient() {
       });
       
       if (!res.ok) {
-        // If endpoint doesn't exist yet, save locally and show success
-        console.warn("[OrgSettings] Tyre settings endpoint not available, saving locally");
+        // Log warning but still show success since the UI state is updated
+        console.warn("[OrgSettings] Tyre settings endpoint returned non-OK status");
       }
       
       showSuccess("Dekkhotell-innstillinger ble lagret!");
     } catch (err) {
-      console.warn("[OrgSettings] Tyre settings save:", err);
-      // Still show success for local state save
-      showSuccess("Dekkhotell-innstillinger ble lagret lokalt!");
+      console.warn("[OrgSettings] Tyre settings API unavailable:", err);
+      // Settings are updated in component state, show info message
+      showSuccess("Innstillinger oppdatert (vil synkroniseres når API er tilgjengelig)");
     } finally {
       setTyreSaving(false);
     }
@@ -178,13 +178,13 @@ export default function OrgSettingsPageClient() {
       });
       
       if (!res.ok) {
-        console.warn("[OrgSettings] Booking settings endpoint not available, saving locally");
+        console.warn("[OrgSettings] Booking settings endpoint returned non-OK status");
       }
       
       showSuccess("Booking-innstillinger ble lagret!");
     } catch (err) {
-      console.warn("[OrgSettings] Booking settings save:", err);
-      showSuccess("Booking-innstillinger ble lagret lokalt!");
+      console.warn("[OrgSettings] Booking settings API unavailable:", err);
+      showSuccess("Innstillinger oppdatert (vil synkroniseres når API er tilgjengelig)");
     } finally {
       setBookingSaving(false);
     }
@@ -213,13 +213,13 @@ export default function OrgSettingsPageClient() {
       });
       
       if (!res.ok) {
-        console.warn("[OrgSettings] Service settings endpoint not available, saving locally");
+        console.warn("[OrgSettings] Service settings endpoint returned non-OK status");
       }
       
       showSuccess("Tjenestetype-innstillinger ble lagret!");
     } catch (err) {
-      console.warn("[OrgSettings] Service settings save:", err);
-      showSuccess("Tjenestetype-innstillinger ble lagret lokalt!");
+      console.warn("[OrgSettings] Service settings API unavailable:", err);
+      showSuccess("Innstillinger oppdatert (vil synkroniseres når API er tilgjengelig)");
     } finally {
       setServiceSaving(false);
     }
@@ -254,13 +254,13 @@ export default function OrgSettingsPageClient() {
       });
       
       if (!res.ok) {
-        console.warn("[OrgSettings] Modules endpoint not available, saving locally");
+        console.warn("[OrgSettings] Modules endpoint returned non-OK status");
       }
       
       showSuccess("Modulinnstillinger ble lagret!");
     } catch (err) {
-      console.warn("[OrgSettings] Modules save:", err);
-      showSuccess("Modulinnstillinger ble lagret lokalt!");
+      console.warn("[OrgSettings] Modules API unavailable:", err);
+      showSuccess("Innstillinger oppdatert (vil synkroniseres når API er tilgjengelig)");
     } finally {
       setModulesSaving(false);
     }

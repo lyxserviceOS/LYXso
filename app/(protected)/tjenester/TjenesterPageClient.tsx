@@ -389,7 +389,7 @@ export default function TjenesterPageClient() {
   }
 
   function calculateMargin(cost: number | null, price: number | null): string {
-    if (cost === null || price === null || cost === 0) return "–";
+    if (cost === null || price === null || cost === 0 || price === 0) return "–";
     const margin = ((price - cost) / price) * 100;
     return `${margin.toFixed(1)}%`;
   }
