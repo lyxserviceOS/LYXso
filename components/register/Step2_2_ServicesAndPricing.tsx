@@ -4,12 +4,16 @@
 import { useState } from "react";
 import { SERVICES_BY_INDUSTRY, PRICE_LEVELS } from "@/lib/constants/industries";
 import type { OnboardingStepData, PriceLevel } from "@/types/ai-onboarding";
+import { Step2_AiHintsPanel } from "./Step2_AiHintsPanel";
 
 interface Step2_2Props {
   data: OnboardingStepData;
   onChange: (data: Partial<OnboardingStepData>) => void;
   onNext: () => void;
   onBack: () => void;
+  orgId?: string | null;
+  aiHintsEnabled?: boolean;
+  onDisableAiHints?: () => void;
 }
 
 export function Step2_2_ServicesAndPricing({
@@ -17,6 +21,9 @@ export function Step2_2_ServicesAndPricing({
   onChange,
   onNext,
   onBack,
+  orgId = null,
+  aiHintsEnabled = false,
+  onDisableAiHints = () => {},
 }: Step2_2Props) {
   const [customService, setCustomService] = useState("");
 
@@ -50,7 +57,9 @@ export function Step2_2_ServicesAndPricing({
   const canProceed = (data.selectedServices.length > 0 || data.customServices.length > 0) && data.priceLevel;
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col lg:flex-row gap-6">
+      {/* Main content */}
+      <div className="flex-1 space-y-6">
       <div>
         <h2 className="text-lg font-semibold text-slate-50">
           Tjenester og prisnivå
@@ -185,6 +194,17 @@ export function Step2_2_ServicesAndPricing({
           Neste: Åpningstider
         </button>
       </div>
+      </div>
+
+      {/* AI Hints Panel */}
+      {aiHintsEnabled && (
+        <Step2_AiHintsPanel
+          orgId={orgId}
+          onboardingData={data}
+          enabled={aiHintsEnabled}
+          onDisable={onDisableAiHints}
+        />
+      )}
     </div>
   );
 }

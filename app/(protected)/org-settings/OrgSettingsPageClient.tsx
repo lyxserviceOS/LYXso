@@ -220,44 +220,6 @@ export default function OrgSettingsPageClient() {
     } catch (err) {
       console.warn("[OrgSettings] Service settings API unavailable:", err);
       showSuccess("Innstillinger oppdatert (vil synkroniseres når API er tilgjengelig)");
-
-    if (!API_BASE || !ORG_ID) {
-      setError("Mangler API-konfigurasjon.");
-      return;
-    }
-
-    setServiceSaving(true);
-    setError(null);
-
-    try {
-      // Compute work_mode from settings
-      const workMode = serviceSettings.hasFixedLocation && serviceSettings.isMobile 
-        ? "both" 
-        : serviceSettings.isMobile 
-          ? "mobile" 
-          : "fixed";
-
-      const res = await fetch(`${API_BASE}/api/orgs/${ORG_ID}/settings`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          work_mode: workMode,
-          has_fixed_location: serviceSettings.hasFixedLocation,
-          is_mobile: serviceSettings.isMobile,
-        }),
-      });
-
-      if (!res.ok) {
-        const text = await res.text().catch(() => "");
-        throw new Error(text || `Feil ved lagring (${res.status})`);
-      }
-
-      // Settings saved successfully
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Ukjent feil ved lagring";
-      setError(message);
     } finally {
       setServiceSaving(false);
     }

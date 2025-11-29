@@ -3,12 +3,16 @@
 
 import { WEEKDAYS } from "@/lib/constants/industries";
 import type { OnboardingStepData, OpeningHours } from "@/types/ai-onboarding";
+import { Step2_AiHintsPanel } from "./Step2_AiHintsPanel";
 
 interface Step2_3Props {
   data: OnboardingStepData;
   onChange: (data: Partial<OnboardingStepData>) => void;
   onNext: () => void;
   onBack: () => void;
+  orgId?: string | null;
+  aiHintsEnabled?: boolean;
+  onDisableAiHints?: () => void;
 }
 
 export function Step2_3_OpeningHoursAndCapacity({
@@ -16,6 +20,9 @@ export function Step2_3_OpeningHoursAndCapacity({
   onChange,
   onNext,
   onBack,
+  orgId = null,
+  aiHintsEnabled = false,
+  onDisableAiHints = () => {},
 }: Step2_3Props) {
   const handleDayToggle = (day: string) => {
     const newHours: OpeningHours = { ...data.openingHours };
@@ -46,7 +53,9 @@ export function Step2_3_OpeningHoursAndCapacity({
   const hasAtLeastOneDay = Object.values(data.openingHours).some((hours) => hours !== null);
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col lg:flex-row gap-6">
+      {/* Main content */}
+      <div className="flex-1 space-y-6">
       <div>
         <h2 className="text-lg font-semibold text-slate-50">
           Åpningstider og kapasitet
@@ -157,6 +166,17 @@ export function Step2_3_OpeningHoursAndCapacity({
           Se AI-forslag
         </button>
       </div>
+      </div>
+
+      {/* AI Hints Panel */}
+      {aiHintsEnabled && (
+        <Step2_AiHintsPanel
+          orgId={orgId}
+          onboardingData={data}
+          enabled={aiHintsEnabled}
+          onDisable={onDisableAiHints}
+        />
+      )}
     </div>
   );
 }

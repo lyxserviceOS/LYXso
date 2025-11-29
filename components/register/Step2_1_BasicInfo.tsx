@@ -3,14 +3,25 @@
 
 import { INDUSTRIES } from "@/lib/constants/industries";
 import type { LocationType, OnboardingStepData } from "@/types/ai-onboarding";
+import { Step2_AiHintsPanel } from "./Step2_AiHintsPanel";
 
 interface Step2_1Props {
   data: OnboardingStepData;
   onChange: (data: Partial<OnboardingStepData>) => void;
   onNext: () => void;
+  orgId?: string | null;
+  aiHintsEnabled?: boolean;
+  onDisableAiHints?: () => void;
 }
 
-export function Step2_1_BasicInfo({ data, onChange, onNext }: Step2_1Props) {
+export function Step2_1_BasicInfo({ 
+  data, 
+  onChange, 
+  onNext,
+  orgId = null,
+  aiHintsEnabled = false,
+  onDisableAiHints = () => {},
+}: Step2_1Props) {
   const handleIndustryToggle = (industry: string) => {
     const newIndustries = data.industries.includes(industry)
       ? data.industries.filter((i) => i !== industry)
@@ -25,7 +36,9 @@ export function Step2_1_BasicInfo({ data, onChange, onNext }: Step2_1Props) {
   const canProceed = data.industries.length > 0 && data.locationType;
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col lg:flex-row gap-6">
+      {/* Main content */}
+      <div className="flex-1 space-y-6">
       <div>
         <h2 className="text-lg font-semibold text-slate-50">
           Fortell oss om bedriften din
@@ -115,6 +128,17 @@ export function Step2_1_BasicInfo({ data, onChange, onNext }: Step2_1Props) {
       >
         Neste: Tjenester og priser
       </button>
+      </div>
+
+      {/* AI Hints Panel */}
+      {aiHintsEnabled && (
+        <Step2_AiHintsPanel
+          orgId={orgId}
+          onboardingData={data}
+          enabled={aiHintsEnabled}
+          onDisable={onDisableAiHints}
+        />
+      )}
     </div>
   );
 }
