@@ -261,33 +261,6 @@ export default function OrgSettingsPageClient() {
     } catch (err) {
       console.warn("[OrgSettings] Modules API unavailable:", err);
       showSuccess("Innstillinger oppdatert (vil synkroniseres når API er tilgjengelig)");
-      setError("Mangler API-konfigurasjon.");
-      return;
-    }
-
-    setModulesSaving(true);
-    setError(null);
-
-    try {
-      const res = await fetch(`${API_BASE}/api/orgs/${ORG_ID}/settings`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          enabled_modules: enabledModules,
-        }),
-      });
-
-      if (!res.ok) {
-        const text = await res.text().catch(() => "");
-        throw new Error(text || `Feil ved lagring (${res.status})`);
-      }
-
-      // Settings saved successfully
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Ukjent feil ved lagring";
-      setError(message);
     } finally {
       setModulesSaving(false);
     }
