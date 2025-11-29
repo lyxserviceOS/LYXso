@@ -1,5 +1,5 @@
 // lib/hooks/useAiOnboarding.ts
-// Hook for AI onboarding API calls
+// Hook for AI onboarding API calls with timeout and retry support
 
 import { useState } from "react";
 import type {
@@ -11,6 +11,9 @@ const API_BASE_URL =
   process.env.NEXT_PUBLIC_LYXSO_API_URL ??
   process.env.NEXT_PUBLIC_API_BASE ??
   "http://localhost:4000";
+
+const REQUEST_TIMEOUT = 30000; // 30 seconds
+const MAX_RETRIES = 2; // Total attempts will be 1 initial + 2 retries = 3
 
 interface UseAiOnboardingReturn {
   loading: boolean;
@@ -25,6 +28,8 @@ interface UseAiOnboardingReturn {
     sessionId: string
   ) => Promise<boolean>;
   clearError: () => void;
+  retryRun: (orgId: string, input: OnboardingInput) => Promise<AIOnboardingSession | null>;
+  retryApply: (orgId: string, sessionId: string) => Promise<boolean>;
 }
 
 export function useAiOnboarding(): UseAiOnboardingReturn {
@@ -36,10 +41,14 @@ export function useAiOnboarding(): UseAiOnboardingReturn {
 
   const runOnboarding = async (
     orgId: string,
-    input: OnboardingInput
+    input: OnboardingInput,
+    retryCount = 0
   ): Promise<AIOnboardingSession | null> => {
     setLoading(true);
     setError(null);
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
 
     try {
       const response = await fetch(
@@ -50,8 +59,11 @@ export function useAiOnboarding(): UseAiOnboardingReturn {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(input),
+          signal: controller.signal,
         }
       );
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -64,8 +76,24 @@ export function useAiOnboarding(): UseAiOnboardingReturn {
       setSession(data.session);
       return data.session;
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Ukjent feil";
+      clearTimeout(timeoutId);
+      
+      let errorMessage = "Ukjent feil";
+      if (err instanceof Error) {
+        if (err.name === "AbortError") {
+          errorMessage = "Forespørselen tok for lang tid (timeout etter 30 sekunder)";
+        } else {
+          errorMessage = err.message;
+        }
+      }
+      
+      // Retry logic for network errors and timeouts
+      if (retryCount < MAX_RETRIES) {
+        console.log(`Retry attempt ${retryCount + 1} of ${MAX_RETRIES} for /run`);
+        await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1))); // Exponential backoff
+        return runOnboarding(orgId, input, retryCount + 1);
+      }
+      
       setError(errorMessage);
       return null;
     } finally {
@@ -75,10 +103,14 @@ export function useAiOnboarding(): UseAiOnboardingReturn {
 
   const applyOnboarding = async (
     orgId: string,
-    sessionId: string
+    sessionId: string,
+    retryCount = 0
   ): Promise<boolean> => {
     setLoading(true);
     setError(null);
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
 
     try {
       const response = await fetch(
@@ -89,8 +121,11 @@ export function useAiOnboarding(): UseAiOnboardingReturn {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ sessionId }),
+          signal: controller.signal,
         }
       );
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -101,13 +136,46 @@ export function useAiOnboarding(): UseAiOnboardingReturn {
 
       return true;
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Ukjent feil";
+      clearTimeout(timeoutId);
+      
+      let errorMessage = "Ukjent feil";
+      if (err instanceof Error) {
+        if (err.name === "AbortError") {
+          errorMessage = "Forespørselen tok for lang tid (timeout etter 30 sekunder)";
+        } else {
+          errorMessage = err.message;
+        }
+      }
+      
+      // Retry logic for network errors and timeouts
+      if (retryCount < MAX_RETRIES) {
+        console.log(`Retry attempt ${retryCount + 1} of ${MAX_RETRIES} for /apply`);
+        await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1))); // Exponential backoff
+        return applyOnboarding(orgId, sessionId, retryCount + 1);
+      }
+      
       setError(errorMessage);
       return false;
     } finally {
       setLoading(false);
     }
+  };
+
+  // Retry functions that clear error and retry the operation
+  const retryRun = async (
+    orgId: string,
+    input: OnboardingInput
+  ): Promise<AIOnboardingSession | null> => {
+    clearError();
+    return runOnboarding(orgId, input);
+  };
+
+  const retryApply = async (
+    orgId: string,
+    sessionId: string
+  ): Promise<boolean> => {
+    clearError();
+    return applyOnboarding(orgId, sessionId);
   };
 
   return {
@@ -117,5 +185,7 @@ export function useAiOnboarding(): UseAiOnboardingReturn {
     runOnboarding,
     applyOnboarding,
     clearError,
+    retryRun,
+    retryApply,
   };
 }

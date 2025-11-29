@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { useAiOnboarding } from "@/lib/hooks/useAiOnboarding";
@@ -14,6 +14,8 @@ const API_BASE_URL =
   process.env.NEXT_PUBLIC_LYXSO_API_URL ??
   process.env.NEXT_PUBLIC_API_BASE ??
   "http://localhost:4000";
+
+const STORAGE_KEY = "lyxso_register_onboarding_data";
 
 type Step1FormState = {
   fullName: string;
@@ -55,6 +57,7 @@ export default function RegisterPage() {
   const [step1Error, setStep1Error] = useState<string | null>(null);
   const [orgId, setOrgId] = useState<string | null>(null);
   const [companyName, setCompanyName] = useState<string>("");
+  const [lastOnboardingInput, setLastOnboardingInput] = useState<OnboardingInput | null>(null);
 
   const {
     loading: aiLoading,
@@ -62,7 +65,32 @@ export default function RegisterPage() {
     session: aiSession,
     runOnboarding,
     applyOnboarding,
+    retryRun,
   } = useAiOnboarding();
+
+  // Load persisted data on mount
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        setOnboardingData(parsed);
+      }
+    } catch (err) {
+      console.error("Failed to load persisted onboarding data:", err);
+    }
+  }, []);
+
+  // Persist data on change (only for step2)
+  useEffect(() => {
+    if (currentStep !== "step1") {
+      try {
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(onboardingData));
+      } catch (err) {
+        console.error("Failed to persist onboarding data:", err);
+      }
+    }
+  }, [onboardingData, currentStep]);
 
   // Step 1: User registration
   async function handleStep1Submit(e: FormEvent) {
@@ -174,8 +202,25 @@ export default function RegisterPage() {
 
   // Navigate to step 2.4 and run AI onboarding
   async function handleMoveToAISuggestions() {
-    if (!orgId) {
-      setStep1Error("Mangler org ID. Kan ikke fortsette.");
+    // Validate orgId
+    if (!orgId || orgId.trim() === "") {
+      setStep1Error("Mangler gyldig org ID. Kan ikke fortsette til AI-steget.");
+      return;
+    }
+
+    // Validate required fields
+    if (!onboardingData.industries || onboardingData.industries.length === 0) {
+      setStep1Error("Vennligst velg minst én bransje før du fortsetter.");
+      return;
+    }
+
+    if (!onboardingData.locationType) {
+      setStep1Error("Vennligst velg lokasjonstype før du fortsetter.");
+      return;
+    }
+
+    if (onboardingData.selectedServices.length === 0 && onboardingData.customServices.length === 0) {
+      setStep1Error("Vennligst velg eller legg til minst én tjeneste før du fortsetter.");
       return;
     }
 
@@ -195,25 +240,60 @@ export default function RegisterPage() {
       capacityHeavyJobsPerDay: onboardingData.capacityHeavyJobsPerDay,
     };
 
+    setLastOnboardingInput(input);
+
     // Call AI onboarding
     await runOnboarding(orgId, input);
   }
 
   // Apply AI suggestions
   async function handleApplyAISuggestions() {
-    if (!orgId || !aiSession) {
+    if (!orgId || orgId.trim() === "") {
+      setStep1Error("Mangler gyldig org ID. Kan ikke aktivere forslag.");
+      return;
+    }
+    
+    if (!aiSession || !aiSession.id) {
+      setStep1Error("Mangler AI-sesjon. Kan ikke aktivere forslag.");
       return;
     }
 
     const success = await applyOnboarding(orgId, aiSession.id);
     if (success) {
+      // Clear persisted data on success
+      try {
+        sessionStorage.removeItem(STORAGE_KEY);
+      } catch (err) {
+        console.error("Failed to clear persisted data:", err);
+      }
       // Redirect to dashboard
       router.push("/");
     }
   }
 
+  // Retry AI onboarding
+  async function handleRetryAIOnboarding() {
+    if (!orgId || orgId.trim() === "") {
+      setStep1Error("Mangler gyldig org ID. Kan ikke prøve igjen.");
+      return;
+    }
+    
+    if (!lastOnboardingInput) {
+      setStep1Error("Mangler onboarding-data. Kan ikke prøve igjen.");
+      return;
+    }
+
+    await retryRun(orgId, lastOnboardingInput);
+  }
+
   // Skip AI suggestions
   function handleSkipAISuggestions() {
+    // Clear persisted data on skip
+    try {
+      sessionStorage.removeItem(STORAGE_KEY);
+    } catch (err) {
+      console.error("Failed to clear persisted data:", err);
+    }
     // Just redirect to dashboard
     router.push("/");
   }
@@ -303,7 +383,7 @@ export default function RegisterPage() {
         {currentStep === "step2.1" && (
           <>
             <div className="mb-4">
-              <div className="text-sm text-slate-400">Steg 2 av 2: Bedriftsinformasjon</div>
+              <div className="text-sm text-slate-400">Steg 2 av 2: Bedriftsinformasjon (1 av 4)</div>
               <div className="mt-2 flex gap-1">
                 <div className="flex-1 h-1 bg-blue-600 rounded"></div>
                 <div className="flex-1 h-1 bg-slate-700 rounded"></div>
@@ -323,7 +403,7 @@ export default function RegisterPage() {
         {currentStep === "step2.2" && (
           <>
             <div className="mb-4">
-              <div className="text-sm text-slate-400">Steg 2 av 2: Bedriftsinformasjon</div>
+              <div className="text-sm text-slate-400">Steg 2 av 2: Bedriftsinformasjon (2 av 4)</div>
               <div className="mt-2 flex gap-1">
                 <div className="flex-1 h-1 bg-blue-600 rounded"></div>
                 <div className="flex-1 h-1 bg-blue-600 rounded"></div>
@@ -344,7 +424,7 @@ export default function RegisterPage() {
         {currentStep === "step2.3" && (
           <>
             <div className="mb-4">
-              <div className="text-sm text-slate-400">Steg 2 av 2: Bedriftsinformasjon</div>
+              <div className="text-sm text-slate-400">Steg 2 av 2: Bedriftsinformasjon (3 av 4)</div>
               <div className="mt-2 flex gap-1">
                 <div className="flex-1 h-1 bg-blue-600 rounded"></div>
                 <div className="flex-1 h-1 bg-blue-600 rounded"></div>
@@ -365,7 +445,7 @@ export default function RegisterPage() {
         {currentStep === "step2.4" && orgId && (
           <>
             <div className="mb-4">
-              <div className="text-sm text-slate-400">Steg 2 av 2: AI-forslag</div>
+              <div className="text-sm text-slate-400">Steg 2 av 2: AI-forslag (4 av 4)</div>
               <div className="mt-2 flex gap-1">
                 <div className="flex-1 h-1 bg-blue-600 rounded"></div>
                 <div className="flex-1 h-1 bg-blue-600 rounded"></div>
@@ -382,6 +462,7 @@ export default function RegisterPage() {
               onApply={handleApplyAISuggestions}
               onBack={() => setCurrentStep("step2.3")}
               onSkip={handleSkipAISuggestions}
+              onRetry={handleRetryAIOnboarding}
             />
           </>
         )}

@@ -1,7 +1,7 @@
 // components/register/Step2_4_AISuggestions.tsx
 // Onboarding Step 2.4: AI Suggestions Review
 
-import { useEffect } from "react";
+import React from "react";
 import { useRouter } from "next/navigation";
 import type { AIOnboardingSession, OnboardingStepData } from "@/types/ai-onboarding";
 
@@ -14,6 +14,7 @@ interface Step2_4Props {
   onApply: () => Promise<void>;
   onBack: () => void;
   onSkip: () => void;
+  onRetry: () => Promise<void>;
 }
 
 export function Step2_4_AISuggestions({
@@ -25,15 +26,29 @@ export function Step2_4_AISuggestions({
   onApply,
   onBack,
   onSkip,
+  onRetry,
 }: Step2_4Props) {
   const router = useRouter();
+  const [isRetrying, setIsRetrying] = React.useState(false);
 
-  if (loading) {
+  const handleRetry = async () => {
+    setIsRetrying(true);
+    try {
+      await onRetry();
+    } finally {
+      setIsRetrying(false);
+    }
+  };
+
+  if (loading || isRetrying) {
     return (
       <div className="flex flex-col items-center justify-center py-12">
         <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
         <p className="mt-4 text-sm text-slate-400">
-          AI genererer forslag til deg...
+          {isRetrying ? "Prøver på nytt..." : "AI genererer forslag til deg..."}
+        </p>
+        <p className="mt-2 text-xs text-slate-500">
+          Dette kan ta opptil 30 sekunder
         </p>
       </div>
     );
@@ -50,15 +65,28 @@ export function Step2_4_AISuggestions({
         <div className="flex gap-3">
           <button
             type="button"
+            onClick={handleRetry}
+            disabled={isRetrying}
+            className="flex-1 rounded-md bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            {isRetrying ? "Prøver på nytt..." : "Prøv igjen"}
+          </button>
+        </div>
+
+        <div className="flex gap-3">
+          <button
+            type="button"
             onClick={onBack}
-            className="flex-1 rounded-md border border-slate-700 bg-slate-900/50 px-4 py-2.5 text-sm font-medium text-slate-300 hover:bg-slate-800 transition-colors"
+            disabled={isRetrying}
+            className="flex-1 rounded-md border border-slate-700 bg-slate-900/50 px-4 py-2.5 text-sm font-medium text-slate-300 hover:bg-slate-800 disabled:opacity-50 transition-colors"
           >
             Tilbake
           </button>
           <button
             type="button"
             onClick={onSkip}
-            className="flex-1 rounded-md bg-slate-700 px-4 py-2.5 text-sm font-medium text-white hover:bg-slate-600 transition-colors"
+            disabled={isRetrying}
+            className="flex-1 rounded-md bg-slate-700 px-4 py-2.5 text-sm font-medium text-white hover:bg-slate-600 disabled:opacity-50 transition-colors"
           >
             Hopp over AI-forslag
           </button>
