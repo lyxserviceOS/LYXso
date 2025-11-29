@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import PublicHeader from "@/components/PublicHeader";
+import PublicFooter from "@/components/PublicFooter";
+import CookieConsentBanner from "@/components/CookieConsentBanner";
 
 export const metadata: Metadata = {
   title: "LYXso – ServiceOS for bilbransjen",
@@ -18,9 +20,13 @@ export default function RootLayout({
       lang="nb"
       className="font-sans"
     >
-      <body className="min-h-screen bg-shellBg text-shellText antialiased selection:bg-primary/30 selection:text-white">
+      <body className="min-h-screen bg-slate-950 text-slate-50 antialiased selection:bg-blue-600/30 selection:text-white flex flex-col">
         <PublicHeader />
-        {children}
+        <div className="flex-1">
+          {children}
+        </div>
+        <PublicFooter />
+        <CookieConsentBanner />
       </body>
     </html>
   );
