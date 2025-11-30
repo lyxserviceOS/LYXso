@@ -16,6 +16,7 @@ import type {
   BookingCustomerSummary,
 } from "@/types/booking";
 import type { Location, Resource, ResourceType } from "@/types/location";
+import { WeekCalendar } from "./components/WeekCalendar";
 
 const STATUS_LABELS: Record<BookingStatus, string> = {
   pending: "Venter",
@@ -26,7 +27,7 @@ const STATUS_LABELS: Record<BookingStatus, string> = {
   no_show: "Ikke møtt",
 };
 
-type ViewMode = "list" | "day" | "resource";
+type ViewMode = "list" | "day" | "week" | "resource";
 
 // Mock locations and resources for demo
 const MOCK_LOCATIONS: Location[] = [
@@ -574,6 +575,17 @@ export default function BookingPageClient() {
             </button>
             <button
               type="button"
+              onClick={() => setViewMode("week")}
+              className={`rounded-full px-3 py-1 ${
+                viewMode === "week"
+                  ? "bg-white text-slate-900 shadow-sm"
+                  : "text-slate-500"
+              }`}
+            >
+              Uke
+            </button>
+            <button
+              type="button"
               onClick={() => setViewMode("resource")}
               className={`rounded-full px-3 py-1 ${
                 viewMode === "resource"
@@ -715,13 +727,22 @@ export default function BookingPageClient() {
         {/* MIDTEN: Liste eller dagvisning */}
         <section className="rounded-xl border border-slate-200 bg-white p-4 text-sm">
           <h2 className="mb-3 text-sm font-medium">
-            {viewMode === "list" ? "Bookinger" : viewMode === "day" ? "Dagvisning" : "Ressursvisning"}
+            {viewMode === "list" ? "Bookinger" : viewMode === "day" ? "Dagvisning" : viewMode === "week" ? "Ukevisning" : "Ressursvisning"}
           </h2>
 
-          {filteredBookings.length === 0 && viewMode !== "resource" ? (
+          {filteredBookings.length === 0 && viewMode !== "resource" && viewMode !== "week" ? (
             <p className="text-xs text-slate-500">
               Ingen bookinger funnet med valgte filtre.
             </p>
+          ) : viewMode === "week" ? (
+            // WEEK VIEW - Module 19
+            <WeekCalendar
+              bookings={filteredBookings}
+              resources={filteredResources}
+              onBookingClick={(id) => setSelectedBookingId(id)}
+              selectedBookingId={selectedBookingId}
+              startDate={new Date()}
+            />
           ) : viewMode === "resource" ? (
             // RESOURCE VIEW - Module 18
             <div className="max-h-[520px] overflow-auto">

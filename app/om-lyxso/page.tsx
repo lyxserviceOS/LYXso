@@ -1,111 +1,134 @@
 // app/om-lyxso/page.tsx
-
-import type { Metadata } from "next";
 import Link from "next/link";
 
-export const metadata: Metadata = {
-  title: "Om LYXso – ServiceOS for bilpleie",
-  description:
-    "Bakgrunn, visjon og tankene bak LYXso – et drifts- og bookingsystem laget av detailere, for detailere.",
-};
-
-export default function AboutLyxsoPage() {
+export default function OmLyxso Page() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50">
-      <div className="mx-auto max-w-5xl px-4 py-10 space-y-10">
-        {/* Topp-intro */}
-        <section className="space-y-3">
-          <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-slate-500">
-            OM LYXSO
-          </p>
-          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-            Et driftsystem bygget i en ekte{" "}
-            <span className="text-blue-400">bilpleiehverdag</span>.
+      <main className="mx-auto max-w-5xl space-y-16 px-4 py-12 lg:px-8 lg:py-16">
+        
+        {/* Hero */}
+        <section className="space-y-6 text-center">
+          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
+            Om LYXso
           </h1>
-          <p className="max-w-3xl text-sm text-slate-300">
-            LYXso er laget fordi eksisterende bookingsystemer aldri helt traff
-            hverdagen i bilpleie, lakk og dekk. Enten var de for generelle, for
-            dyre – eller så manglet de kontroll på coating-løp, dekkhotell og
-            den virkelige driften bak kulissene.
+          <p className="text-lg text-slate-300 leading-relaxed max-w-3xl mx-auto">
+            ServiceOS for bilbransjen – bygd av folk som faktisk jobber med biler, ikke bare skriver kode.
           </p>
         </section>
 
-        {/* Historie / bakgrunn */}
-        <section className="grid gap-6 md:grid-cols-[1.4fr_minmax(0,1fr)]">
-          <div className="space-y-3 rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
-            <h2 className="text-lg font-semibold">Bak systemet</h2>
-            <p className="text-sm text-slate-300">
-              LYXso er utviklet sammen med LYX Bilpleie i Oslo – et senter som
-              jobber med keramisk coating, dekkhotell og skade/lakk. Alle
-              skjermbilder, moduler og flyter er basert på faktiske behov i
-              produksjon, ikke teorier på et kontor.
+        {/* Historien */}
+        <section className="space-y-6">
+          <h2 className="text-3xl font-bold">Hvordan LYXso ble til</h2>
+          <div className="space-y-4 text-slate-300 leading-relaxed">
+            <p>
+              LYXso startet ikke som et tech-prosjekt. Det startet med en frustrasjon: hvorfor finnes det ingen systemer som faktisk forstår hverdagen til bilpleie-bedrifter?
             </p>
-            <p className="text-sm text-slate-300">
-              Målet er ikke å være nok et generisk bookingsystem, men et{" "}
-              <span className="font-semibold">ServiceOS for bilpleie</span> –
-              der booking, kunder, dekk, coating-løp, rapporter og
-              markedsføring faktisk henger sammen.
+            <p>
+              Mens LYX Bil vokste i Oslo, ble det tydelig at eksisterende bookingsystemer og CRM-løsninger ikke var bygd for langvarige behandlinger, coating-oppfølging over flere år, dekkhotell med hundrevis av dekksett, eller kunder som vil ha rask respons på kveldstid.
             </p>
-          </div>
-
-          <div className="space-y-3 rounded-2xl border border-slate-800 bg-slate-900/60 p-4 text-sm text-slate-300">
-            <h3 className="text-sm font-semibold">
-              Hva betyr “ServiceOS for bilpleie”?
-            </h3>
-            <ul className="space-y-1 text-xs text-slate-200">
-              <li>• Ett system for booking, kunder, dekkhotell og coating.</li>
-              <li>• Bygget for å tåle AI, automasjoner og integrasjoner.</li>
-              <li>• Klar for flere avdelinger, mobile team og samarbeid.</li>
-              <li>• Utvidbart – du starter lite, og skrur opp etter behov.</li>
-            </ul>
+            <p>
+              Så vi bestemte oss for å bygge løsningen selv – ikke som et produkt for å selge, men som et verktøy vi faktisk ville bruke hver dag.
+            </p>
+            <p>
+              Resultatet ble LYXso: et system som tar høyde for de tingene ingen andre tenker på. Som at en coating-kunde trenger oppfølging i 5 år. At dekkhotell-kunder vil ha SMS når det er tid for hjulskift. At verkstedet trenger å vite nøyaktig hvor mange kvadratmeter PPF som ble brukt på en jobb. At AI faktisk kan ta telefoner og booke timer mens du er opptatt med en kunde.
+            </p>
           </div>
         </section>
 
-        {/* Filosofi / roadmappet kort */}
-        <section className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
-          <h2 className="text-lg font-semibold">
-            Filosofien bak modulene i LYXso
-          </h2>
-          <p className="text-sm text-slate-300">
-            Kjernen i LYXso er enkel: alt som skjer rundt en bil skal kunne
-            spores, dokumenteres og brukes videre. Derfor er booking,
-            kunderegister, dekkhotell og coating-løp koblet sammen fra dag én.
+        {/* Visjonen */}
+        <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-8 lg:p-10 space-y-6">
+          <h2 className="text-3xl font-bold">Visjonen</h2>
+          <p className="text-slate-300 leading-relaxed">
+            LYXso skal være det mest komplette alt-i-ett-systemet for bil-driften – fra første lead til ferdig betalt jobb. Ikke et lappverk av ulike systemer som ikke snakker sammen, men én plattform hvor alt henger sammen.
           </p>
-          <p className="text-sm text-slate-300">
-            Over dette bygger vi lag på lag med moduler: AI-markedsføring,
-            rapporter, regnskapsintegrasjon, årskontroller på coating, og
-            avansert kapasitetstyring for flere avdelinger. Du velger selv hvor
-            mye du trenger – systemet er laget for å vokse med deg.
+          <p className="text-slate-300 leading-relaxed">
+            Vi vil at partnerne våre skal bruke mindre tid på administrasjon og mer tid på det de faktisk liker: å jobbe med biler.
+          </p>
+        </section>
+
+        {/* Hva gjør LYXso annerledes */}
+        <section className="space-y-6">
+          <h2 className="text-3xl font-bold">Hva gjør LYXso annerledes?</h2>
+          
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 space-y-3">
+              <h3 className="text-xl font-semibold text-blue-400">Bygd for bilbransjen</h3>
+              <p className="text-sm text-slate-300 leading-relaxed">
+                Andre systemer prøver å passe for alle bransjer. LYXso er kun for bil – og derfor har vi funksjoner som dekkhotell, coating-oppfølging og kjøretøy-kort som standard.
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 space-y-3">
+              <h3 className="text-xl font-semibold text-blue-400">Testet i virkeligheten</h3>
+              <p className="text-sm text-slate-300 leading-relaxed">
+                Vi bruker LYXso selv, hver dag, i ekte drift. Hver feature er testet av folk som faktisk jobber på verkstedgulvet – ikke bare utviklere som aldri har sett innsiden av et bilpleie-verksted.
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 space-y-3">
+              <h3 className="text-xl font-semibold text-blue-400">AI som gir mening</h3>
+              <p className="text-sm text-slate-300 leading-relaxed">
+                AI i LYXso er ikke buzzwords – det er praktiske verktøy som faktisk sparer deg tid. Fra AI som tar telefoner og booker timer, til AI som hjelper deg å skrive kampanjer og forklare økonomien.
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 space-y-3">
+              <h3 className="text-xl font-semibold text-blue-400">Norsk og nordisk fokus</h3>
+              <p className="text-sm text-slate-300 leading-relaxed">
+                LYXso er bygd for norske og nordiske bedrifter. Integrasjoner mot Fiken, Tripletex, Vipps og andre systemer som faktisk brukes her – ikke bare amerikanske løsninger.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Teamet */}
+        <section className="space-y-6">
+          <h2 className="text-3xl font-bold">Teamet bak LYXso</h2>
+          <p className="text-slate-300 leading-relaxed">
+            LYXso er utviklet av et lite, dedikert team som kombinerer erfaring fra bilbransjen og tech. Vi har jobbet i bilpleie, detailing og coating – og vi har bygget systemer før. Nå bygger vi systemet vi selv ønsker å bruke.
+          </p>
+          <p className="text-slate-300 leading-relaxed">
+            Vi er ikke et stort selskap med 100 ansatte. Vi er en liten gruppe som kan bevege oss raskt, lytte til partnerne våre og faktisk gjøre endringer når noe ikke fungerer.
+          </p>
+        </section>
+
+        {/* Partnerskapet */}
+        <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-8 lg:p-10 space-y-6">
+          <h2 className="text-3xl font-bold">Hvordan fungerer partnerskapet?</h2>
+          <p className="text-slate-300 leading-relaxed">
+            LYXso er ikke et ferdig produkt som du bare "kjøper". Vi ser på det som et partnerskap hvor vi bygger systemet sammen med bedriftene som bruker det.
+          </p>
+          <p className="text-slate-300 leading-relaxed">
+            Det betyr at når du blir partner, får du ikke bare et system – du får en stemme i hvordan LYXso utvikler seg videre. Features, prioriteringer og integrasjoner bestemmes i dialog med partnerne våre.
+          </p>
+          <p className="text-slate-300 leading-relaxed">
+            Vi starter med et begrenset antall partnere for å sikre at vi kan gi god support og faktisk levere på det vi lover. Når systemet er stabilt og modent, åpner vi opp for flere.
           </p>
         </section>
 
         {/* CTA */}
-        <section className="flex flex-col gap-3 rounded-2xl border border-blue-500/40 bg-blue-500/5 p-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 className="text-lg font-semibold">
-              Vil du være tidlig ute som LYXso-partner?
-            </h2>
-            <p className="text-sm text-slate-200">
-              Vi starter med et begrenset antall partnere for å sikre kvalitet
-              på oppsett, flyt og støtte.
-            </p>
-          </div>
-          <div className="flex gap-2">
+        <section className="text-center space-y-6 pt-8">
+          <h2 className="text-3xl font-bold">Vil du være med å forme fremtiden for bilpleie-drift?</h2>
+          <p className="text-slate-300 max-w-2xl mx-auto">
+            Vi ser etter partnere som vil mer enn bare et bookingsystem – partnere som vil digitalisere hele driften og være med på å bygge noe bedre.
+          </p>
+          <div className="flex flex-wrap justify-center gap-4 pt-4">
             <Link
               href="/bli-partner"
-              className="inline-flex items-center rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-blue-400"
+              className="rounded-lg bg-blue-600 px-8 py-3 text-sm font-semibold text-white hover:bg-blue-500 transition-colors"
             >
               Bli partner
             </Link>
             <Link
               href="/kontakt"
-              className="inline-flex items-center rounded-lg border border-slate-600 bg-slate-900/80 px-4 py-2 text-sm font-medium text-slate-100 hover:border-blue-400"
+              className="rounded-lg border border-slate-600 bg-slate-900/80 px-8 py-3 text-sm font-semibold text-slate-100 hover:border-blue-400 transition-colors"
             >
-              Kontakt oss
+              Snakk med oss først
             </Link>
           </div>
         </section>
-      </div>
+
+      </main>
     </div>
   );
 }
