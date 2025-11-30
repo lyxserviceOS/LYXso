@@ -72,6 +72,7 @@ export default function DekkhotellPageClient() {
   const [newForm, setNewForm] = useState<NewTyreSetForm>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
+  const [uploadedImages, setUploadedImages] = useState<Record<string, File>>({});
   
   // AI Analysis state
   const [aiAnalysisResult, setAiAnalysisResult] = useState<{
@@ -826,15 +827,18 @@ export default function DekkhotellPageClient() {
 
       {/* Image Capture Modal for AI Analysis */}
       {showImageCaptureModal && selectedSet && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-lg">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-2xl rounded-xl bg-white p-6 shadow-lg max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-slate-900">
                 AI Dekkanalyse – {selectedSet.registration_number}
               </h2>
               <button
                 type="button"
-                onClick={() => setShowImageCaptureModal(false)}
+                onClick={() => {
+                  setShowImageCaptureModal(false);
+                  setUploadedImages({});
+                }}
                 className="text-slate-400 hover:text-slate-600"
               >
                 ✕
@@ -844,12 +848,12 @@ export default function DekkhotellPageClient() {
             <div className="space-y-4">
               <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
                 <p className="text-xs text-purple-800">
-                  <strong>AI-analyse:</strong> Ta bilde av hvert dekk for automatisk å måle 
-                  mønsterdybde, produksjonsår og slitasjemønster.
+                  <strong>AI-analyse:</strong> Last opp eller ta bilde av alle fire dekk for automatisk 
+                  analyse av mønsterdybde, produksjonsår og slitasjemønster.
                 </p>
               </div>
               
-              {/* Image capture grid */}
+              {/* Image upload grid */}
               <div className="grid grid-cols-2 gap-3">
                 {[
                   { id: "FL", label: "Foran venstre" },
@@ -857,62 +861,169 @@ export default function DekkhotellPageClient() {
                   { id: "RL", label: "Bak venstre" },
                   { id: "RR", label: "Bak høyre" },
                 ].map((pos) => (
-                  <div key={pos.id} className="border-2 border-dashed border-slate-300 rounded-lg p-4 text-center">
-                    <div className="text-2xl mb-2">📷</div>
-                    <p className="text-xs font-medium text-slate-700">{pos.label}</p>
-                    <button
-                      type="button"
-                      className="mt-2 text-xs text-blue-600 hover:text-blue-700"
+                  <div key={pos.id} className="relative">
+                    <label
+                      htmlFor={`upload-${pos.id}`}
+                      className={`block border-2 border-dashed ${
+                        uploadedImages[pos.id] ? "border-green-400 bg-green-50" : "border-slate-300 bg-slate-50"
+                      } rounded-lg p-4 text-center cursor-pointer hover:border-blue-400 transition-colors`}
                     >
-                      Ta bilde
-                    </button>
+                      {uploadedImages[pos.id] ? (
+                        <div className="relative">
+                          <img 
+                            src={URL.createObjectURL(uploadedImages[pos.id])} 
+                            alt={pos.label}
+                            className="w-full h-32 object-cover rounded-md mb-2"
+                          />
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              const newImages = { ...uploadedImages };
+                              delete newImages[pos.id];
+                              setUploadedImages(newImages);
+                            }}
+                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
+                          >
+                            ✕
+                          </button>
+                          <p className="text-xs font-medium text-green-700">✓ {pos.label}</p>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="text-3xl mb-2">📷</div>
+                          <p className="text-xs font-medium text-slate-700 mb-1">{pos.label}</p>
+                          <p className="text-xs text-slate-500">Klikk for å laste opp</p>
+                        </>
+                      )}
+                    </label>
+                    <input
+                      id={`upload-${pos.id}`}
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setUploadedImages(prev => ({ ...prev, [pos.id]: file }));
+                        }
+                      }}
+                      className="hidden"
+                    />
                   </div>
                 ))}
               </div>
               
-              {/* Or upload images */}
-              <div className="border-t border-slate-100 pt-4">
-                <p className="text-xs text-slate-500 mb-2">Eller last opp bilder:</p>
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  className="w-full text-xs"
-                />
+              {/* Progress indicator */}
+              <div className="bg-slate-50 rounded-lg p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-xs font-medium text-slate-700">
+                    Bilder lastet opp: {Object.keys(uploadedImages).length} / 4
+                  </p>
+                  <span className="text-xs text-slate-500">
+                    {Object.keys(uploadedImages).length === 4 ? "✓ Alle dekk fotografert" : "Legg til flere bilder"}
+                  </span>
+                </div>
+                <div className="w-full bg-slate-200 rounded-full h-2">
+                  <div 
+                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${(Object.keys(uploadedImages).length / 4) * 100}%` }}
+                  />
+                </div>
               </div>
             </div>
             
             <div className="mt-6 flex gap-3">
               <button
                 type="button"
-                onClick={() => setShowImageCaptureModal(false)}
+                onClick={() => {
+                  setShowImageCaptureModal(false);
+                  setUploadedImages({});
+                }}
                 className="flex-1 rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
               >
                 Avbryt
               </button>
               <button
                 type="button"
-                onClick={() => {
+                onClick={async () => {
+                  if (!selectedSet || !API_BASE || !ORG_ID) return;
+                  
+                  // Validate that we have all 4 images
+                  if (Object.keys(uploadedImages).length !== 4) {
+                    alert("Vennligst last opp bilder av alle fire dekk før analyse.");
+                    return;
+                  }
+                  
                   setAnalyzing(true);
-                  // Simulate AI analysis
-                  setTimeout(() => {
-                    setAiAnalysisResult({
-                      positions: [
-                        { position: "FL", tread_depth_mm: 5.2, condition: "good", production_year: 2022, production_week: 34 },
-                        { position: "FR", tread_depth_mm: 5.0, condition: "good", production_year: 2022, production_week: 34 },
-                        { position: "RL", tread_depth_mm: 4.8, condition: "worn", production_year: 2022, production_week: 34 },
-                        { position: "RR", tread_depth_mm: 4.5, condition: "worn", production_year: 2022, production_week: 34 },
-                      ],
-                      overall_condition: "worn",
-                      overall_tread_depth_mm: 4.5,
-                      recommendation: "Bakdekkene viser mer slitasje. Anbefaler rotasjon ved neste skift."
+                  
+                  try {
+                    // First, upload images to get URLs
+                    const formData = new FormData();
+                    Object.entries(uploadedImages).forEach(([position, file]) => {
+                      formData.append(position, file);
                     });
-                    setAnalyzing(false);
+                    
+                    // Upload images
+                    const uploadRes = await fetch(
+                      `${API_BASE}/api/orgs/${ORG_ID}/tyres/${selectedSet.id}/upload-photos`,
+                      {
+                        method: "POST",
+                        body: formData
+                      }
+                    );
+                    
+                    if (!uploadRes.ok) {
+                      throw new Error("Bildeopplasting feilet");
+                    }
+                    
+                    const uploadData = await uploadRes.json();
+                    const photoUrls = uploadData.photos; // { FL: "url", FR: "url", RL: "url", RR: "url" }
+                    
+                    // Now run AI analysis
+                    const res = await fetch(
+                      `${API_BASE}/api/orgs/${ORG_ID}/tyres/${selectedSet.id}/analyze`,
+                      {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ photos: Object.values(photoUrls) })
+                      }
+                    );
+                    
+                    if (!res.ok) {
+                      throw new Error("AI-analyse feilet");
+                    }
+                    
+                    const data = await res.json();
+                    
+                    // Convert AI result to frontend format
+                    setAiAnalysisResult({
+                      positions: data.result.positions.map((p: any) => ({
+                        position: p.position,
+                        tread_depth_mm: p.tread_depth_mm,
+                        condition: p.wear_status === "ok" ? "good" : p.wear_status === "warn" ? "worn" : "replace",
+                        production_year: data.result.dot_year || 2022,
+                        production_week: 34
+                      })),
+                      overall_condition: data.result.overall_recommendation === "ok" ? "good" : 
+                                        data.result.overall_recommendation === "bør_byttes_snart" ? "worn" : "replace",
+                      overall_tread_depth_mm: Math.min(...data.result.positions.map((p: any) => p.tread_depth_mm)),
+                      recommendation: data.result.reasoning || "Ingen spesielle merknader"
+                    });
+                    
                     setShowImageCaptureModal(false);
                     setShowAIAnalysisModal(true);
-                  }, 2000);
+                    setUploadedImages({});
+                    
+                  } catch (err) {
+                    console.error("AI-analyse feil:", err);
+                    alert("Kunne ikke kjøre AI-analyse. Prøv igjen senere.");
+                  } finally {
+                    setAnalyzing(false);
+                  }
                 }}
-                disabled={analyzing}
+                disabled={analyzing || Object.keys(uploadedImages).length !== 4}
                 className="flex-1 rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-700 disabled:opacity-50"
               >
                 {analyzing ? "Analyserer..." : "Start AI-analyse"}

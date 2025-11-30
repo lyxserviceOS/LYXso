@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "LYXso – Markedsføring",
@@ -29,18 +30,75 @@ export default function MarketingPage() {
               Status
             </p>
             <p className="mt-1 text-sm text-[#0F172A]">
-              Klar for demo – uten live data
+              ✅ AI-funksjoner aktive
             </p>
             <p className="text-[11px]">
-              Vi kobler inn ekte data fra Meta, Google og TikTok senere.
+              Kampanjegenerator og annonsetekster klar til bruk
             </p>
           </div>
         </header>
 
+        {/* AI-verktøy seksjon */}
+        <section className="rounded-2xl border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-blue-50 p-6 shadow-sm">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-2 bg-purple-600 rounded-lg">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-[#0F172A]">
+                AI Markedsføringsverktøy
+              </h2>
+              <p className="text-sm text-[#475569]">
+                La AI hjelpe deg med kampanjer og tekster
+              </p>
+            </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2 mt-4">
+            <Link
+              href="/markedsforing/ai"
+              className="block p-4 bg-white rounded-xl border border-purple-200 hover:border-purple-400 hover:shadow-md transition-all group"
+            >
+              <h3 className="text-base font-semibold text-[#0F172A] mb-2 group-hover:text-purple-600">
+                🎯 AI Kampanjegenerator
+              </h3>
+              <p className="text-sm text-[#475569] mb-3">
+                Få AI-genererte kampanjeidéer med målgruppe, budsjett og kanaler
+              </p>
+              <span className="inline-flex items-center text-sm font-medium text-purple-600 group-hover:gap-2 transition-all">
+                Åpne verktøy
+                <svg className="w-4 h-4 ml-1 group-hover:ml-2 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </span>
+            </Link>
+
+            <Link
+              href="/markedsforing/ai"
+              className="block p-4 bg-white rounded-xl border border-purple-200 hover:border-purple-400 hover:shadow-md transition-all group"
+            >
+              <h3 className="text-base font-semibold text-[#0F172A] mb-2 group-hover:text-purple-600">
+                ✍️ AI Annonsetekster
+              </h3>
+              <p className="text-sm text-[#475569] mb-3">
+                Generer overbevisende annonsetekster for Facebook, Google og mer
+              </p>
+              <span className="inline-flex items-center text-sm font-medium text-purple-600 group-hover:gap-2 transition-all">
+                Åpne verktøy
+                <svg className="w-4 h-4 ml-1 group-hover:ml-2 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </span>
+            </Link>
+          </div>
+        </section>
+
         <section className="grid gap-4 lg:grid-cols-[2fr,1.1fr]">
           <div className="rounded-2xl border border-[#E2E8F0] bg-white p-4 shadow-sm">
             <h2 className="text-sm font-semibold text-[#0F172A]">
-              Kanaloversikt (placeholder)
+              Kanaloversikt (kommer snart)
             </h2>
             <p className="mt-1 text-xs text-[#64748B]">
               Her kommer en enkel graf med fordeling mellom Meta-annonser,

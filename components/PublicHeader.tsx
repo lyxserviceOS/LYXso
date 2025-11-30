@@ -2,17 +2,59 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function PublicHeader() {
   const pathname = usePathname();
+  const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  // Sjekk om bruker er innlogget
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data } = await supabase.auth.getSession();
+      setIsLoggedIn(!!data.session);
+    };
+
+    checkAuth();
+
+    // Lytt til auth-endringer
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setIsLoggedIn(!!session);
+      }
+    );
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
 
   // Don't show on protected routes or login/register pages
-  if (pathname?.startsWith("/login") || pathname?.startsWith("/register") || pathname?.startsWith("/onboarding")) {
+  if (
+    pathname?.startsWith("/login") ||
+    pathname?.startsWith("/register") ||
+    pathname?.startsWith("/onboarding")
+  ) {
     return null;
   }
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await supabase.auth.signOut();
+      router.push("/");
+      router.refresh();
+    } catch (error) {
+      console.error("Feil ved utlogging:", error);
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
 
   const navLinks = [
     { href: "/", label: "Hjem" },
@@ -51,12 +93,22 @@ export default function PublicHeader() {
             </Link>
           ))}
 
-          <Link
-            href="/login"
-            className="rounded-md bg-blue-600 px-4 py-2 text-xs font-medium text-white hover:bg-blue-500 transition-colors"
-          >
-            Logg inn
-          </Link>
+          {isLoggedIn ? (
+            <button
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              className="rounded-md bg-slate-700 px-4 py-2 text-xs font-medium text-white hover:bg-slate-600 transition-colors disabled:bg-slate-800 disabled:cursor-not-allowed"
+            >
+              {isLoggingOut ? "Logger ut..." : "Logg ut"}
+            </button>
+          ) : (
+            <Link
+              href="/login"
+              className="rounded-md bg-blue-600 px-4 py-2 text-xs font-medium text-white hover:bg-blue-500 transition-colors"
+            >
+              Logg inn
+            </Link>
+          )}
         </nav>
 
         {/* Mobile Menu Button */}
@@ -87,13 +139,27 @@ export default function PublicHeader() {
                 {link.label}
               </Link>
             ))}
-            <Link
-              href="/login"
-              onClick={() => setMobileMenuOpen(false)}
-              className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 transition-colors text-center mt-2"
-            >
-              Logg inn
-            </Link>
+
+            {isLoggedIn ? (
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  handleLogout();
+                }}
+                disabled={isLoggingOut}
+                className="rounded-md bg-slate-700 px-4 py-2 text-sm font-medium text-white hover:bg-slate-600 transition-colors text-center mt-2 disabled:bg-slate-800 disabled:cursor-not-allowed"
+              >
+                {isLoggingOut ? "Logger ut..." : "Logg ut"}
+              </button>
+            ) : (
+              <Link
+                href="/login"
+                onClick={() => setMobileMenuOpen(false)}
+                className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 transition-colors text-center mt-2"
+              >
+                Logg inn
+              </Link>
+            )}
           </div>
         </nav>
       )}

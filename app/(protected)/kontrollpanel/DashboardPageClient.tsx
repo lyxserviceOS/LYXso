@@ -11,9 +11,8 @@ import {
   getOrgPlanPriceInfo,
 } from "@/lib/orgPlan";
 
-// Supabase-konfig (samme som i DashboardClient)
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+// API-konfig
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE || "http://localhost:3001";
 const ORG_ID =
   process.env.NEXT_PUBLIC_ORG_ID ??
   "ae407558-7f44-40cb-8fe9-1d023212b926";
@@ -112,23 +111,21 @@ export default function DashboardPageClient() {
 
   useEffect(() => {
     async function fetchBookings() {
-      if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !ORG_ID) {
-        console.error("Mangler Supabase-konfigurasjon i kontrollpanel");
-        setBookingsError("Mangler Supabase-konfigurasjon");
+      if (!ORG_ID) {
+        console.error("Mangler ORG_ID i kontrollpanel");
+        setBookingsError("Mangler organisasjons-ID");
         setBookingsLoading(false);
         return;
       }
 
       try {
-        const headers = {
-          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-          apikey: SUPABASE_ANON_KEY,
-          "Content-Type": "application/json",
-        };
-
         const res = await fetch(
-          `${SUPABASE_URL}/rest/v1/bookings?org_id=eq.${ORG_ID}`,
-          { headers }
+          `${API_BASE_URL}/api/orgs/${ORG_ID}/bookings`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
         );
 
         if (!res.ok) {
@@ -146,50 +143,48 @@ export default function DashboardPageClient() {
         }
 
         const json = await res.json();
-        if (!Array.isArray(json)) {
+        const bookingsArray = json.bookings || [];
+        
+        if (!Array.isArray(bookingsArray)) {
           setBookings([]);
           setBookingsLoading(false);
           return;
         }
 
-        const mapped: Booking[] = json.map((item: Record<string, unknown>) => ({
+        const mapped: Booking[] = bookingsArray.map((item: Record<string, unknown>) => ({
           id: item.id as string,
-          orgId: (item.org_id as string) || "",
-          customerId: (item.customer_id as string) || null,
-          serviceId: (item.service_id as string) || null,
-          employeeId: (item.employee_id as string) || null,
-          locationId: (item.location_id as string) || null,
-          resourceId: (item.resource_id as string) || null,
+          orgId: (item.orgId as string) || "",
+          customerId: (item.customerId as string) || null,
+          serviceId: (item.serviceId as string) || null,
+          employeeId: (item.employeeId as string) || null,
+          locationId: (item.locationId as string) || null,
+          resourceId: (item.resourceId as string) || null,
           customerName:
-            (item.customer_name as string) ||
-            (item.customerName as string) ||
-            "Ukjent kunde",
+            (item.customerName as string) || "Ukjent kunde",
           serviceName:
-            (item.service_name as string) ||
-            (item.serviceName as string) ||
-            "Uspesifisert tjeneste",
-          startTime: (item.start_time as string) || (item.startTime as string) || null,
-          endTime: (item.end_time as string) || (item.endTime as string) || null,
+            (item.serviceName as string) || "Uspesifisert tjeneste",
+          startTime: (item.startTime as string) || null,
+          endTime: (item.endTime as string) || null,
           status: ((item.status as string) || "pending") as BookingStatus,
           title: (item.title as string) || null,
           notes: (item.notes as string) || null,
-          internalNotes: (item.internal_notes as string) || null,
+          internalNotes: (item.internalNotes as string) || null,
           source: ((item.source as string) || "manual") as BookingSource,
-          referralCode: (item.referral_code as string) || null,
-          campaignId: (item.campaign_id as string) || null,
-          totalAmount: (item.total_amount as number) || null,
-          depositAmount: (item.deposit_amount as number) || null,
-          discountAmount: (item.discount_amount as number) || null,
+          referralCode: (item.referralCode as string) || null,
+          campaignId: (item.campaignId as string) || null,
+          totalAmount: (item.totalAmount as number) || null,
+          depositAmount: (item.depositAmount as number) || null,
+          discountAmount: (item.discountAmount as number) || null,
           currency: (item.currency as string) || null,
-          paymentStatus: ((item.payment_status as string) || "not_required") as PaymentStatus,
-          isRecurring: (item.is_recurring as boolean) || false,
-          recurrenceRule: (item.recurrence_rule as string) || null,
-          parentBookingId: (item.parent_booking_id as string) || null,
-          createdAt: (item.created_at as string) || null,
-          updatedAt: (item.updated_at as string) || null,
-          confirmedAt: (item.confirmed_at as string) || null,
-          completedAt: (item.completed_at as string) || null,
-          cancelledAt: (item.cancelled_at as string) || null,
+          paymentStatus: ((item.paymentStatus as string) || "not_required") as PaymentStatus,
+          isRecurring: (item.isRecurring as boolean) || false,
+          recurrenceRule: (item.recurrenceRule as string) || null,
+          parentBookingId: (item.parentBookingId as string) || null,
+          createdAt: (item.createdAt as string) || null,
+          updatedAt: (item.updatedAt as string) || null,
+          confirmedAt: (item.confirmedAt as string) || null,
+          completedAt: (item.completedAt as string) || null,
+          cancelledAt: (item.cancelledAt as string) || null,
         }));
 
         setBookings(mapped);

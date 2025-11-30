@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { useOrgPlan } from "./OrgPlanContext";
 import type { ModuleCode } from "@/types/industry";
@@ -83,6 +84,42 @@ const sections: NavSection[] = [
         href: "/markedsforing",
         description: "Kampanjer, poster og kanalstatistikk.",
         requiresModule: "markedsforing",
+      },
+      {
+        label: "AI Marketing",
+        href: "/ai/marketing",
+        description: "Kampanjeidéer, annonsetekster og målgruppeanalyse.",
+        badge: "AI",
+      },
+      {
+        label: "AI Innhold",
+        href: "/ai/content",
+        description: "Lag landingssider, blogginnhold og SMS-meldinger.",
+        badge: "AI",
+      },
+      {
+        label: "AI CRM",
+        href: "/ai/crm",
+        description: "Kundeinnsikt, segmentering og personalisering.",
+        badge: "AI",
+      },
+      {
+        label: "AI Booking",
+        href: "/ai/booking",
+        description: "Smarte bookingforslag og tidsluke-optimalisering.",
+        badge: "AI",
+      },
+      {
+        label: "AI Kapasitet",
+        href: "/ai/capacity",
+        description: "Analyser kapasitet og ressursbruk.",
+        badge: "AI",
+      },
+      {
+        label: "AI Regnskap",
+        href: "/ai/accounting",
+        description: "Forklaring av rapporter og økonomisk innsikt.",
+        badge: "AI",
       },
       {
         label: "LYXba – Booking Agent",
@@ -196,6 +233,17 @@ export default function SidebarNav() {
   const pathname = usePathname();
   const router = useRouter();
   const { isModuleEnabled, loading: planLoading, org } = useOrgPlan();
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+
+  // Hent brukerens e-post for å sjekke om det er LYX-testkonto
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      setUserEmail(data.user?.email ?? null);
+    });
+  }, []);
+
+  // LYX-testkontoer har full tilgang (for testing/demo)
+  const isLyxTestAccount = userEmail === "post@lyxbilpleie.no";
 
   const handleLogout = async () => {
     try {
@@ -211,6 +259,9 @@ export default function SidebarNav() {
   const filteredSections = sections.map((section) => ({
     ...section,
     items: section.items.filter((item) => {
+      // LYX testkonto ser ALT (unntatt admin-only)
+      if (isLyxTestAccount && !item.adminOnly) return true;
+      
       // Always show items without module requirement
       if (!item.requiresModule) return true;
       // While loading, show all items to avoid flicker
@@ -245,6 +296,11 @@ export default function SidebarNav() {
         <p className="text-xs text-shellTextMuted">
           Partnerportal for booking, CRM og drift.
         </p>
+        {isLyxTestAccount && (
+          <div className="mt-2 rounded-md bg-blue-50 px-2 py-1 text-[10px] text-blue-700">
+            🧪 <strong>LYX Testkonto</strong> – Full AI-tilgang
+          </div>
+        )}
       </div>
 
       {/* Selve menyen */}
