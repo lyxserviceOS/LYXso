@@ -6,6 +6,7 @@ import PublicHeader from "@/components/PublicHeader";
 import PublicFooter from "@/components/PublicFooter";
 import CookieConsentBanner from "@/components/CookieConsentBanner";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata: Metadata = {
   title: "LYXso – ServiceOS for bilbransjen",
@@ -57,6 +58,7 @@ export default function RootLayout({
         <PublicFooter />
         <CookieConsentBanner />
         {GA_ID && <GoogleAnalytics gaId={GA_ID} />}
+        <SpeedInsights />
       </body>
     </html>
   );
