@@ -1,7 +1,7 @@
 // app/om-lyxso/page.tsx
 import Link from "next/link";
 
-export default function OmLyxso Page() {
+export default function OmLyxsoPage() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50">
       <main className="mx-auto max-w-5xl space-y-16 px-4 py-12 lg:px-8 lg:py-16">
