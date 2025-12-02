@@ -3,6 +3,7 @@ import "./globals.css";
 import PublicHeader from "@/components/PublicHeader";
 import PublicFooter from "@/components/PublicFooter";
 import CookieConsentBanner from "@/components/CookieConsentBanner";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata: Metadata = {
   title: "LYXso – ServiceOS for bilbransjen",
@@ -27,6 +28,7 @@ export default function RootLayout({
         </div>
         <PublicFooter />
         <CookieConsentBanner />
+        <SpeedInsights />
       </body>
     </html>
   );
