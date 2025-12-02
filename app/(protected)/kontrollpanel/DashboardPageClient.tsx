@@ -180,6 +180,8 @@ export default function DashboardPageClient() {
           isRecurring: (item.isRecurring as boolean) || false,
           recurrenceRule: (item.recurrenceRule as string) || null,
           parentBookingId: (item.parentBookingId as string) || null,
+          seriesId: (item.seriesId as string) || null,
+          seriesIndex: (item.seriesIndex as number) || null,
           createdAt: (item.createdAt as string) || null,
           updatedAt: (item.updatedAt as string) || null,
           confirmedAt: (item.confirmedAt as string) || null,

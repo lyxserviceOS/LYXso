@@ -22,13 +22,19 @@ export default function LoginPageClient() {
     setLoading(true);
 
     try {
+      console.log("[Login] Attempting login for:", email.trim());
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password,
       });
 
       if (error) {
-        console.error("Login error:", error);
+        console.error("[Login] Login error:", {
+          message: error.message,
+          status: error.status,
+          name: error.name
+        });
 
         if (
           typeof error.message === "string" &&
@@ -44,11 +50,12 @@ export default function LoginPageClient() {
       }
 
       if (data?.user) {
+        console.log("[Login] Login successful, user:", data.user.id);
         // Riktig innlogging -> til partner-kontrollpanel
         router.push("/kontrollpanel");
       }
     } catch (err: any) {
-      console.error("Uventet login-feil:", err);
+      console.error("[Login] Uventet login-feil:", err);
       setErrorType("generic");
       setShowErrorModal(true);
     } finally {

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Calendar, Car, Package, Shield, FileText } from 'lucide-react';
+import { Calendar, Car, Package, Shield, FileText, User } from 'lucide-react';
 
 const navItems = [
   { href: '/min-side', label: 'Oversikt', icon: Calendar },
@@ -11,6 +11,7 @@ const navItems = [
   { href: '/min-side/dekkhotell', label: 'Dekkhotell', icon: Package },
   { href: '/min-side/coating', label: 'Coating', icon: Shield },
   { href: '/min-side/betalinger', label: 'Betalinger', icon: FileText },
+  { href: '/min-side/profil', label: 'Min profil', icon: User },
 ];
 
 export default function CustomerNav() {

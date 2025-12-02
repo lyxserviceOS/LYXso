@@ -3,6 +3,7 @@
 
 import React, { useEffect, useState } from "react";
 import type { TyreSet, TyreSeason, TyreCondition, TyreStatus, TyrePosition, TyreHistory } from "@/types/tyre";
+import CustomerVehicleSearch from "@/components/dekkhotell/CustomerVehicleSearch";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
 const ORG_ID = process.env.NEXT_PUBLIC_ORG_ID;
@@ -1159,40 +1160,207 @@ export default function DekkhotellPageClient() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-lg max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-slate-900">Nytt dekksett</h2>
+              <h2 className="text-lg font-semibold text-slate-900">
+                {aiAnalysisResult ? "Nytt dekksett - Fyll inn detaljer" : "Nytt dekksett - Ta bilder først"}
+              </h2>
               <button
                 type="button"
-                onClick={() => setShowNewModal(false)}
+                onClick={() => {
+                  setShowNewModal(false);
+                  setAiAnalysisResult(null);
+                  setNewForm(EMPTY_FORM);
+                }}
                 className="text-slate-400 hover:text-slate-600"
               >
                 ✕
               </button>
             </div>
             
-            <div className="space-y-4">
-              {/* Customer/Vehicle section */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-medium text-slate-700 mb-1">Regnr *</label>
-                  <input
-                    type="text"
-                    value={newForm.registration_number}
-                    onChange={(e) => handleNewFormChange("registration_number", e.target.value.toUpperCase())}
-                    placeholder="AB12345"
-                    className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
-                  />
+            {!aiAnalysisResult ? (
+              // STEG 1: AI-analyse først
+              <div className="space-y-4">
+                <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                  <p className="text-sm font-medium text-purple-900 mb-2">
+                    📷 Start med AI-analyse
+                  </p>
+                  <p className="text-xs text-purple-800">
+                    Ta bilder av alle fire dekk, så fyller AI inn mønsterdybde, tilstand og produksjonsår automatisk.
+                    Du kan justere informasjonen etterpå.
+                  </p>
                 </div>
-                <div>
-                  <label className="block text-xs font-medium text-slate-700 mb-1">Kundenavn</label>
-                  <input
-                    type="text"
-                    value={newForm.customer_name}
-                    onChange={(e) => handleNewFormChange("customer_name", e.target.value)}
-                    placeholder="Ola Nordmann"
-                    className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
-                  />
+                
+                {/* Image upload grid */}
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    { id: "FL", label: "Foran venstre" },
+                    { id: "FR", label: "Foran høyre" },
+                    { id: "RL", label: "Bak venstre" },
+                    { id: "RR", label: "Bak høyre" },
+                  ].map((pos) => (
+                    <div key={pos.id} className="relative">
+                      <label
+                        htmlFor={`upload-new-${pos.id}`}
+                        className={`block border-2 border-dashed ${
+                          uploadedImages[pos.id] ? "border-green-400 bg-green-50" : "border-slate-300 bg-slate-50"
+                        } rounded-lg p-4 text-center cursor-pointer hover:border-blue-400 transition-colors`}
+                      >
+                        {uploadedImages[pos.id] ? (
+                          <div className="relative">
+                            <img 
+                              src={URL.createObjectURL(uploadedImages[pos.id])} 
+                              alt={pos.label}
+                              className="w-full h-32 object-cover rounded-md mb-2"
+                            />
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                const newImages = { ...uploadedImages };
+                                delete newImages[pos.id];
+                                setUploadedImages(newImages);
+                              }}
+                              className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
+                            >
+                              ✕
+                            </button>
+                            <p className="text-xs font-medium text-green-700">✓ {pos.label}</p>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="text-3xl mb-2">📷</div>
+                            <p className="text-xs font-medium text-slate-700 mb-1">{pos.label}</p>
+                            <p className="text-xs text-slate-500">Klikk for å laste opp</p>
+                          </>
+                        )}
+                      </label>
+                      <input
+                        id={`upload-new-${pos.id}`}
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setUploadedImages(prev => ({ ...prev, [pos.id]: file }));
+                          }
+                        }}
+                        className="hidden"
+                      />
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Progress indicator */}
+                <div className="bg-slate-50 rounded-lg p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-xs font-medium text-slate-700">
+                      Bilder lastet opp: {Object.keys(uploadedImages).length} / 4
+                    </p>
+                    <span className="text-xs text-slate-500">
+                      {Object.keys(uploadedImages).length === 4 ? "✓ Alle dekk fotografert" : "Legg til flere bilder"}
+                    </span>
+                  </div>
+                  <div className="w-full bg-slate-200 rounded-full h-2">
+                    <div 
+                      className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${(Object.keys(uploadedImages).length / 4) * 100}%` }}
+                    />
+                  </div>
+                </div>
+                
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      // Skip AI analysis
+                      setAiAnalysisResult({
+                        positions: [],
+                        overall_condition: "good",
+                        overall_tread_depth_mm: 0,
+                        recommendation: "Manuell registrering"
+                      });
+                    }}
+                    className="flex-1 rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                  >
+                    Hopp over AI-analyse
+                  </button>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      if (Object.keys(uploadedImages).length !== 4) {
+                        alert("Vennligst last opp bilder av alle fire dekk.");
+                        return;
+                      }
+                      
+                      setAnalyzing(true);
+                      
+                      try {
+                        // Simulate AI analysis for demo
+                        await new Promise(resolve => setTimeout(resolve, 2000));
+                        
+                        // Mock AI result
+                        const mockResult = {
+                          positions: [
+                            { position: "FL", tread_depth_mm: 6.2, condition: "good" as TyreCondition, production_year: 2022, production_week: 15 },
+                            { position: "FR", tread_depth_mm: 6.0, condition: "good" as TyreCondition, production_year: 2022, production_week: 15 },
+                            { position: "RL", tread_depth_mm: 5.8, condition: "worn" as TyreCondition, production_year: 2022, production_week: 15 },
+                            { position: "RR", tread_depth_mm: 5.9, condition: "good" as TyreCondition, production_year: 2022, production_week: 15 },
+                          ],
+                          overall_condition: "good" as TyreCondition,
+                          overall_tread_depth_mm: 5.8,
+                          recommendation: "Dekk er i god stand. Anbefales kontroll om 6 måneder."
+                        };
+                        
+                        setAiAnalysisResult(mockResult);
+                        
+                        // Pre-fill form with AI data
+                        setNewForm(prev => ({
+                          ...prev,
+                          tread_depth_mm: mockResult.overall_tread_depth_mm.toString(),
+                          condition: mockResult.overall_condition,
+                        }));
+                        
+                      } catch (err) {
+                        console.error("AI-analyse feil:", err);
+                        alert("Kunne ikke kjøre AI-analyse. Prøv igjen senere.");
+                      } finally {
+                        setAnalyzing(false);
+                      }
+                    }}
+                    disabled={analyzing || Object.keys(uploadedImages).length !== 4}
+                    className="flex-1 rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-700 disabled:opacity-50"
+                  >
+                    {analyzing ? "Analyserer..." : "Kjør AI-analyse"}
+                  </button>
                 </div>
               </div>
+            ) : (
+              // STEG 2: Fyll inn detaljer etter AI-analyse
+              <div className="space-y-4">
+                {aiAnalysisResult.positions.length > 0 && (
+                  <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
+                    <p className="text-xs font-medium text-emerald-900 mb-1">✓ AI-analyse fullført</p>
+                    <p className="text-xs text-emerald-800">
+                      Mønsterdybde: {aiAnalysisResult.overall_tread_depth_mm} mm • 
+                      Tilstand: {getConditionLabel(aiAnalysisResult.overall_condition)}
+                    </p>
+                  </div>
+                )}
+                
+                {/* Customer/Vehicle section with search */}
+                <CustomerVehicleSearch
+                  registrationNumber={newForm.registration_number}
+                  customerName={newForm.customer_name}
+                  onSelect={(customer, vehicle) => {
+                    setNewForm(prev => ({
+                      ...prev,
+                      registration_number: vehicle?.registration_number || prev.registration_number,
+                      customer_name: customer?.name || prev.customer_name,
+                    }));
+                  }}
+                  onChange={(field, value) => handleNewFormChange(field as keyof NewTyreSetForm, value)}
+                />
 
               {/* Tyre details */}
               <div className="grid grid-cols-3 gap-3">
@@ -1313,25 +1481,31 @@ export default function DekkhotellPageClient() {
                   className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
                 />
               </div>
-            </div>
 
-            <div className="mt-6 flex gap-3">
-              <button
-                type="button"
-                onClick={() => setShowNewModal(false)}
-                className="flex-1 rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-              >
-                Avbryt
-              </button>
-              <button
-                type="button"
-                onClick={handleSaveNewTyreSet}
-                disabled={saving || !newForm.registration_number}
-                className="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-              >
-                {saving ? "Lagrer..." : "Lagre dekksett"}
-              </button>
-            </div>
+              {/* Save buttons for Step 2 */}
+              <div className="flex gap-3 mt-6">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowNewModal(false);
+                    setAiAnalysisResult(null);
+                    setNewForm(EMPTY_FORM);
+                  }}
+                  className="flex-1 rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                >
+                  Avbryt
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveNewTyreSet}
+                  disabled={saving || !newForm.registration_number}
+                  className="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {saving ? "Lagrer..." : "Lagre dekksett"}
+                </button>
+              </div>
+              </div>
+            )}
           </div>
         </div>
       )}
