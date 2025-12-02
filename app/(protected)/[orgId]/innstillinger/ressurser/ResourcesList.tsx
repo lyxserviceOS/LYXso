@@ -6,6 +6,7 @@ import ResourceModal from './ResourceModal';
 
 type Resource = {
   id: string;
+  location_id: string;
   name: string;
   description?: string;
   type: 'bay' | 'lift' | 'room' | 'equipment' | 'other';

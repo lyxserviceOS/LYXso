@@ -4,13 +4,14 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4200';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { invitationId: string } }
+  { params }: { params: Promise<{ invitationId: string }> }
 ) {
   try {
+    const { invitationId } = await params;
     const orgId = request.headers.get('x-org-id') || 'temp-org-id';
 
     const response = await fetch(
-      `${API_URL}/api/orgs/${orgId}/team/invitations/${params.invitationId}/resend`,
+      `${API_URL}/api/orgs/${orgId}/team/invitations/${invitationId}/resend`,
       {
         method: 'POST',
         headers: {
@@ -37,13 +38,14 @@ export async function POST(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { invitationId: string } }
+  { params }: { params: Promise<{ invitationId: string }> }
 ) {
   try {
+    const { invitationId } = await params;
     const orgId = request.headers.get('x-org-id') || 'temp-org-id';
 
     const response = await fetch(
-      `${API_URL}/api/orgs/${orgId}/team/invitations/${params.invitationId}`,
+      `${API_URL}/api/orgs/${orgId}/team/invitations/${invitationId}`,
       {
         method: 'DELETE',
         headers: {

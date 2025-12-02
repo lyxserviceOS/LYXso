@@ -98,10 +98,10 @@ export default function ReportsPage() {
           change: data.metrics.revenue.growth,
           trend:
             data.metrics.revenue.growth > 0
-              ? "up"
+              ? ("up" as const)
               : data.metrics.revenue.growth < 0
-              ? "down"
-              : "neutral",
+              ? ("down" as const)
+              : ("neutral" as const),
           icon: <DollarSign className="h-5 w-5" />,
           color: "text-green-600",
         },
@@ -111,10 +111,10 @@ export default function ReportsPage() {
           change: data.metrics.bookings.growth,
           trend:
             data.metrics.bookings.growth > 0
-              ? "up"
+              ? ("up" as const)
               : data.metrics.bookings.growth < 0
-              ? "down"
-              : "neutral",
+              ? ("down" as const)
+              : ("neutral" as const),
           icon: <Calendar className="h-5 w-5" />,
           color: "text-blue-600",
         },
@@ -124,10 +124,10 @@ export default function ReportsPage() {
           change: data.metrics.customers.growth,
           trend:
             data.metrics.customers.growth > 0
-              ? "up"
+              ? ("up" as const)
               : data.metrics.customers.growth < 0
-              ? "down"
-              : "neutral",
+              ? ("down" as const)
+              : ("neutral" as const),
           icon: <Users className="h-5 w-5" />,
           color: "text-purple-600",
         },
@@ -135,6 +135,7 @@ export default function ReportsPage() {
           label: "Fullførte Bookinger",
           value: data.metrics.bookings.completed,
           change: undefined,
+          trend: undefined,
           icon: <TrendingUp className="h-5 w-5" />,
           color: "text-emerald-600",
         },
@@ -234,7 +235,14 @@ export default function ReportsPage() {
                   Bookinger etter status
                 </h2>
                 <BookingsChart
-                  data={{ by_status: data.metrics.bookings }}
+                  data={{ 
+                    by_status: {
+                      pending: data.metrics.bookings.pending,
+                      confirmed: 0,
+                      completed: data.metrics.bookings.completed,
+                      cancelled: data.metrics.bookings.cancelled,
+                    }
+                  }}
                   type="status"
                 />
               </div>

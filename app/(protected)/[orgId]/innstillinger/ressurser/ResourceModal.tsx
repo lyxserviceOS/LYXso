@@ -81,8 +81,6 @@ export default function ResourceModal({ resource, onClose }: Props) {
       setError('Kunne ikke hente lokasjoner');
     }
   }
-    }
-  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

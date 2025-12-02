@@ -6,9 +6,10 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { customerId: string } }
+  { params }: { params: Promise<{ customerId: string }> }
 ) {
   try {
+    const { customerId } = await params;
     const cookieStore = await cookies();
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -32,7 +33,7 @@ export async function PATCH(
     const { data: customer } = await supabase
       .from('customers')
       .select('id')
-      .eq('id', params.customerId)
+      .eq('id', customerId)
       .eq('email', user.email)
       .single();
 
@@ -42,7 +43,7 @@ export async function PATCH(
 
     // Forward request to backend API
     const body = await request.json();
-    const response = await fetch(`${API_URL}/api/customers/${params.customerId}/profile`, {
+    const response = await fetch(`${API_URL}/api/customers/${customerId}/profile`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',

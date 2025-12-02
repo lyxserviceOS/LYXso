@@ -4,15 +4,16 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4200';
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { locationId: string } }
+  { params }: { params: Promise<{ locationId: string }> }
 ) {
   try {
+    const { locationId } = await params;
     // TODO: Get orgId from session/auth
     const orgId = request.headers.get('x-org-id') || 'temp-org-id';
     const body = await request.json();
 
     const response = await fetch(
-      `${API_URL}/api/orgs/${orgId}/locations/${params.locationId}`,
+      `${API_URL}/api/orgs/${orgId}/locations/${locationId}`,
       {
         method: 'PUT',
         headers: {
@@ -40,14 +41,15 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { locationId: string } }
+  { params }: { params: Promise<{ locationId: string }> }
 ) {
   try {
+    const { locationId } = await params;
     // TODO: Get orgId from session/auth
     const orgId = request.headers.get('x-org-id') || 'temp-org-id';
 
     const response = await fetch(
-      `${API_URL}/api/orgs/${orgId}/locations/${params.locationId}`,
+      `${API_URL}/api/orgs/${orgId}/locations/${locationId}`,
       {
         method: 'DELETE',
         headers: {

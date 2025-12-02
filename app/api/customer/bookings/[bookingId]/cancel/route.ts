@@ -6,9 +6,10 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { bookingId: string } }
+  { params }: { params: Promise<{ bookingId: string }> }
 ) {
   try {
+    const { bookingId } = await params;
     const cookieStore = await cookies();
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -43,7 +44,7 @@ export async function PATCH(
     const { data: booking } = await supabase
       .from('bookings')
       .select('id')
-      .eq('id', params.bookingId)
+      .eq('id', bookingId)
       .eq('customer_id', customer.id)
       .single();
 
@@ -53,7 +54,7 @@ export async function PATCH(
 
     // Forward request to backend API
     const response = await fetch(
-      `${API_URL}/api/customers/${customer.id}/bookings/${params.bookingId}/cancel`,
+      `${API_URL}/api/customers/${customer.id}/bookings/${bookingId}/cancel`,
       {
         method: 'PATCH',
         headers: {

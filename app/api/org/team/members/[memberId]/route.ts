@@ -4,13 +4,14 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4200';
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { memberId: string } }
+  { params }: { params: Promise<{ memberId: string }> }
 ) {
   try {
+    const { memberId } = await params;
     const orgId = request.headers.get('x-org-id') || 'temp-org-id';
 
     const response = await fetch(
-      `${API_URL}/api/orgs/${orgId}/team/members/${params.memberId}`,
+      `${API_URL}/api/orgs/${orgId}/team/members/${memberId}`,
       {
         method: 'DELETE',
         headers: {
