@@ -3,8 +3,9 @@
 
 import React, { useEffect, useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { getApiBaseUrl } from "@/lib/apiConfig";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
+const API_BASE = getApiBaseUrl();
 
 type OrgSuggestion = {
   id: string;

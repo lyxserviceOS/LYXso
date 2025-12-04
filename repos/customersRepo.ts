@@ -2,11 +2,9 @@
 // Repo for kunder i LYXso – bruker Fastify-API på port 4000
 
 import type { Booking } from "@/types/booking";
+import { getApiBaseUrl } from "@/lib/apiConfig";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ??
-  process.env.NEXT_PUBLIC_LYXSO_API_BASE_URL ??
-  "http://localhost:4000";
+const API_BASE_URL = getApiBaseUrl();
 
 const DEFAULT_ORG_ID = "ae407558-7f44-40cb-8fe9-1d023212b926";
 const ORG_ID = process.env.NEXT_PUBLIC_ORG_ID ?? DEFAULT_ORG_ID;

@@ -4,8 +4,9 @@ import React, { useEffect, useState } from "react";
 import type { TyreThresholdSettings } from "@/types/tyre";
 import type { ModuleCode, Industry } from "@/types/industry";
 import { ORG_MODULES, INDUSTRIES, DEFAULT_MODULES } from "@/types/industry";
+import { getApiBaseUrl } from "@/lib/apiConfig";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
+const API_BASE = getApiBaseUrl();
 const ORG_ID = process.env.NEXT_PUBLIC_ORG_ID;
 
 // Core modules that cannot be disabled (re-export for local usage)

@@ -1,24 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LYXso - Next.js Application
+
+This is a [Next.js](https://nextjs.org) project for the LYXso booking and CRM system.
+
+## Environment Variables
+
+Create a `.env.local` file in the root directory with the following variables:
+
+```env
+# API Configuration - REQUIRED
+NEXT_PUBLIC_API_BASE_URL=https://lyxso-api.fly.dev
+
+# Organization ID - REQUIRED
+NEXT_PUBLIC_ORG_ID=your-org-id-here
+
+# Supabase Configuration - REQUIRED
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+
+# Admin Email (for admin checks)
+NEXT_PUBLIC_ADMIN_EMAIL=your-admin-email@example.com
+```
+
+See `.env.example` for a complete template.
 
 ## Getting Started
 
-First, run the development server:
+First, install dependencies:
+
+```bash
+npm install
+```
+
+Then, run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## API Configuration
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+All API calls are centralized through `lib/apiConfig.ts`. The application uses a single environment variable `NEXT_PUBLIC_API_BASE_URL` for all backend communication.
 
 ## Learn More
 

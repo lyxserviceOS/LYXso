@@ -2,10 +2,14 @@
 // Global konfiguration for API-kall
 
 /**
- * Henter base URL for API
+ * Henter base URL for API – kun fra én miljøvariabel!
  */
 export function getApiBaseUrl(): string {
-  return process.env.NEXT_PUBLIC_API_BASE || "http://localhost:4000";
+  const base = process.env.NEXT_PUBLIC_API_BASE_URL;
+  if (!base) {
+    throw new Error("NEXT_PUBLIC_API_BASE_URL må settes!");
+  }
+  return base.replace(/\/+$/, "");
 }
 
 /**

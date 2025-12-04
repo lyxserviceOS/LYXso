@@ -3,6 +3,7 @@
 
 import React, { useEffect, useState } from "react";
 import { PlanGate } from "../../../components/PlanGate";
+import { getApiBaseUrl } from "@/lib/apiConfig";
 
 type PaymentProvider = {
   id: string;
@@ -35,7 +36,7 @@ export default function BetalingPageClient() {
       setLoading(true);
       setError(null);
       try {
-        const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+        const API_BASE = getApiBaseUrl();
         
         // Fetch providers
         const providersRes = await fetch(`${API_BASE}/api/payments/providers`, {

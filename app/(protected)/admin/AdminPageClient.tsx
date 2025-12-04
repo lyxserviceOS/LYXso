@@ -11,9 +11,9 @@ import {
   normalizeOrgPlan,
   planFeatureFlags,
 } from "@/lib/orgPlan";
+import { getApiBaseUrl } from "@/lib/apiConfig";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:4000";
+const API_BASE_URL = getApiBaseUrl();
 
 type OrgRow = {
   id: string;

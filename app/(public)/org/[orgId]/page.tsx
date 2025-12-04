@@ -1,7 +1,8 @@
 // C:\Users\maser\OneDrive\Skrivebord\LYX selskaper\lyxso-app\app\(public)\org\[orgId]\page.tsx
 import type { Metadata } from "next";
+import { getApiBaseUrl } from "@/lib/apiConfig";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
+const API_BASE = getApiBaseUrl();
 
 type LandingPageSettings = {
   orgId: string;

@@ -8,14 +8,9 @@ import type {
   Service,
   BookingCustomerSummary,
 } from "@/types/booking";
+import { getApiBaseUrl } from "@/lib/apiConfig";
 
-// Basis-URL til API-et (Fastify på port 4000).
-// Vi støtter både NEXT_PUBLIC_API_BASE_URL og NEXT_PUBLIC_LYXSO_API_BASE_URL
-// for å være bakoverkompatible.
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ??
-  process.env.NEXT_PUBLIC_LYXSO_API_BASE_URL ??
-  "http://localhost:4000";
+const API_BASE_URL = getApiBaseUrl();
 
 // Standard orgId (LYX Bil) – kan overstyres via NEXT_PUBLIC_ORG_ID.
 const DEFAULT_ORG_ID = "ae407558-7f44-40cb-8fe9-1d023212b926";

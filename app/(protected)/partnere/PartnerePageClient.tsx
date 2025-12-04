@@ -9,8 +9,9 @@ import {
   getOrgPlanPriceInfo,
 } from "@/lib/orgPlan";
 import type { OrgPlan } from "@/types/org";
+import { getApiBaseUrl } from "@/lib/apiConfig";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
+const API_BASE = getApiBaseUrl();
 
 type OrgRow = {
   id: string;

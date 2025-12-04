@@ -5,8 +5,9 @@ import { useEffect, useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import type { Industry, ModuleCode } from "@/types/industry";
 import { INDUSTRIES, ORG_MODULES, getRecommendedModules, DEFAULT_MODULES } from "@/types/industry";
+import { getApiBaseUrl } from "@/lib/apiConfig";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
+const API_BASE = getApiBaseUrl();
 const ORG_ID = process.env.NEXT_PUBLIC_ORG_ID;
 
 type Step = 1 | 2 | 3 | 4;
