@@ -61,8 +61,8 @@ export default function PublicFooter() {
                 </Link>
               </li>
               <li>
-                <Link href="/bli-partner" className="hover:text-slate-200 transition-colors">
-                  Bli partner
+                <Link href="/register" className="hover:text-slate-200 transition-colors">
+                  Kom i gang
                 </Link>
               </li>
               <li>
