@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import AnsattePageClient from "./AnsattePageClient";
+import TeamManagementClient from "./TeamManagementClient";
 
 export const metadata: Metadata = {
-  title: "LYXso – ./Ansatte",
+  title: "LYXso – Team & Tilgang",
   description:
-    "Administrer ansatte, kontaktinformasjon og roller for LYXso-partneren.",
+    "Administrer team members, roller, invitasjoner og tilgangskontroll for din organisasjon.",
 };
 
 export default function AnsattePage() {
-  return <AnsattePageClient />;
+  return <TeamManagementClient />;
 }
