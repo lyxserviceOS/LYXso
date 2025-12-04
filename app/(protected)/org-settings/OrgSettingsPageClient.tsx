@@ -5,6 +5,7 @@ import type { TyreThresholdSettings } from "@/types/tyre";
 import type { ModuleCode, Industry } from "@/types/industry";
 import { ORG_MODULES, INDUSTRIES, DEFAULT_MODULES } from "@/types/industry";
 import { getApiBaseUrl } from "@/lib/apiConfig";
+import { supabase } from "@/lib/supabaseClient";
 
 const API_BASE = getApiBaseUrl();
 const ORG_ID = process.env.NEXT_PUBLIC_ORG_ID;
@@ -60,7 +61,7 @@ export default function OrgSettingsPageClient() {
   const [org, setOrg] = useState<OrgSettings | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"plan" | "modules" | "service" | "dekkhotell" | "booking">("plan");
+  const [activeTab, setActiveTab] = useState<"plan" | "modules" | "company" | "branding" | "hours" | "service" | "dekkhotell" | "booking">("plan");
   
   // Tyre threshold settings
   const [tyreSettings, setTyreSettings] = useState<TyreThresholdSettings>(DEFAULT_TYRE_THRESHOLDS);
@@ -76,6 +77,34 @@ export default function OrgSettingsPageClient() {
     isMobile: false,
   });
   const [serviceSaving, setServiceSaving] = useState(false);
+
+  // Company info settings
+  const [companyInfo, setCompanyInfo] = useState({
+    name: "",
+    phone: "",
+    email: "",
+    address: "",
+    city: "",
+    postal_code: "",
+    website: "",
+    facebook_url: "",
+    instagram_url: "",
+    linkedin_url: "",
+  });
+  const [companySaving, setCompanySaving] = useState(false);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoUploading, setLogoUploading] = useState(false);
+
+  // Branding settings
+  const [branding, setBranding] = useState({
+    primary_color: "#3B82F6",
+    secondary_color: "#10B981",
+  });
+  const [brandingSaving, setBrandingSaving] = useState(false);
+
+  // Business hours settings
+  const [businessHours, setBusinessHours] = useState<any>(null);
+  const [hoursSaving, setHoursSaving] = useState(false);
 
   // Module settings
   const [enabledModules, setEnabledModules] = useState<ModuleCode[]>([...CORE_MODULES]);
@@ -109,6 +138,29 @@ export default function OrgSettingsPageClient() {
         if (Array.isArray(orgData.enabledModules)) {
           setEnabledModules(orgData.enabledModules);
         }
+        
+        // Load company info
+        setCompanyInfo({
+          name: orgData.name || "",
+          phone: (orgData as any).phone || "",
+          email: (orgData as any).email || "",
+          address: (orgData as any).address || "",
+          city: (orgData as any).city || "",
+          postal_code: (orgData as any).postalCode || "",
+          website: (orgData as any).website || "",
+          facebook_url: (orgData as any).facebookUrl || "",
+          instagram_url: (orgData as any).instagramUrl || "",
+          linkedin_url: (orgData as any).linkedinUrl || "",
+        });
+        
+        // Load branding
+        setBranding({
+          primary_color: orgData.primaryColor || "#3B82F6",
+          secondary_color: orgData.secondaryColor || "#10B981",
+        });
+        
+        // Load business hours
+        setBusinessHours((orgData as any).businessHours || null);
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : "Ukjent feil ved henting av org-settings";
         setError(message);
@@ -267,6 +319,157 @@ export default function OrgSettingsPageClient() {
     }
   };
 
+  // Save company info
+  const handleSaveCompanyInfo = async () => {
+    if (!API_BASE || !ORG_ID) {
+      setError("Mangler API-konfigurasjon");
+      return;
+    }
+    
+    setCompanySaving(true);
+    setError(null);
+    
+    try {
+      const res = await fetch(`${API_BASE}/api/orgs/${ORG_ID}/settings`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(companyInfo),
+      });
+      
+      if (!res.ok) {
+        throw new Error("Failed to save company info");
+      }
+      
+      showSuccess("Bedriftsinformasjon lagret!");
+      // Reload org data
+      const orgRes = await fetch(`${API_BASE}/api/orgs/${ORG_ID}/settings`, { cache: "no-store" });
+      if (orgRes.ok) {
+        const json = await orgRes.json();
+        setOrg(json.org);
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Feil ved lagring av bedriftsinformasjon");
+    } finally {
+      setCompanySaving(false);
+    }
+  };
+
+  // Handle logo upload
+  const handleLogoUpload = async () => {
+    if (!logoFile || !ORG_ID) return;
+    
+    setLogoUploading(true);
+    
+    try {
+      const fileName = `org-${ORG_ID}-logo-${Date.now()}.${logoFile.name.split('.').pop()}`;
+      const { data, error } = await supabase.storage
+        .from('org-assets')
+        .upload(fileName, logoFile, { upsert: true });
+      
+      if (error) {
+        setError('Feil ved opplasting: ' + error.message);
+        return;
+      }
+      
+      const { data: { publicUrl } } = supabase.storage
+        .from('org-assets')
+        .getPublicUrl(fileName);
+      
+      // Update org with logo URL
+      const res = await fetch(`${API_BASE}/api/orgs/${ORG_ID}/settings`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ logo_url: publicUrl }),
+      });
+      
+      if (!res.ok) {
+        throw new Error('Failed to update logo');
+      }
+      
+      showSuccess('Logo lastet opp!');
+      setLogoFile(null);
+      
+      // Reload org data
+      const orgRes = await fetch(`${API_BASE}/api/orgs/${ORG_ID}/settings`, { cache: "no-store" });
+      if (orgRes.ok) {
+        const json = await orgRes.json();
+        setOrg(json.org);
+      }
+    } catch (err) {
+      console.error(err);
+      setError('Feil ved opplasting av logo');
+    } finally {
+      setLogoUploading(false);
+    }
+  };
+
+  // Save branding
+  const handleSaveBranding = async () => {
+    if (!API_BASE || !ORG_ID) {
+      setError("Mangler API-konfigurasjon");
+      return;
+    }
+    
+    setBrandingSaving(true);
+    setError(null);
+    
+    try {
+      const res = await fetch(`${API_BASE}/api/orgs/${ORG_ID}/settings`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(branding),
+      });
+      
+      if (!res.ok) {
+        throw new Error("Failed to save branding");
+      }
+      
+      showSuccess("Branding lagret!");
+      // Reload org data
+      const orgRes = await fetch(`${API_BASE}/api/orgs/${ORG_ID}/settings`, { cache: "no-store" });
+      if (orgRes.ok) {
+        const json = await orgRes.json();
+        setOrg(json.org);
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Feil ved lagring av branding");
+    } finally {
+      setBrandingSaving(false);
+    }
+  };
+
+  // Save business hours
+  const handleSaveBusinessHours = async () => {
+    if (!API_BASE || !ORG_ID) {
+      setError("Mangler API-konfigurasjon");
+      return;
+    }
+    
+    setHoursSaving(true);
+    setError(null);
+    
+    try {
+      const res = await fetch(`${API_BASE}/api/orgs/${ORG_ID}/settings`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ business_hours: businessHours }),
+      });
+      
+      if (!res.ok) {
+        throw new Error("Failed to save business hours");
+      }
+      
+      showSuccess("Åpningstider lagret!");
+    } catch (err) {
+      console.error(err);
+      setError("Feil ved lagring av åpningstider");
+    } finally {
+      setHoursSaving(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <header>
@@ -291,6 +494,9 @@ export default function OrgSettingsPageClient() {
         {[
           { key: "plan", label: "Plan" },
           { key: "modules", label: "Moduler" },
+          { key: "company", label: "Bedriftsinfo" },
+          { key: "branding", label: "Branding" },
+          { key: "hours", label: "Åpningstider" },
           { key: "service", label: "Tjenestetype" },
           { key: "dekkhotell", label: "Dekkhotell" },
           { key: "booking", label: "Booking" },
@@ -600,6 +806,295 @@ export default function OrgSettingsPageClient() {
               className="rounded-lg bg-blue-600 px-4 py-2 text-xs font-medium text-white hover:bg-blue-700 disabled:opacity-50"
             >
               {serviceSaving ? "Lagrer..." : "Lagre tjenestetype"}
+            </button>
+          </div>
+        </section>
+      )}
+
+      {/* Company Info Tab */}
+      {activeTab === "company" && (
+        <section className="space-y-6 rounded-xl border border-slate-800 bg-slate-950/60 p-4">
+          <div>
+            <h2 className="text-sm font-semibold text-slate-100">Bedriftsinformasjon</h2>
+            <p className="text-xs text-slate-400 mt-1">
+              Administrer bedriftens kontaktinformasjon og sosiale medier
+            </p>
+          </div>
+
+          {/* Logo Upload */}
+          <div className="border-t border-slate-800 pt-4">
+            <label className="block text-xs font-medium text-slate-300 mb-2">Logo</label>
+            {org?.logoUrl && (
+              <img src={org.logoUrl} alt="Logo" className="w-32 h-32 object-contain mb-2 border border-slate-700 rounded bg-slate-900 p-2" />
+            )}
+            <div className="flex gap-2">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setLogoFile(e.target.files?.[0] || null)}
+                className="flex-1 text-xs border border-slate-700 rounded bg-slate-900 px-3 py-2 text-slate-100"
+              />
+              <button
+                onClick={handleLogoUpload}
+                disabled={!logoFile || logoUploading}
+                className="px-4 py-2 bg-blue-600 text-white rounded text-xs font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {logoUploading ? 'Laster opp...' : 'Last opp'}
+              </button>
+            </div>
+          </div>
+
+          {/* Company Name */}
+          <div>
+            <label className="block text-xs font-medium text-slate-300 mb-1">Bedriftsnavn</label>
+            <input
+              type="text"
+              value={companyInfo.name}
+              onChange={(e) => setCompanyInfo(prev => ({ ...prev, name: e.target.value }))}
+              className="w-full border border-slate-700 rounded bg-slate-900 px-3 py-2 text-sm text-slate-100"
+              placeholder="F.eks. LYX Bil AS"
+            />
+          </div>
+
+          {/* Phone */}
+          <div>
+            <label className="block text-xs font-medium text-slate-300 mb-1">Telefon</label>
+            <input
+              type="tel"
+              value={companyInfo.phone}
+              onChange={(e) => setCompanyInfo(prev => ({ ...prev, phone: e.target.value }))}
+              className="w-full border border-slate-700 rounded bg-slate-900 px-3 py-2 text-sm text-slate-100"
+              placeholder="+47 123 45 678"
+            />
+          </div>
+
+          {/* Email */}
+          <div>
+            <label className="block text-xs font-medium text-slate-300 mb-1">E-post</label>
+            <input
+              type="email"
+              value={companyInfo.email}
+              onChange={(e) => setCompanyInfo(prev => ({ ...prev, email: e.target.value }))}
+              className="w-full border border-slate-700 rounded bg-slate-900 px-3 py-2 text-sm text-slate-100"
+              placeholder="post@bedrift.no"
+            />
+          </div>
+
+          {/* Address */}
+          <div>
+            <label className="block text-xs font-medium text-slate-300 mb-1">Adresse</label>
+            <input
+              type="text"
+              value={companyInfo.address}
+              onChange={(e) => setCompanyInfo(prev => ({ ...prev, address: e.target.value }))}
+              className="w-full border border-slate-700 rounded bg-slate-900 px-3 py-2 text-sm text-slate-100"
+              placeholder="Gateadresse 1"
+            />
+          </div>
+
+          {/* City & Postal Code */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-slate-300 mb-1">Postnummer</label>
+              <input
+                type="text"
+                value={companyInfo.postal_code}
+                onChange={(e) => setCompanyInfo(prev => ({ ...prev, postal_code: e.target.value }))}
+                className="w-full border border-slate-700 rounded bg-slate-900 px-3 py-2 text-sm text-slate-100"
+                placeholder="0123"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-300 mb-1">Sted</label>
+              <input
+                type="text"
+                value={companyInfo.city}
+                onChange={(e) => setCompanyInfo(prev => ({ ...prev, city: e.target.value }))}
+                className="w-full border border-slate-700 rounded bg-slate-900 px-3 py-2 text-sm text-slate-100"
+                placeholder="Oslo"
+              />
+            </div>
+          </div>
+
+          {/* Website */}
+          <div>
+            <label className="block text-xs font-medium text-slate-300 mb-1">Nettside</label>
+            <input
+              type="url"
+              value={companyInfo.website}
+              onChange={(e) => setCompanyInfo(prev => ({ ...prev, website: e.target.value }))}
+              className="w-full border border-slate-700 rounded bg-slate-900 px-3 py-2 text-sm text-slate-100"
+              placeholder="https://bedrift.no"
+            />
+          </div>
+
+          {/* Social Media */}
+          <div className="border-t border-slate-800 pt-4">
+            <h3 className="text-xs font-medium text-slate-300 mb-3">Sosiale medier</h3>
+            <div className="space-y-3">
+              <input
+                type="url"
+                placeholder="Facebook URL"
+                value={companyInfo.facebook_url}
+                onChange={(e) => setCompanyInfo(prev => ({ ...prev, facebook_url: e.target.value }))}
+                className="w-full border border-slate-700 rounded bg-slate-900 px-3 py-2 text-sm text-slate-100"
+              />
+              <input
+                type="url"
+                placeholder="Instagram URL"
+                value={companyInfo.instagram_url}
+                onChange={(e) => setCompanyInfo(prev => ({ ...prev, instagram_url: e.target.value }))}
+                className="w-full border border-slate-700 rounded bg-slate-900 px-3 py-2 text-sm text-slate-100"
+              />
+              <input
+                type="url"
+                placeholder="LinkedIn URL"
+                value={companyInfo.linkedin_url}
+                onChange={(e) => setCompanyInfo(prev => ({ ...prev, linkedin_url: e.target.value }))}
+                className="w-full border border-slate-700 rounded bg-slate-900 px-3 py-2 text-sm text-slate-100"
+              />
+            </div>
+          </div>
+
+          {/* Save Button */}
+          <div className="border-t border-slate-800 pt-4 flex justify-end">
+            <button
+              onClick={handleSaveCompanyInfo}
+              disabled={companySaving}
+              className="px-6 py-2 bg-green-600 text-white rounded text-xs font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {companySaving ? 'Lagrer...' : 'Lagre endringer'}
+            </button>
+          </div>
+        </section>
+      )}
+
+      {/* Branding Tab */}
+      {activeTab === "branding" && (
+        <section className="space-y-6 rounded-xl border border-slate-800 bg-slate-950/60 p-4">
+          <div>
+            <h2 className="text-sm font-semibold text-slate-100">Branding</h2>
+            <p className="text-xs text-slate-400 mt-1">
+              Tilpass fargepaletten for offentlige sider og kundeportalen
+            </p>
+          </div>
+
+          {/* Primary Color */}
+          <div className="border-t border-slate-800 pt-4">
+            <label className="block text-xs font-medium text-slate-300 mb-2">Primærfarge</label>
+            <div className="flex gap-3 items-center">
+              <input
+                type="color"
+                value={branding.primary_color}
+                onChange={(e) => setBranding(prev => ({ ...prev, primary_color: e.target.value }))}
+                className="h-10 w-20 border border-slate-700 rounded cursor-pointer"
+              />
+              <input
+                type="text"
+                value={branding.primary_color}
+                onChange={(e) => setBranding(prev => ({ ...prev, primary_color: e.target.value }))}
+                className="flex-1 border border-slate-700 rounded bg-slate-900 px-3 py-2 text-sm text-slate-100 font-mono"
+                placeholder="#3B82F6"
+              />
+            </div>
+            <p className="text-xs text-slate-500 mt-1">Brukes til knapper, lenker og fremhevinger</p>
+          </div>
+
+          {/* Secondary Color */}
+          <div>
+            <label className="block text-xs font-medium text-slate-300 mb-2">Sekundærfarge</label>
+            <div className="flex gap-3 items-center">
+              <input
+                type="color"
+                value={branding.secondary_color}
+                onChange={(e) => setBranding(prev => ({ ...prev, secondary_color: e.target.value }))}
+                className="h-10 w-20 border border-slate-700 rounded cursor-pointer"
+              />
+              <input
+                type="text"
+                value={branding.secondary_color}
+                onChange={(e) => setBranding(prev => ({ ...prev, secondary_color: e.target.value }))}
+                className="flex-1 border border-slate-700 rounded bg-slate-900 px-3 py-2 text-sm text-slate-100 font-mono"
+                placeholder="#10B981"
+              />
+            </div>
+            <p className="text-xs text-slate-500 mt-1">Brukes til detaljer og accent-elementer</p>
+          </div>
+
+          {/* Preview */}
+          <div className="border-t border-slate-800 pt-4">
+            <h3 className="text-xs font-medium text-slate-300 mb-3">Forhåndsvisning</h3>
+            <div className="border border-slate-700 rounded-lg p-4 bg-white">
+              <button 
+                style={{ backgroundColor: branding.primary_color }}
+                className="px-4 py-2 rounded text-white text-sm font-medium mb-2"
+              >
+                Primærknapp
+              </button>
+              <button 
+                style={{ backgroundColor: branding.secondary_color }}
+                className="ml-2 px-4 py-2 rounded text-white text-sm font-medium mb-2"
+              >
+                Sekundærknapp
+              </button>
+            </div>
+          </div>
+
+          {/* Save Button */}
+          <div className="border-t border-slate-800 pt-4 flex justify-end">
+            <button
+              onClick={handleSaveBranding}
+              disabled={brandingSaving}
+              className="px-6 py-2 bg-green-600 text-white rounded text-xs font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {brandingSaving ? 'Lagrer...' : 'Lagre branding'}
+            </button>
+          </div>
+        </section>
+      )}
+
+      {/* Business Hours Tab */}
+      {activeTab === "hours" && (
+        <section className="space-y-6 rounded-xl border border-slate-800 bg-slate-950/60 p-4">
+          <div>
+            <h2 className="text-sm font-semibold text-slate-100">Åpningstider</h2>
+            <p className="text-xs text-slate-400 mt-1">
+              Angi når bedriften er åpen for kunder
+            </p>
+          </div>
+
+          <div className="border-t border-slate-800 pt-4">
+            <div className="rounded-lg border border-blue-500/30 bg-blue-500/10 p-3 mb-4">
+              <p className="text-xs text-blue-200">
+                <strong>Kommer snart:</strong> Full åpningstider-editor med dag-for-dag innstillinger,
+                spesialtider og helligdager.
+              </p>
+            </div>
+            
+            <div className="border border-slate-700 rounded-lg p-4 bg-slate-900">
+              <p className="text-xs text-slate-400 mb-2">Eksempel JSON-struktur:</p>
+              <pre className="text-xs text-slate-300 font-mono whitespace-pre-wrap">
+{JSON.stringify(businessHours || {
+  monday: { open: "08:00", close: "17:00", closed: false },
+  tuesday: { open: "08:00", close: "17:00", closed: false },
+  wednesday: { open: "08:00", close: "17:00", closed: false },
+  thursday: { open: "08:00", close: "17:00", closed: false },
+  friday: { open: "08:00", close: "17:00", closed: false },
+  saturday: { open: "10:00", close: "14:00", closed: false },
+  sunday: { closed: true }
+}, null, 2)}
+              </pre>
+            </div>
+          </div>
+
+          {/* Save Button (disabled for now) */}
+          <div className="border-t border-slate-800 pt-4 flex justify-end">
+            <button
+              onClick={handleSaveBusinessHours}
+              disabled={true}
+              className="px-6 py-2 bg-slate-600 text-white rounded text-xs font-medium cursor-not-allowed opacity-50"
+            >
+              Kommer snart
             </button>
           </div>
         </section>
