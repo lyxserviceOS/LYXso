@@ -2,8 +2,9 @@
 
 import React, { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import { getApiBaseUrl } from "@/lib/apiConfig";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:4000";
+const API_BASE = getApiBaseUrl();
 const ADMIN_EMAIL =
   (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "").toLowerCase();
 

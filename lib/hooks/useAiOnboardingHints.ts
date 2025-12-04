@@ -3,11 +3,9 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import type { OnboardingStepData } from "@/types/ai-onboarding";
+import { getApiBaseUrl } from "@/lib/apiConfig";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_LYXSO_API_URL ??
-  process.env.NEXT_PUBLIC_API_BASE ??
-  "http://localhost:4000";
+const API_BASE_URL = getApiBaseUrl();
 
 // TODO: Create dedicated /api/orgs/:orgId/ai/onboarding/hints endpoint in lyx-api
 // This should be a lightweight endpoint that returns quick suggestions

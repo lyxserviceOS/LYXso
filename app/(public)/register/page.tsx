@@ -10,11 +10,9 @@ import { Step2_3_OpeningHoursAndCapacity } from "@/components/register/Step2_3_O
 import { Step2_4_AISuggestions } from "@/components/register/Step2_4_AISuggestions";
 import type { OnboardingStepData, OnboardingInput } from "@/types/ai-onboarding";
 import { Suspense } from "react";
+import { getApiBaseUrl } from "@/lib/apiConfig";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_LYXSO_API_URL ??
-  process.env.NEXT_PUBLIC_API_BASE ??
-  "http://localhost:4000";
+const API_BASE_URL = getApiBaseUrl();
 
 const STORAGE_KEY = "lyxso_register_onboarding_data";
 

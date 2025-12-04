@@ -2,15 +2,13 @@
 // Hook for AI onboarding API calls with timeout and retry support
 
 import { useState } from "react";
+import { getApiBaseUrl } from "@/lib/apiConfig";
 import type {
   OnboardingInput,
   AIOnboardingSession,
 } from "@/types/ai-onboarding";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_LYXSO_API_URL ??
-  process.env.NEXT_PUBLIC_API_BASE ??
-  "http://localhost:4000";
+const API_BASE_URL = getApiBaseUrl();
 
 const REQUEST_TIMEOUT = 30000; // 30 seconds
 const MAX_RETRIES = 2; // Total attempts will be 1 initial + 2 retries = 3
