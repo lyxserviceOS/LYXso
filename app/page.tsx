@@ -1,164 +1,305 @@
 // app/page.tsx
 import Link from "next/link";
+import { Analytics } from "@vercel/analytics/next";
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 
-export default function HomePage() {
+export default async function HomePage() {
+  // Sjekk om bruker er innlogget
+  const cookieStore = await cookies();
+  
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            );
+          } catch {
+            // Server Component kan ikke sette cookies
+          }
+        },
+      },
+    }
+  );
+  
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  // Hvis innlogget, redirect til dashboard
+  if (session) {
+    redirect('/kontrollpanel');
+  }
+
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-50">
-      <main className="mx-auto max-w-7xl space-y-20 px-4 py-12 lg:px-8 lg:py-16">
-        
-        {/* 2.1 Hero-seksjon */}
+    <>
+      <Analytics />
+      <div className="min-h-screen bg-slate-950 text-slate-50">
+        <main className="mx-auto max-w-7xl space-y-20 px-4 py-12 lg:px-8 lg:py-16">
+          
+          {/* 2.1 Hero-seksjon - Forbedret */}
+          <section className="space-y-8 pt-8">
+            <div className="max-w-4xl space-y-6">
+              <div className="inline-flex items-center gap-2 rounded-full border border-blue-600/30 bg-blue-600/10 px-4 py-1.5 text-xs font-medium text-blue-400 animate-fade-in">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                </span>
+                Bygd i Norge for norske bilverksteder
+              </div>
+              
+              <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-7xl bg-gradient-to-r from-slate-50 via-blue-100 to-slate-50 bg-clip-text text-transparent animate-fade-in-up">
+                Fra kaos til kontroll
+                <span className="block text-blue-400 mt-2">på 5 minutter</span>
+              </h1>
+              
+              <p className="text-lg sm:text-xl text-slate-300 leading-relaxed max-w-3xl animate-fade-in-up animation-delay-200">
+                LYXso er <span className="text-blue-400 font-semibold">komplett driftssystem</span> for bilpleie, dekkhotell og bilverksteder. Alt du trenger på én skjerm – booking, kunder, kjøretøy, dekkhotell, markedsføring og rapportering.
+              </p>
+
+              <div className="flex flex-wrap gap-4 pt-6 animate-fade-in-up animation-delay-400">
+                <Link
+                  href="/register"
+                  className="group relative rounded-lg bg-blue-600 px-8 py-4 text-base font-semibold text-white hover:bg-blue-500 transition-all duration-300 shadow-xl shadow-blue-600/30 hover:shadow-2xl hover:shadow-blue-600/40 hover:scale-105"
+                >
+                  <span className="relative z-10">Start gratis i dag</span>
+                  <span className="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur"></span>
+                </Link>
+                <Link
+                  href="#moduler"
+                  className="group rounded-lg border-2 border-slate-600 bg-slate-900/80 px-8 py-4 text-base font-semibold text-slate-100 hover:border-blue-400 hover:bg-slate-900 transition-all duration-300 hover:scale-105"
+                >
+                  <span className="flex items-center gap-2">
+                    Se hvordan det fungerer
+                    <span className="group-hover:translate-x-1 transition-transform duration-300">→</span>
+                  </span>
+                </Link>
+              </div>
+
+              <div className="space-y-3 pt-4 animate-fade-in-up animation-delay-600">
+                <div className="flex flex-wrap items-center gap-6 text-sm text-slate-400">
+                  <div className="flex items-center gap-2">
+                    <svg className="h-5 w-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Ingen kredittkort</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <svg className="h-5 w-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Klar på 5 minutter</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <svg className="h-5 w-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Norsk support 24/7</span>
+                  </div>
+                </div>
+                <p className="text-sm font-medium">
+                  <span className="text-blue-400">🔒 Brukt av 150+ bedrifter</span> 
+                  <span className="text-slate-500 mx-2">•</span>
+                  <span className="text-slate-400">Data lagret i Norge/EU</span>
+                  <span className="text-slate-500 mx-2">•</span>
+                  <span className="text-slate-400">GDPR-kompatibel</span>
+                </p>
+              </div>
+            </div>
+          </section>
+
+        {/* Stats bar - Key metrics - Forbedret */}
+        <section className="rounded-2xl border-2 border-slate-800/50 bg-gradient-to-br from-slate-900/60 to-slate-900/30 backdrop-blur-sm px-8 py-10 shadow-xl">
+          <div className="grid grid-cols-2 gap-8 md:grid-cols-4 text-center">
+            <div className="group hover-lift">
+              <div className="flex flex-col items-center gap-2">
+                <p className="text-5xl font-bold bg-gradient-to-br from-blue-400 to-blue-600 bg-clip-text text-transparent">2500+</p>
+                <p className="text-sm text-slate-400 font-medium">Aktive bookinger</p>
+                <p className="text-xs text-slate-500 mt-1">I systemet akkurat nå</p>
+              </div>
+            </div>
+            <div className="group hover-lift">
+              <div className="flex flex-col items-center gap-2">
+                <p className="text-5xl font-bold bg-gradient-to-br from-emerald-400 to-emerald-600 bg-clip-text text-transparent">8t</p>
+                <p className="text-sm text-slate-400 font-medium">Spart per uke</p>
+                <p className="text-xs text-slate-500 mt-1">Mindre administrasjon</p>
+              </div>
+            </div>
+            <div className="group hover-lift">
+              <div className="flex flex-col items-center gap-2">
+                <p className="text-5xl font-bold bg-gradient-to-br from-purple-400 to-purple-600 bg-clip-text text-transparent">5 min</p>
+                <p className="text-sm text-slate-400 font-medium">Til oppstart</p>
+                <p className="text-xs text-slate-500 mt-1">Fra registrering til booking</p>
+              </div>
+            </div>
+            <div className="group hover-lift">
+              <div className="flex flex-col items-center gap-2">
+                <p className="text-5xl font-bold bg-gradient-to-br from-blue-400 to-purple-600 bg-clip-text text-transparent">99.8%</p>
+                <p className="text-sm text-slate-400 font-medium">Oppetid</p>
+                <p className="text-xs text-slate-500 mt-1">Alltid tilgjengelig</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Before/After comparison - Forbedret */}
         <section className="space-y-8">
-          <div className="max-w-4xl space-y-6">
+          <div className="text-center space-y-4">
             <div className="inline-flex items-center gap-2 rounded-full border border-blue-600/30 bg-blue-600/10 px-4 py-1.5 text-xs font-medium text-blue-400">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
-              </span>
-              Bygd i Norge for norske bilverksteder
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+              </svg>
+              Se forskjellen
             </div>
-            
-            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-              Slutt å kjempe med Excel-ark og tapte dekk-bookinger
-            </h1>
-            
-            <p className="text-lg text-slate-300 leading-relaxed max-w-3xl">
-              LYXso samler booking, kunder, kjøretøy, dekkhotell, betaling og rapportering i ett system. Få full kontroll på kapasitet, økonomi og vekst – uten å drukne i papirarbeid.
-            </p>
-
-            <div className="flex flex-wrap gap-4 pt-4">
-              <Link
-                href="/register"
-                className="rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white hover:bg-blue-500 transition-colors shadow-lg shadow-blue-600/20"
-              >
-                Kom i gang gratis
-              </Link>
-              <Link
-                href="#moduler"
-                className="rounded-lg border border-slate-600 bg-slate-900/80 px-6 py-3 text-sm font-semibold text-slate-100 hover:border-blue-400 transition-colors"
-              >
-                Se hvordan LYXso fungerer
-              </Link>
-            </div>
-
-            <p className="text-xs text-slate-400 pt-2">
-              Ingen kredittkort nødvendig • Klar på 5 minutter • Norsk support
-            </p>
-          </div>
-        </section>
-
-        {/* Stats bar - Key metrics */}
-        <section className="rounded-xl border border-slate-800 bg-slate-900/40 px-6 py-8">
-          <div className="grid grid-cols-2 gap-6 md:grid-cols-4 text-center">
-            <div>
-              <p className="text-4xl font-bold text-blue-400">1500+</p>
-              <p className="text-sm text-slate-400 mt-2">Bookinger i systemet</p>
-            </div>
-            <div>
-              <p className="text-4xl font-bold text-blue-400">8t</p>
-              <p className="text-sm text-slate-400 mt-2">Spart per uke</p>
-            </div>
-            <div>
-              <p className="text-4xl font-bold text-blue-400">5 min</p>
-              <p className="text-sm text-slate-400 mt-2">Til første booking</p>
-            </div>
-            <div>
-              <p className="text-4xl font-bold text-blue-400">24/7</p>
-              <p className="text-sm text-slate-400 mt-2">Norsk support</p>
-            </div>
-          </div>
-        </section>
-
-        {/* Before/After comparison */}
-        <section className="space-y-8">
-          <div className="text-center space-y-3">
-            <h2 className="text-3xl font-bold">Fra kaos til kontroll</h2>
-            <p className="text-slate-300 max-w-2xl mx-auto">
-              Se forskjellen LYXso gjør for verkstedet ditt
+            <h2 className="text-4xl font-bold">Fra kaos til kontroll</h2>
+            <p className="text-lg text-slate-300 max-w-2xl mx-auto">
+              Se hva LYXso gjør for verkstedet ditt – umiddelbart
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6 pt-4">
-            <div className="rounded-xl border-2 border-red-900/50 bg-red-950/20 p-8 space-y-6">
+          <div className="grid md:grid-cols-2 gap-8 pt-4">
+            <div className="group rounded-2xl border-2 border-red-900/50 bg-gradient-to-br from-red-950/30 to-slate-950/30 p-8 space-y-6 hover-lift">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-600/20 text-red-400">
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-red-600/20 text-red-400 group-hover:scale-110 transition-transform">
+                  <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </div>
-                <h3 className="text-xl font-bold text-red-300">Uten LYXso</h3>
+                <div>
+                  <h3 className="text-xl font-bold text-red-300">Uten LYXso</h3>
+                  <p className="text-sm text-red-400/70">Typisk hverdag</p>
+                </div>
               </div>
               <ul className="space-y-4 text-sm text-slate-300">
-                <li className="flex items-start gap-3">
-                  <span className="text-red-400 mt-0.5 flex-shrink-0">✗</span>
-                  <span>Excel-ark overalt, ingen oversikt</span>
+                <li className="flex items-start gap-3 group/item">
+                  <span className="text-red-400 mt-1 flex-shrink-0 text-lg group-hover/item:scale-125 transition-transform">✗</span>
+                  <div>
+                    <p className="font-medium text-slate-200">Excel-ark overalt, ingen oversikt</p>
+                    <p className="text-xs text-slate-500 mt-1">20+ filer, forskjellige versjoner</p>
+                  </div>
                 </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-red-400 mt-0.5 flex-shrink-0">✗</span>
-                  <span>Tapte bookinger og dobbeltbookinger</span>
+                <li className="flex items-start gap-3 group/item">
+                  <span className="text-red-400 mt-1 flex-shrink-0 text-lg group-hover/item:scale-125 transition-transform">✗</span>
+                  <div>
+                    <p className="font-medium text-slate-200">Tapte bookinger og dobbeltbookinger</p>
+                    <p className="text-xs text-slate-500 mt-1">Mister 2-3 kunder per uke</p>
+                  </div>
                 </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-red-400 mt-0.5 flex-shrink-0">✗</span>
-                  <span>Kunder ringer: "Har dere dekkene mine?"</span>
+                <li className="flex items-start gap-3 group/item">
+                  <span className="text-red-400 mt-1 flex-shrink-0 text-lg group-hover/item:scale-125 transition-transform">✗</span>
+                  <div>
+                    <p className="font-medium text-slate-200">Kunder ringer: "Har dere dekkene mine?"</p>
+                    <p className="text-xs text-slate-500 mt-1">15-20 anrop daglig i sesong</p>
+                  </div>
                 </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-red-400 mt-0.5 flex-shrink-0">✗</span>
-                  <span>10+ timer admin per uke</span>
+                <li className="flex items-start gap-3 group/item">
+                  <span className="text-red-400 mt-1 flex-shrink-0 text-lg group-hover/item:scale-125 transition-transform">✗</span>
+                  <div>
+                    <p className="font-medium text-slate-200">10+ timer admin per uke</p>
+                    <p className="text-xs text-slate-500 mt-1">= 40+ timer per måned bortkastet</p>
+                  </div>
                 </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-red-400 mt-0.5 flex-shrink-0">✗</span>
-                  <span>Ingen oversikt over kapasitet</span>
+                <li className="flex items-start gap-3 group/item">
+                  <span className="text-red-400 mt-1 flex-shrink-0 text-lg group-hover/item:scale-125 transition-transform">✗</span>
+                  <div>
+                    <p className="font-medium text-slate-200">Ingen oversikt over kapasitet</p>
+                    <p className="text-xs text-slate-500 mt-1">Tomme tidsluker ikke utnyttet</p>
+                  </div>
                 </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-red-400 mt-0.5 flex-shrink-0">✗</span>
-                  <span>Glemmer oppfølging og service-påminnelser</span>
+                <li className="flex items-start gap-3 group/item">
+                  <span className="text-red-400 mt-1 flex-shrink-0 text-lg group-hover/item:scale-125 transition-transform">✗</span>
+                  <div>
+                    <p className="font-medium text-slate-200">Glemmer oppfølging og service</p>
+                    <p className="text-xs text-slate-500 mt-1">Tapt mersalg og repeat-business</p>
+                  </div>
                 </li>
               </ul>
+              <div className="pt-4 border-t border-red-900/30">
+                <p className="text-xs text-red-300/70 text-center">
+                  Estimert tap: <span className="font-bold text-red-300">50 000+ kr/måned</span>
+                </p>
+              </div>
             </div>
 
-            <div className="rounded-xl border-2 border-emerald-900/50 bg-emerald-950/20 p-8 space-y-6">
+            <div className="group rounded-2xl border-2 border-emerald-900/50 bg-gradient-to-br from-emerald-950/30 to-slate-950/30 p-8 space-y-6 hover-lift">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-600/20 text-emerald-400">
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-600/20 text-emerald-400 group-hover:scale-110 transition-transform">
+                  <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <h3 className="text-xl font-bold text-emerald-300">Med LYXso</h3>
+                <div>
+                  <h3 className="text-xl font-bold text-emerald-300">Med LYXso</h3>
+                  <p className="text-sm text-emerald-400/70">Sånn kan det være</p>
+                </div>
               </div>
               <ul className="space-y-4 text-sm text-slate-300">
-                <li className="flex items-start gap-3">
-                  <span className="text-emerald-400 mt-0.5 flex-shrink-0">✓</span>
-                  <span>Ett system, full oversikt på alle enheter</span>
+                <li className="flex items-start gap-3 group/item">
+                  <span className="text-emerald-400 mt-1 flex-shrink-0 text-lg group-hover/item:scale-125 transition-transform">✓</span>
+                  <div>
+                    <p className="font-medium text-slate-200">Ett system, full oversikt</p>
+                    <p className="text-xs text-slate-500 mt-1">Alt på én skjerm, tilgjengelig 24/7</p>
+                  </div>
                 </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-emerald-400 mt-0.5 flex-shrink-0">✓</span>
-                  <span>0 tapte bookinger, aldri dobbeltbooke</span>
+                <li className="flex items-start gap-3 group/item">
+                  <span className="text-emerald-400 mt-1 flex-shrink-0 text-lg group-hover/item:scale-125 transition-transform">✓</span>
+                  <div>
+                    <p className="font-medium text-slate-200">0 tapte bookinger, aldri dobbeltbooke</p>
+                    <p className="text-xs text-slate-500 mt-1">System hindrer konflikter automatisk</p>
+                  </div>
                 </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-emerald-400 mt-0.5 flex-shrink-0">✓</span>
-                  <span>Kunder får automatisk SMS og kan sjekke selv</span>
+                <li className="flex items-start gap-3 group/item">
+                  <span className="text-emerald-400 mt-1 flex-shrink-0 text-lg group-hover/item:scale-125 transition-transform">✓</span>
+                  <div>
+                    <p className="font-medium text-slate-200">Kunder får automatisk SMS og kan sjekke selv</p>
+                    <p className="text-xs text-slate-500 mt-1">Reduserer henvendelser med 80%</p>
+                  </div>
                 </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-emerald-400 mt-0.5 flex-shrink-0">✓</span>
-                  <span>2 timer admin per uke (spart 8 timer!)</span>
+                <li className="flex items-start gap-3 group/item">
+                  <span className="text-emerald-400 mt-1 flex-shrink-0 text-lg group-hover/item:scale-125 transition-transform">✓</span>
+                  <div>
+                    <p className="font-medium text-slate-200">2 timer admin per uke</p>
+                    <p className="text-xs text-slate-500 mt-1">= 32+ timer spart per måned</p>
+                  </div>
                 </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-emerald-400 mt-0.5 flex-shrink-0">✓</span>
-                  <span>Kapasitet synlig i sanntid</span>
+                <li className="flex items-start gap-3 group/item">
+                  <span className="text-emerald-400 mt-1 flex-shrink-0 text-lg group-hover/item:scale-125 transition-transform">✓</span>
+                  <div>
+                    <p className="font-medium text-slate-200">Kapasitet synlig i sanntid</p>
+                    <p className="text-xs text-slate-500 mt-1">Fyll tomme tidsluker automatisk</p>
+                  </div>
                 </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-emerald-400 mt-0.5 flex-shrink-0">✓</span>
-                  <span>Automatisk oppfølging og påminnelser</span>
+                <li className="flex items-start gap-3 group/item">
+                  <span className="text-emerald-400 mt-1 flex-shrink-0 text-lg group-hover/item:scale-125 transition-transform">✓</span>
+                  <div>
+                    <p className="font-medium text-slate-200">Automatisk oppfølging og påminnelser</p>
+                    <p className="text-xs text-slate-500 mt-1">AI sender riktig melding til riktig tid</p>
+                  </div>
                 </li>
               </ul>
+              <div className="pt-4 border-t border-emerald-900/30">
+                <p className="text-xs text-emerald-300/70 text-center">
+                  Estimert gevinst: <span className="font-bold text-emerald-300">65 000+ kr/måned</span>
+                </p>
+              </div>
             </div>
           </div>
 
-          <div className="text-center pt-4">
-            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-600/30 bg-emerald-600/10 px-6 py-3 text-sm font-medium text-emerald-400">
-              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="text-center pt-8">
+            <div className="inline-flex items-center gap-3 rounded-2xl border-2 border-emerald-600/30 bg-gradient-to-r from-emerald-950/30 to-blue-950/30 px-8 py-4 text-base font-medium text-emerald-400 shadow-xl">
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
               </svg>
-              <span>Spart gjennomsnittlig 8 timer per uke = 32+ timer per måned</span>
+              <div className="text-left">
+                <p className="font-bold text-lg">ROI på 115 000 kr første år</p>
+                <p className="text-xs text-emerald-300/70">Basert på gjennomsnittlig kunde</p>
+              </div>
             </div>
           </div>
         </section>
@@ -1069,5 +1210,6 @@ export default function HomePage() {
 
       </main>
     </div>
+    </>
   );
 }

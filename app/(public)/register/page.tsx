@@ -306,8 +306,8 @@ function RegisterPage() {
       } catch (err) {
         console.error("Failed to clear persisted data:", err);
       }
-      // Redirect to email confirmation page
-      router.push("/register/confirm-email");
+      // Log user in and redirect to dashboard
+      await loginAndRedirect();
     }
   }
 
@@ -327,15 +327,39 @@ function RegisterPage() {
   }
 
   // Skip AI suggestions
-  function handleSkipAISuggestions() {
+  async function handleSkipAISuggestions() {
     // Clear persisted data on skip
     try {
       sessionStorage.removeItem(STORAGE_KEY);
     } catch (err) {
       console.error("Failed to clear persisted data:", err);
     }
-    // Redirect to email confirmation page
-    router.push("/register/confirm-email");
+    // Log user in and redirect to dashboard
+    await loginAndRedirect();
+  }
+
+  // Login and redirect to dashboard
+  async function loginAndRedirect() {
+    try {
+      // Sign in with the credentials
+      const { error } = await supabase.auth.signInWithPassword({
+        email: step1Form.email.trim(),
+        password: step1Form.password,
+      });
+
+      if (error) {
+        console.error("Auto-login error:", error);
+        // If login fails, redirect to login page
+        router.push("/login?message=Konto opprettet. Vennligst logg inn.");
+        return;
+      }
+
+      // Successful login - redirect to dashboard
+      router.push("/min-side");
+    } catch (err) {
+      console.error("Unexpected error during auto-login:", err);
+      router.push("/login?message=Konto opprettet. Vennligst logg inn.");
+    }
   }
 
   // Handle Google OAuth registration

@@ -17,6 +17,10 @@ type PlanFeatures = {
   ads: boolean;
   aiMarketing: boolean;
   lyxVision: boolean;
+  aiTyreAnalysis: boolean;
+  aiCoatingCertificate: boolean;
+  aiLeadAgent: boolean;
+  autoPublishing: boolean;
 };
 
 type OrgPlanHookState = {
