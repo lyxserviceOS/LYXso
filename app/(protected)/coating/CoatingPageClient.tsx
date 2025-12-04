@@ -16,6 +16,7 @@ import type {
   FollowupStatus,
   CoatingPipelineStage 
 } from "@/types/coating";
+import CoatingCertificateModal from "@/components/coating/CoatingCertificateModal";
 
 const ORG_ID = process.env.NEXT_PUBLIC_ORG_ID ?? "";
 
@@ -164,6 +165,7 @@ export default function CoatingPageClient() {
   const [showNewJobModal, setShowNewJobModal] = useState(false);
   const [showFollowupModal, setShowFollowupModal] = useState(false);
   const [showCustomerTimeline, setShowCustomerTimeline] = useState(false);
+  const [showCertificateModal, setShowCertificateModal] = useState(false);
   const [followupToRegister, setFollowupToRegister] = useState<{ job: ExtendedCoatingJob; followupNum: number } | null>(null);
   
   // Customer autocomplete state
@@ -765,6 +767,13 @@ export default function CoatingPageClient() {
                           </button>
                           <button
                             type="button"
+                            onClick={() => setShowCertificateModal(true)}
+                            className="flex-1 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-medium text-white hover:bg-emerald-700"
+                          >
+                            📄 Sertifikat
+                          </button>
+                          <button
+                            type="button"
                             onClick={() => setShowCustomerTimeline(true)}
                             className="rounded-lg border border-slate-300 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50"
                           >
@@ -1333,6 +1342,18 @@ export default function CoatingPageClient() {
             </div>
           </div>
         </div>
+      )}
+      
+      {/* CERTIFICATE MODAL */}
+      {selectedJob && (
+        <CoatingCertificateModal
+          orgId={ORG_ID}
+          jobId={selectedJob.id}
+          customerName={selectedJob.customer_name}
+          vehicleInfo={selectedJob.vehicle_info}
+          isOpen={showCertificateModal}
+          onClose={() => setShowCertificateModal(false)}
+        />
       )}
     </div>
   );

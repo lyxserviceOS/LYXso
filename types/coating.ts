@@ -81,3 +81,21 @@ export type CoatingPipelineStage =
   | "followup_4"
   | "followup_5"
   | "warranty_expired";
+
+// Certificate types
+export interface CoatingCertificate {
+  id: string;
+  coating_job_id: string;
+  certificate_number: string;
+  public_token: string;
+  public_url?: string;
+  qr_code_url?: string;
+  pdf_url?: string;
+  issued_at: string;
+  expires_at: string;
+  warranty_years: number;
+  is_valid?: boolean;
+  metadata?: Record<string, any>;
+  created_at: string;
+  updated_at: string;
+}
