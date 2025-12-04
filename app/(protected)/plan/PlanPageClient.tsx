@@ -188,9 +188,14 @@ export default function PlanPageClient() {
                 enabled={features.lyxVision}
               />
               <FeatureCard
-                label="Dekkhotell PRO"
+                label="Dekkhotell"
                 description="Lagerposisjon, historikk og booking-integrasjon."
                 enabled={features.lyxVision}
+              />
+              <FeatureCard
+                label="Dekkhotell AI-analyse"
+                description="AI-drevet analyse av dekkbilder og anbefaling av tjenester."
+                enabled={features.aiMarketing}
               />
               <FeatureCard
                 label="Automatisering"

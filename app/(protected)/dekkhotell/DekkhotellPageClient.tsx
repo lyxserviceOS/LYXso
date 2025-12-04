@@ -4,6 +4,8 @@
 import React, { useEffect, useState } from "react";
 import type { TyreSet, TyreSeason, TyreCondition, TyreStatus, TyrePosition, TyreHistory } from "@/types/tyre";
 import { getApiBaseUrl } from "@/lib/apiConfig";
+import { useOrgPlan } from "@/lib/useOrgPlan";
+import { useRouter } from "next/navigation";
 
 const API_BASE = getApiBaseUrl();
 const ORG_ID = process.env.NEXT_PUBLIC_ORG_ID;
@@ -51,6 +53,10 @@ const EMPTY_FORM: NewTyreSetForm = {
 };
 
 export default function DekkhotellPageClient() {
+  const router = useRouter();
+  const { features, loading: planLoading } = useOrgPlan();
+  const canUseAI = features.aiTyreAnalysis;
+  
   const [tyreSets, setTyreSets] = useState<TyreSet[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -478,7 +484,7 @@ export default function DekkhotellPageClient() {
       {/* Header */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-900">Dekkhotell PRO</h1>
+          <h1 className="text-2xl font-semibold text-slate-900">Dekkhotell</h1>
           <p className="text-sm text-slate-500">
             Administrer dekksett, lagerplass og klargjør bookinger for dekkskift.
           </p>
@@ -788,13 +794,23 @@ export default function DekkhotellPageClient() {
               {/* Actions */}
               <div className="border-t border-slate-100 pt-4 space-y-2">
                 {/* AI Image Analysis Button */}
-                <button
-                  type="button"
-                  onClick={() => setShowImageCaptureModal(true)}
-                  className="w-full rounded-lg bg-purple-600 px-3 py-2 text-xs font-medium text-white hover:bg-purple-700 flex items-center justify-center gap-2"
-                >
-                  📷 Ta bilde for AI-analyse
-                </button>
+                {canUseAI ? (
+                  <button
+                    type="button"
+                    onClick={() => setShowImageCaptureModal(true)}
+                    className="w-full rounded-lg bg-purple-600 px-3 py-2 text-xs font-medium text-white hover:bg-purple-700 flex items-center justify-center gap-2"
+                  >
+                    📷 Ta bilde for AI-analyse
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => router.push('/plan')}
+                    className="w-full rounded-lg bg-slate-200 px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-300 flex items-center justify-center gap-2"
+                  >
+                    🔒 Oppgrader for AI-analyse
+                  </button>
+                )}
                 <button
                   type="button"
                   className="w-full rounded-lg bg-blue-600 px-3 py-2 text-xs font-medium text-white hover:bg-blue-700"
@@ -1132,8 +1148,22 @@ export default function DekkhotellPageClient() {
               <button
                 type="button"
                 onClick={() => {
-                  // Update the selected set with AI analysis results
-                  if (selectedSet && aiAnalysisResult) {
+                  // Check if this is from new tyre set modal (temp ID)
+                  const isNewTyreSet = selectedSet?.id.startsWith("temp-");
+                  
+                  if (isNewTyreSet && aiAnalysisResult) {
+                    // Fill the new form with AI results
+                    setNewForm(prev => ({
+                      ...prev,
+                      tread_depth_mm: aiAnalysisResult.overall_tread_depth_mm.toString(),
+                      condition: aiAnalysisResult.overall_condition,
+                    }));
+                    
+                    setShowAIAnalysisModal(false);
+                    setShowNewModal(true);
+                    setSelectedSet(null);
+                  } else if (selectedSet && aiAnalysisResult) {
+                    // Update existing tyre set
                     const updatedSet = {
                       ...selectedSet,
                       tread_depth_mm: aiAnalysisResult.overall_tread_depth_mm,
@@ -1143,12 +1173,12 @@ export default function DekkhotellPageClient() {
                     };
                     setTyreSets(prev => prev.map(s => s.id === selectedSet.id ? updatedSet : s));
                     setSelectedSet(updatedSet);
+                    setShowAIAnalysisModal(false);
                   }
-                  setShowAIAnalysisModal(false);
                 }}
                 className="flex-1 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
               >
-                Lagre resultater
+                {selectedSet?.id.startsWith("temp-") ? "Bruk resultater" : "Lagre resultater"}
               </button>
             </div>
           </div>
@@ -1171,6 +1201,102 @@ export default function DekkhotellPageClient() {
             </div>
             
             <div className="space-y-4">
+              {/* AI Analysis Button - FIRST */}
+              {canUseAI ? (
+                <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0 text-2xl">🤖</div>
+                    <div className="flex-1">
+                      <h3 className="text-sm font-semibold text-slate-900 mb-1">
+                        AI-analyse (Anbefalt)
+                      </h3>
+                      <p className="text-xs text-slate-600 mb-3">
+                        Ta eller last opp bilder av alle fire dekk for automatisk utfylling av dimensjon, 
+                        mønsterdybde, tilstand og produksjonsår.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          // Create a temporary tyre set for AI analysis
+                          const tempId = "temp-" + Date.now();
+                          setSelectedSet({
+                            id: tempId,
+                            org_id: ORG_ID || "",
+                            customer_id: null,
+                            vehicle_id: null,
+                            registration_number: newForm.registration_number || "TEMP",
+                            label: newForm.customer_name || null,
+                            dimension: null,
+                            brand: null,
+                            model: null,
+                            season: "summer",
+                            condition: "good",
+                            tread_depth_mm: null,
+                            production_year: null,
+                            production_week: null,
+                            storage_location_id: null,
+                            location: null,
+                            shelf: null,
+                            row: null,
+                            position: null,
+                            status: "stored",
+                            notes: null,
+                            images: null,
+                            ai_analysis: null,
+                            stored_at: null,
+                            last_mounted_at: null,
+                            mileage_at_storage: null,
+                            created_at: new Date().toISOString(),
+                            updated_at: new Date().toISOString(),
+                          });
+                          setShowNewModal(false);
+                          setShowImageCaptureModal(true);
+                        }}
+                        disabled={!newForm.registration_number}
+                        className="inline-flex items-center gap-2 rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        📷 Start AI-analyse
+                      </button>
+                      {!newForm.registration_number && (
+                        <p className="text-xs text-amber-600 mt-2">
+                          ⚠️ Vennligst fyll ut registreringsnummer først
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-300 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0 text-2xl">🔒</div>
+                    <div className="flex-1">
+                      <h3 className="text-sm font-semibold text-slate-900 mb-1">
+                        AI-analyse (Premium)
+                      </h3>
+                      <p className="text-xs text-slate-600 mb-3">
+                        Automatisk analyse av dekk med AI er tilgjengelig på Business og Enterprise planer.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => router.push('/plan')}
+                        className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                      >
+                        ✨ Oppgrader plan
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-slate-200"></div>
+                </div>
+                <div className="relative flex justify-center text-xs">
+                  <span className="bg-white px-2 text-slate-500">eller fyll ut manuelt</span>
+                </div>
+              </div>
+
               {/* Customer/Vehicle section */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
