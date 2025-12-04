@@ -1,0 +1,412 @@
+/* =====================================================
+   LYXso Legal Documents - Mobile-First Styling
+   ===================================================== */
+
+/* Smooth scrolling for anchor links */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px;
+}
+
+/* =====================================================
+   Base Containers
+   ===================================================== */
+
+.legal-document {
+  @apply min-h-screen bg-slate-950 text-slate-100;
+}
+
+.legal-container {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+/* =====================================================
+   Hero Sections
+   ===================================================== */
+
+.legal-hero {
+  @apply bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border-b border-slate-700;
+}
+
+.legal-hero-content {
+  @apply max-w-3xl mx-auto text-center py-12 sm:py-16;
+}
+
+.legal-hero-icon {
+  @apply inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-blue-600/20 rounded-full mb-6;
+}
+
+.legal-hero-title {
+  @apply text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6;
+}
+
+.legal-hero-subtitle {
+  @apply text-base sm:text-lg text-slate-300 mb-6;
+}
+
+/* =====================================================
+   Section Numbering
+   ===================================================== */
+
+.section-number {
+  @apply flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 
+         bg-blue-600/20 rounded-lg 
+         flex items-center justify-center 
+         text-blue-400 text-sm sm:text-base font-bold;
+}
+
+.section-header {
+  @apply flex items-center gap-3 mb-4 sm:mb-6;
+}
+
+.section-title {
+  @apply text-xl sm:text-2xl font-semibold text-slate-100;
+}
+
+/* =====================================================
+   Warning Boxes
+   ===================================================== */
+
+.warning-critical {
+  @apply bg-red-900/20 border-2 border-red-700/50 rounded-lg p-4 sm:p-6;
+}
+
+.warning-important {
+  @apply bg-amber-900/20 border border-amber-700/50 rounded-lg p-4;
+}
+
+.warning-info {
+  @apply bg-blue-900/20 border border-blue-700/50 rounded-lg p-4;
+}
+
+.warning-success {
+  @apply bg-green-900/20 border border-green-700/50 rounded-lg p-4;
+}
+
+/* =====================================================
+   Content Cards & Boxes
+   ===================================================== */
+
+.content-card {
+  @apply bg-slate-800/50 p-3 sm:p-4 rounded-lg border border-slate-700;
+}
+
+.content-box {
+  @apply bg-slate-900/50 p-4 sm:p-6 rounded-lg border border-slate-800;
+}
+
+.highlight-box {
+  @apply bg-blue-900/10 border border-blue-700/30 rounded-lg p-4;
+}
+
+/* =====================================================
+   Grid Layouts (Responsive)
+   ===================================================== */
+
+.legal-grid-2 {
+  @apply grid gap-4;
+}
+
+.legal-grid-3 {
+  @apply grid gap-4;
+}
+
+/* Mobile: Stack everything */
+@media (max-width: 640px) {
+  .legal-grid-2,
+  .legal-grid-3 {
+    @apply grid-cols-1;
+  }
+}
+
+/* Tablet: 2 columns */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .legal-grid-2 {
+    @apply grid-cols-2;
+  }
+  
+  .legal-grid-3 {
+    @apply grid-cols-2;
+  }
+}
+
+/* Desktop: Full layout */
+@media (min-width: 1025px) {
+  .legal-grid-2 {
+    @apply grid-cols-2;
+  }
+  
+  .legal-grid-3 {
+    @apply grid-cols-3;
+  }
+}
+
+/* =====================================================
+   Sidebar Navigation (Desktop only)
+   ===================================================== */
+
+.legal-sidebar {
+  @apply hidden lg:block lg:col-span-1;
+}
+
+.legal-sidebar-sticky {
+  @apply sticky top-8 space-y-2;
+}
+
+.legal-sidebar-title {
+  @apply text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4;
+}
+
+.legal-sidebar-nav {
+  @apply space-y-1;
+}
+
+.legal-sidebar-link {
+  @apply block text-sm text-slate-400 hover:text-slate-200 py-1 transition-colors;
+}
+
+.legal-sidebar-link:hover {
+  @apply pl-2;
+}
+
+/* =====================================================
+   Touch Targets (Mobile)
+   ===================================================== */
+
+@media (max-width: 640px) {
+  .legal-button,
+  .legal-link,
+  button,
+  a {
+    @apply min-h-[44px];
+  }
+  
+  /* Better readability on mobile */
+  .legal-text {
+    @apply text-base leading-relaxed;
+  }
+  
+  .legal-heading-1 {
+    @apply text-3xl;
+  }
+  
+  .legal-heading-2 {
+    @apply text-xl;
+  }
+  
+  .legal-heading-3 {
+    @apply text-lg;
+  }
+}
+
+/* =====================================================
+   Lists & Bullets
+   ===================================================== */
+
+.legal-list {
+  @apply space-y-2 ml-4 sm:ml-6;
+}
+
+.legal-list-disc {
+  @apply list-disc list-inside;
+}
+
+.legal-list-decimal {
+  @apply list-decimal list-inside;
+}
+
+.legal-list-check {
+  @apply space-y-2;
+}
+
+.legal-list-check li {
+  @apply flex gap-2 sm:gap-3 items-start;
+}
+
+.legal-list-check li::before {
+  content: "✓";
+  @apply flex-shrink-0 w-5 h-5 bg-green-600/20 rounded-full flex items-center justify-center text-green-400 text-xs font-bold;
+}
+
+/* =====================================================
+   Tables (Responsive)
+   ===================================================== */
+
+.legal-table-container {
+  @apply overflow-x-auto;
+}
+
+.legal-table {
+  @apply w-full text-sm;
+}
+
+.legal-table thead {
+  @apply border-b border-slate-700;
+}
+
+.legal-table th {
+  @apply text-left py-2 px-2 sm:px-4 font-semibold text-slate-200;
+}
+
+.legal-table td {
+  @apply py-3 px-2 sm:px-4 text-slate-300;
+}
+
+.legal-table tbody {
+  @apply divide-y divide-slate-800;
+}
+
+/* Stack table on very small screens */
+@media (max-width: 480px) {
+  .legal-table thead {
+    @apply sr-only;
+  }
+  
+  .legal-table tr {
+    @apply border-b border-slate-700 block mb-4;
+  }
+  
+  .legal-table td {
+    @apply block text-right py-2;
+  }
+  
+  .legal-table td::before {
+    content: attr(data-label);
+    @apply float-left font-semibold text-slate-200;
+  }
+}
+
+/* =====================================================
+   Buttons
+   ===================================================== */
+
+.legal-button-primary {
+  @apply px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg 
+         transition-colors font-medium text-sm sm:text-base;
+}
+
+.legal-button-secondary {
+  @apply px-6 py-3 bg-slate-700 hover:bg-slate-600 text-slate-100 rounded-lg 
+         transition-colors font-medium text-sm sm:text-base;
+}
+
+.legal-button-danger {
+  @apply px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg 
+         transition-colors font-medium text-sm sm:text-base;
+}
+
+/* =====================================================
+   Print Styles
+   ===================================================== */
+
+@media print {
+  .legal-document {
+    @apply bg-white text-black;
+  }
+  
+  .no-print,
+  .legal-sidebar,
+  button,
+  .legal-button {
+    @apply hidden !important;
+  }
+  
+  .legal-section {
+    page-break-inside: avoid;
+  }
+  
+  .warning-critical,
+  .warning-important {
+    @apply border-2 border-black;
+  }
+  
+  a[href]:after {
+    content: " (" attr(href) ")";
+    @apply text-sm;
+  }
+  
+  /* Ensure colors print correctly */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+
+/* =====================================================
+   Accessibility
+   ===================================================== */
+
+/* Focus styles for keyboard navigation */
+*:focus-visible {
+  @apply outline-2 outline-offset-2 outline-blue-500;
+}
+
+/* Skip to content link */
+.skip-to-content {
+  @apply absolute left-0 top-0 bg-blue-600 text-white px-4 py-2 
+         transform -translate-y-full focus:translate-y-0 transition-transform;
+}
+
+/* Screen reader only content */
+.sr-only {
+  @apply absolute w-px h-px p-0 -m-px overflow-hidden whitespace-nowrap border-0;
+}
+
+/* =====================================================
+   Animations
+   ===================================================== */
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.legal-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+.legal-slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* =====================================================
+   Utility Classes
+   ===================================================== */
+
+.legal-uppercase {
+  @apply uppercase tracking-wider;
+}
+
+.legal-emphasis {
+  @apply font-semibold text-slate-100;
+}
+
+.legal-muted {
+  @apply text-slate-400;
+}
+
+.legal-small {
+  @apply text-xs sm:text-sm;
+}
+
+.legal-spacing {
+  @apply space-y-4 sm:space-y-6;
+}
+
+.legal-section-spacing {
+  @apply space-y-8 sm:space-y-12;
+}
+
+/* =====================================================
+   Dark Mode Overrides (if needed)
+   ===================================================== */
+
+@media (prefers-color-scheme: light) {
+  /* LYXso uses dark theme by default, but you can add light mode here */
+  /* .legal-document { @apply bg-white text-slate-900; } */
+}
