@@ -1,8 +1,8 @@
 // Min Side - Kjøretøy
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { CustomerNav } from '@/components/customer-portal/CustomerNav';
-import { VehiclesList } from '@/components/customer-portal/VehiclesList';
+import CustomerNav from '@/components/customer-portal/CustomerNav';
+import VehiclesList from '@/components/customer-portal/VehiclesList';
 
 export default async function KjoretoyPage() {
   const supabase = await createClient();

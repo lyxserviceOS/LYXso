@@ -1,7 +1,7 @@
 // Customer Portal Dashboard - Min Side
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { CustomerNav } from '@/components/customer-portal/CustomerNav';
+import CustomerNav from '@/components/customer-portal/CustomerNav';
 import { Card } from '@/components/ui/card';
 import { Calendar, AlertTriangle, Shield } from 'lucide-react';
 import Link from 'next/link';

@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { CustomerNav } from '@/components/customer-portal/CustomerNav';
+import CustomerNav from '@/components/customer-portal/CustomerNav';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

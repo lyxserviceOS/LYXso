@@ -1,8 +1,8 @@
 // Min Side - Dekkhotell
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { CustomerNav } from '@/components/customer-portal/CustomerNav';
-import { TyreSetsList } from '@/components/customer-portal/TyreSetsList';
+import CustomerNav from '@/components/customer-portal/CustomerNav';
+import TyreSetsList from '@/components/customer-portal/TyreSetsList';
 
 export default async function DekkhotellPage() {
   const supabase = await createClient();
@@ -41,7 +41,7 @@ export default async function DekkhotellPage() {
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <h1 className="text-3xl font-bold mb-8">Dekkhotell</h1>
-        <TyreSetsList tyreSets={tyreSets} customerId={customer.id} />
+        <TyreSetsList tyreSets={tyreSets} />
       </div>
     </div>
   );

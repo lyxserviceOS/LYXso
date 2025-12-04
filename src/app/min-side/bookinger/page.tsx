@@ -1,8 +1,8 @@
 // Min Side - Bookinger
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { CustomerNav } from '@/components/customer-portal/CustomerNav';
-import { BookingsList } from '@/components/customer-portal/BookingsList';
+import CustomerNav from '@/components/customer-portal/CustomerNav';
+import BookingsList from '@/components/customer-portal/BookingsList';
 
 export default async function BookingerPage() {
   const supabase = await createClient();
@@ -35,13 +35,18 @@ export default async function BookingerPage() {
 
   const { bookings } = await response.json();
 
+  // Split bookings into upcoming and past
+  const now = new Date();
+  const upcoming = bookings.filter((b: any) => new Date(b.starts_at) >= now);
+  const past = bookings.filter((b: any) => new Date(b.starts_at) < now);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <CustomerNav />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <h1 className="text-3xl font-bold mb-8">Mine Bookinger</h1>
-        <BookingsList bookings={bookings} customerId={customer.id} />
+        <BookingsList upcoming={upcoming} past={past} />
       </div>
     </div>
   );

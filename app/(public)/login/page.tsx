@@ -196,12 +196,19 @@ function LoginContent() {
           </button>
 
           <p className="mt-3 text-[11px] text-slate-500">
-            Har du ikke konto enda?{" "}
+            Ny hos oss?{" "}
+            <a
+              href="/bli-partner"
+              className="text-blue-400 hover:text-blue-300"
+            >
+              Søk om partnertilgang
+            </a>
+            <span className="mx-1">•</span>
             <a
               href="/register"
               className="text-blue-400 hover:text-blue-300"
             >
-              Opprett LYXso-konto
+              Rask start (self-service)
             </a>
           </p>
         </form>

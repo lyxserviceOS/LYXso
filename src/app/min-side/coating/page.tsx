@@ -1,8 +1,8 @@
 // Min Side - Coating
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { CustomerNav } from '@/components/customer-portal/CustomerNav';
-import { CoatingJobsList } from '@/components/customer-portal/CoatingJobsList';
+import CustomerNav from '@/components/customer-portal/CustomerNav';
+import CoatingJobsList from '@/components/customer-portal/CoatingJobsList';
 
 export default async function CoatingPage() {
   const supabase = await createClient();

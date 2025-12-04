@@ -1,8 +1,8 @@
 // Min Side - Betalinger
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { CustomerNav } from '@/components/customer-portal/CustomerNav';
-import { InvoicesList } from '@/components/customer-portal/InvoicesList';
+import CustomerNav from '@/components/customer-portal/CustomerNav';
+import InvoicesList from '@/components/customer-portal/InvoicesList';
 
 export default async function BetalingerPage() {
   const supabase = await createClient();
