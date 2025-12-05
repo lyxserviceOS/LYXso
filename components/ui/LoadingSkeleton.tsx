@@ -347,3 +347,7 @@ export function ChartSkeleton() {
     </div>
   );
 }
+
+// Default export for backward compatibility
+export default CardSkeleton;
+

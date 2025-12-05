@@ -1,13 +1,13 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createClient } from '@/lib/supabase/client'
 import { toast } from 'react-hot-toast'
 import { 
   Settings, 
   Calendar, 
   Users, 
-  Package, 
+  Package,
   Truck, 
   Wrench,
   Sparkles,
@@ -375,7 +375,7 @@ export default function ModulesControlClient() {
   const [selectedCategory, setSelectedCategory] = useState<string>('Alle')
   const [hasChanges, setHasChanges] = useState(false)
   
-  const supabase = createClientComponentClient()
+  const supabase = createClient()
   const { executeUpdate, isUpdating } = useOptimisticUpdate()
 
   const categories = ['Alle', ...Array.from(new Set(MODULE_DEFINITIONS.map(m => m.category)))]

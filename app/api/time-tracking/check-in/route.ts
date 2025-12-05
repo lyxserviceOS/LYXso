@@ -38,7 +38,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Tidsregistrering er ikke aktivert' }, { status: 403 });
     }
 
-    const { data: existing CheckIn } = await supabase
+    const { data: existingCheckin } = await supabase
       .from('time_tracking_checkins')
       .select('id')
       .eq('user_id', user.id)

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createClient from '@/lib/supabase/client''
 import { toast } from 'react-hot-toast'
 import { 
   Clock, 
@@ -53,7 +53,7 @@ export default function TimeTrackingClient() {
   const [canCheckIn, setCanCheckIn] = useState(false)
   const [organizationWifi, setOrganizationWifi] = useState<string[]>([])
   
-  const supabase = createClientComponentClient()
+  const supabase = createClient()
 
   useEffect(() => {
     loadData()
