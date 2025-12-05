@@ -55,12 +55,12 @@ export default async function HomePage() {
               </div>
               
               <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-7xl bg-gradient-to-r from-slate-50 via-blue-100 to-slate-50 bg-clip-text text-transparent animate-fade-in-up">
-                Fra kaos til kontroll
-                <span className="block text-blue-400 mt-2">på 5 minutter</span>
+                LYXso — ServiceOS for Bilbransjen
+                <span className="block text-blue-400 mt-2">Det moderne systemet som øker inntekten</span>
               </h1>
               
               <p className="text-lg sm:text-xl text-slate-300 leading-relaxed max-w-3xl animate-fade-in-up animation-delay-200">
-                LYXso er <span className="text-blue-400 font-semibold">komplett driftssystem</span> for bilpleie, dekkhotell og bilverksteder. Alt du trenger på én skjerm – booking, kunder, kjøretøy, dekkhotell, markedsføring og rapportering.
+                <span className="text-blue-400 font-semibold">Ikke ett system. Ett operativsystem.</span> For bilpleie, verksted, PPF, dekk, skade og utleie. Alt du trenger for å drive en moderne bilbedrift — på én plattform.
               </p>
 
               <div className="flex flex-wrap gap-4 pt-6 animate-fade-in-up animation-delay-400">
