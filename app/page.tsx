@@ -1163,6 +1163,279 @@ export default async function HomePage() {
           </div>
         </section>
 
+        {/* Ny: For alle bilbransjer */}
+        <section className="space-y-8">
+          <div className="text-center space-y-4">
+            <h2 className="text-3xl font-bold">For bilpleie. For verksted. For PPF. For dekk. For skade. For utleie.</h2>
+            <p className="text-xl text-slate-300 max-w-3xl mx-auto">
+              Ikke ett system. <span className="text-blue-400 font-semibold">Ett operativsystem.</span>
+            </p>
+            <p className="text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
+              LYXso er bygget spesifikt for norske bilbedrifter. Vi kombinerer booking, økonomi, varelager, AI og leverandørstyring i én plattform — så du kan fokusere på det du gjør best.
+            </p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-4 pt-4">
+            <div className="group rounded-xl border border-slate-800 bg-slate-900/60 p-6 space-y-3 hover:border-blue-600/50 hover:bg-slate-900/80 transition-all duration-300">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-600/20 text-blue-400 group-hover:scale-110 transition-transform">
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-blue-400">Drift & Booking</h3>
+              <ul className="text-sm text-slate-400 space-y-1">
+                <li>• Smart kalender</li>
+                <li>• AI booking agent (24/7)</li>
+                <li>• Kundeportal</li>
+                <li>• Digitale jobbkort</li>
+              </ul>
+            </div>
+
+            <div className="group rounded-xl border border-slate-800 bg-slate-900/60 p-6 space-y-3 hover:border-blue-600/50 hover:bg-slate-900/80 transition-all duration-300">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-orange-600/20 text-orange-400 group-hover:scale-110 transition-transform">
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-orange-400">Varelager & Leverandør</h3>
+              <ul className="text-sm text-slate-400 space-y-1">
+                <li>• Prisjakt på bildeler</li>
+                <li>• Automatisk bestilling</li>
+                <li>• Strekkode/QR scanning</li>
+                <li>• Materialforbruk per jobb</li>
+              </ul>
+            </div>
+
+            <div className="group rounded-xl border border-slate-800 bg-slate-900/60 p-6 space-y-3 hover:border-blue-600/50 hover:bg-slate-900/80 transition-all duration-300">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-600/20 text-purple-400 group-hover:scale-110 transition-transform">
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-purple-400">AI-moduler</h3>
+              <ul className="text-sm text-slate-400 space-y-1">
+                <li>• AI-prising</li>
+                <li>• AI skadeanalyse</li>
+                <li>• AI coatinganalyse</li>
+                <li>• AI lagerassistent</li>
+              </ul>
+            </div>
+
+            <div className="group rounded-xl border border-slate-800 bg-slate-900/60 p-6 space-y-3 hover:border-blue-600/50 hover:bg-slate-900/80 transition-all duration-300">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-emerald-600/20 text-emerald-400 group-hover:scale-110 transition-transform">
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-emerald-400">Enterprise</h3>
+              <ul className="text-sm text-slate-400 space-y-1">
+                <li>• Multilokasjon</li>
+                <li>• Sentralt økonomipanel</li>
+                <li>• Sentrale prislister</li>
+                <li>• Ansattflyt mellom avdelinger</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        {/* Prisvisning - Teaser */}
+        <section className="space-y-8">
+          <div className="text-center space-y-4">
+            <h2 className="text-3xl font-bold">Velg planen som passer din bilbedrift</h2>
+            <p className="text-lg text-slate-300">
+              Start smått, skaler stort. Ingen bindingstid — kanseller når som helst.
+            </p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-3 lg:grid-cols-5 max-w-6xl mx-auto pt-4">
+            <div className="rounded-xl border-2 border-slate-800 bg-slate-900/50 p-6 space-y-4 hover:border-blue-600/50 transition-all">
+              <h3 className="text-xl font-bold text-slate-50">Lite</h3>
+              <div>
+                <span className="text-4xl font-bold text-slate-50">599</span>
+                <span className="text-slate-400"> kr/mnd</span>
+              </div>
+              <p className="text-sm text-slate-400">For små bilpleiere og mobile detailere</p>
+              <Link href="/priser" className="block w-full rounded-lg py-2 text-center font-semibold bg-slate-800 text-slate-100 hover:bg-slate-700 transition-colors">
+                Se detaljer
+              </Link>
+            </div>
+
+            <div className="rounded-xl border-2 border-blue-500 bg-gradient-to-br from-blue-950/50 to-slate-950/50 p-6 space-y-4 relative shadow-xl shadow-blue-900/20">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                <span className="inline-flex items-center gap-1 rounded-full bg-blue-600 px-3 py-0.5 text-xs font-semibold text-white">
+                  ⭐ Populær
+                </span>
+              </div>
+              <h3 className="text-xl font-bold text-slate-50">Pro</h3>
+              <div>
+                <span className="text-4xl font-bold text-slate-50">1.499</span>
+                <span className="text-slate-400"> kr/mnd</span>
+              </div>
+              <p className="text-sm text-slate-400">Standard for 80% av markedet</p>
+              <Link href="/priser" className="block w-full rounded-lg py-2 text-center font-semibold bg-blue-600 text-white hover:bg-blue-500 transition-colors">
+                Se detaljer
+              </Link>
+            </div>
+
+            <div className="rounded-xl border-2 border-slate-800 bg-slate-900/50 p-6 space-y-4 hover:border-blue-600/50 transition-all">
+              <h3 className="text-xl font-bold text-slate-50">Power</h3>
+              <div>
+                <span className="text-4xl font-bold text-slate-50">2.490</span>
+                <span className="text-slate-400"> kr/mnd</span>
+              </div>
+              <p className="text-sm text-slate-400">For profesjonelle verksteder</p>
+              <Link href="/priser" className="block w-full rounded-lg py-2 text-center font-semibold bg-slate-800 text-slate-100 hover:bg-slate-700 transition-colors">
+                Se detaljer
+              </Link>
+            </div>
+
+            <div className="rounded-xl border-2 border-slate-800 bg-slate-900/50 p-6 space-y-4 hover:border-blue-600/50 transition-all">
+              <h3 className="text-xl font-bold text-slate-50">AI Suite</h3>
+              <div>
+                <span className="text-4xl font-bold text-slate-50">2.990</span>
+                <span className="text-slate-400"> kr/mnd</span>
+              </div>
+              <p className="text-sm text-slate-400">Ultimate AI-systemet</p>
+              <Link href="/priser" className="block w-full rounded-lg py-2 text-center font-semibold bg-slate-800 text-slate-100 hover:bg-slate-700 transition-colors">
+                Se detaljer
+              </Link>
+            </div>
+
+            <div className="rounded-xl border-2 border-slate-800 bg-slate-900/50 p-6 space-y-4 hover:border-blue-600/50 transition-all">
+              <h3 className="text-xl font-bold text-slate-50">Enterprise</h3>
+              <div>
+                <span className="text-2xl font-bold text-slate-50">Fra 4.990</span>
+                <span className="text-slate-400 block text-sm"> kr/mnd</span>
+              </div>
+              <p className="text-sm text-slate-400">For kjeder og store verksteder</p>
+              <Link href="/priser" className="block w-full rounded-lg py-2 text-center font-semibold bg-slate-800 text-slate-100 hover:bg-slate-700 transition-colors">
+                Se detaljer
+              </Link>
+            </div>
+          </div>
+
+          <div className="text-center pt-6">
+            <Link
+              href="/priser"
+              className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-8 py-3 text-base font-semibold text-white hover:bg-blue-500 transition-colors shadow-xl shadow-blue-600/30"
+            >
+              Se alle priser og funksjoner
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </Link>
+          </div>
+        </section>
+
+        {/* Testimonials */}
+        <section className="space-y-8">
+          <div className="text-center space-y-4">
+            <h2 className="text-3xl font-bold">Hva brukerne sier</h2>
+            <p className="text-lg text-slate-400">
+              Ekte tilbakemeldinger fra norske bilbedrifter
+            </p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 pt-4">
+            <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-6 space-y-4">
+              <div className="flex items-center gap-1 text-yellow-400">
+                {[...Array(5)].map((_, i) => (
+                  <svg key={i} className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                ))}
+              </div>
+              <p className="text-slate-300 leading-relaxed">
+                "Vi sparte 32.000 kr første måneden bare på smart innkjøp gjennom Leverandørhub."
+              </p>
+              <div className="flex items-center gap-3 pt-4 border-t border-slate-800">
+                <div>
+                  <p className="font-semibold text-slate-200">Ole Martin</p>
+                  <p className="text-sm text-slate-400">Bilpleie Sentrum</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-6 space-y-4">
+              <div className="flex items-center gap-1 text-yellow-400">
+                {[...Array(5)].map((_, i) => (
+                  <svg key={i} className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                ))}
+              </div>
+              <p className="text-slate-300 leading-relaxed">
+                "Endelig et system som faktisk forstår hvordan PPF-verksteder jobber."
+              </p>
+              <div className="flex items-center gap-3 pt-4 border-t border-slate-800">
+                <div>
+                  <p className="font-semibold text-slate-200">Sara Johansen</p>
+                  <p className="text-sm text-slate-400">Nordic Wrap</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-6 space-y-4">
+              <div className="flex items-center gap-1 text-yellow-400">
+                {[...Array(5)].map((_, i) => (
+                  <svg key={i} className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                ))}
+              </div>
+              <p className="text-slate-300 leading-relaxed">
+                "AI booking agenten vår har fylt kalenderen mens vi sover. Genial løsning."
+              </p>
+              <div className="flex items-center gap-3 pt-4 border-t border-slate-800">
+                <div>
+                  <p className="font-semibold text-slate-200">Thomas Berg</p>
+                  <p className="text-sm text-slate-400">AutoCare Oslo</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Lanseringstilbud */}
+        <section className="space-y-6">
+          <div className="relative overflow-hidden rounded-3xl border-2 border-blue-600 bg-gradient-to-br from-blue-950/80 to-slate-950/80 p-10 lg:p-16 text-center shadow-2xl shadow-blue-900/30">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-600/20 via-transparent to-transparent"></div>
+            
+            <div className="relative space-y-6">
+              <div className="inline-flex items-center gap-2 rounded-full border border-blue-400/30 bg-blue-500/10 px-4 py-1.5 text-sm font-medium text-blue-300">
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+                </svg>
+                Lanseringstilbud
+              </div>
+
+              <h2 className="text-4xl lg:text-5xl font-bold text-slate-50">
+                Spar 20% første måned
+              </h2>
+              
+              <p className="text-xl text-slate-300 max-w-2xl mx-auto">
+                Registrer deg innen <span className="font-bold text-blue-400">31. januar 2025</span> og få 20% rabatt første måned.
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+                <Link
+                  href="/register"
+                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-8 py-4 text-lg font-semibold text-white hover:bg-blue-500 transition-all duration-200 shadow-xl shadow-blue-600/30"
+                >
+                  Start gratis prøveperiode nå
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </Link>
+              </div>
+
+              <p className="text-sm text-slate-400">
+                Gratis 14-dagers prøveperiode • Ingen kredittkort nødvendig
+              </p>
+            </div>
+          </div>
+        </section>
+
         {/* CTA før footer */}
         <section className="rounded-2xl border-2 border-blue-600/50 bg-gradient-to-br from-blue-900/20 to-slate-900/40 p-8 lg:p-12 text-center space-y-6">
           <div className="space-y-3">
@@ -1171,7 +1444,7 @@ export default async function HomePage() {
               Slutt å kjempe med Excel-ark, tapte dekk-bookinger og kaotisk administrasjon. Bli med i et begrenset antall partnere som bygger fremtidens bilpleie-drift sammen med LYXso.
             </p>
           </div>
-          
+
           <div className="rounded-xl bg-slate-900/60 p-6 max-w-3xl mx-auto">
             <div className="grid gap-4 md:grid-cols-3 text-sm">
               <div>

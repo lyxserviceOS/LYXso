@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useOrgPlan } from "@/hooks/useOrgPlan";
+import { useOrgPlan } from "@/lib/useOrgPlan";
 
 // Types
 type TeamMember = {
@@ -85,13 +85,26 @@ const ROLE_INFO = {
   },
 };
 
+type Activity = {
+  id: string;
+  action: string;
+  resource_type: string | null;
+  metadata: any;
+  created_at: string;
+  user: {
+    full_name: string | null;
+    email: string;
+  };
+};
+
 export default function TeamManagementClient() {
   const { org } = useOrgPlan();
-  const [activeTab, setActiveTab] = useState<"members" | "invitations" | "roles">("members");
+  const [activeTab, setActiveTab] = useState<"members" | "invitations" | "roles" | "activity">("members");
   
   // State
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [invitations, setInvitations] = useState<Invitation[]>([]);
+  const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
@@ -106,8 +119,11 @@ export default function TeamManagementClient() {
     if (org?.id) {
       loadMembers();
       loadInvitations();
+      if (activeTab === "activity") {
+        loadActivities();
+      }
     }
-  }, [org?.id]);
+  }, [org?.id, activeTab]);
 
   async function loadMembers() {
     if (!org?.id) return;
@@ -146,6 +162,89 @@ export default function TeamManagementClient() {
       setInvitations(data.invitations || []);
     } catch (err: any) {
       console.error("Error loading invitations:", err);
+    }
+  }
+
+  async function loadActivities() {
+    if (!org?.id) return;
+    
+    try {
+      const response = await fetch(`/api/org/team/activity?orgId=${org.id}&limit=50`);
+      
+      if (!response.ok) {
+        throw new Error("Kunne ikke laste aktivitetslogg");
+      }
+      
+      const data = await response.json();
+      setActivities(data.activities || []);
+    } catch (err: any) {
+      console.error("Error loading activities:", err);
+    }
+  }
+
+  async function handleResendInvitation(invitationId: string) {
+    if (!org?.id) return;
+    
+    try {
+      const response = await fetch(
+        `/api/org/team/invitations/${invitationId}?orgId=${org.id}&action=resend`,
+        { method: "POST" }
+      );
+      
+      if (!response.ok) {
+        throw new Error("Kunne ikke sende invitasjon på nytt");
+      }
+      
+      alert("Invitasjon sendt på nytt! ✅");
+      loadInvitations();
+    } catch (err: any) {
+      console.error("Error resending invitation:", err);
+      alert(`Feil: ${err.message}`);
+    }
+  }
+
+  async function handleCancelInvitation(invitationId: string) {
+    if (!org?.id) return;
+    if (!confirm("Er du sikker på at du vil kansellere denne invitasjonen?")) return;
+    
+    try {
+      const response = await fetch(
+        `/api/org/team/invitations/${invitationId}?orgId=${org.id}`,
+        { method: "DELETE" }
+      );
+      
+      if (!response.ok) {
+        throw new Error("Kunne ikke kansellere invitasjon");
+      }
+      
+      alert("Invitasjon kansellert! ✅");
+      loadInvitations();
+    } catch (err: any) {
+      console.error("Error cancelling invitation:", err);
+      alert(`Feil: ${err.message}`);
+    }
+  }
+
+  async function handleRemoveMember(memberId: string, memberName: string) {
+    if (!org?.id) return;
+    if (!confirm(`Er du sikker på at du vil fjerne ${memberName} fra teamet?`)) return;
+    
+    try {
+      const response = await fetch(
+        `/api/org/team/members/${memberId}?orgId=${org.id}`,
+        { method: "DELETE" }
+      );
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Kunne ikke fjerne medlem");
+      }
+      
+      alert("Medlem fjernet! ✅");
+      loadMembers();
+    } catch (err: any) {
+      console.error("Error removing member:", err);
+      alert(`Feil: ${err.message}`);
     }
   }
 
@@ -278,6 +377,16 @@ export default function TeamManagementClient() {
             Invitasjoner ({invitations.length})
           </button>
           <button
+            onClick={() => setActiveTab("activity")}
+            className={`pb-4 px-1 border-b-2 font-medium transition-colors ${
+              activeTab === "activity"
+                ? "border-blue-600 text-blue-600"
+                : "border-transparent text-slate-600 hover:text-slate-900"
+            }`}
+          >
+            Aktivitetslogg
+          </button>
+          <button
             onClick={() => setActiveTab("roles")}
             className={`pb-4 px-1 border-b-2 font-medium transition-colors ${
               activeTab === "roles"
@@ -338,11 +447,14 @@ export default function TeamManagementClient() {
                       {new Date(member.joined_at).toLocaleDateString("nb-NO")}
                     </td>
                     <td className="p-4 text-right">
-                      <button className="text-slate-400 hover:text-slate-600 p-2">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-                        </svg>
-                      </button>
+                      {member.role !== "owner" && (
+                        <button
+                          onClick={() => handleRemoveMember(member.id, member.profile.full_name || member.profile.email)}
+                          className="text-red-600 hover:text-red-700 text-sm font-medium"
+                        >
+                          Fjern
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))
@@ -386,10 +498,16 @@ export default function TeamManagementClient() {
                       {new Date(invitation.expires_at).toLocaleDateString("nb-NO")}
                     </td>
                     <td className="p-4 text-right">
-                      <button className="text-blue-600 hover:text-blue-700 text-sm font-medium mr-4">
+                      <button
+                        onClick={() => handleResendInvitation(invitation.id)}
+                        className="text-blue-600 hover:text-blue-700 text-sm font-medium mr-4"
+                      >
                         Send på nytt
                       </button>
-                      <button className="text-red-600 hover:text-red-700 text-sm font-medium">
+                      <button
+                        onClick={() => handleCancelInvitation(invitation.id)}
+                        className="text-red-600 hover:text-red-700 text-sm font-medium"
+                      >
                         Kanseller
                       </button>
                     </td>
@@ -431,6 +549,71 @@ export default function TeamManagementClient() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Activity Log Tab */}
+      {activeTab === "activity" && (
+        <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
+          {loading ? (
+            <div className="p-8 text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+              <p className="mt-4 text-slate-600">Laster aktiviteter...</p>
+            </div>
+          ) : activities.length === 0 ? (
+            <div className="p-8 text-center text-slate-500">
+              Ingen aktiviteter enda
+            </div>
+          ) : (
+            <div className="divide-y divide-slate-200">
+              {activities.map((activity) => {
+                const actionIcons: Record<string, string> = {
+                  "team.invite_sent": "📨",
+                  "team.invite_cancelled": "❌",
+                  "team.member_updated": "✏️",
+                  "team.member_removed": "🗑️",
+                };
+                
+                const actionLabels: Record<string, string> = {
+                  "team.invite_sent": "Invitasjon sendt",
+                  "team.invite_cancelled": "Invitasjon kansellert",
+                  "team.member_updated": "Medlem oppdatert",
+                  "team.member_removed": "Medlem fjernet",
+                };
+                
+                return (
+                  <div key={activity.id} className="p-4 hover:bg-slate-50 transition-colors">
+                    <div className="flex items-start gap-3">
+                      <div className="text-2xl">{actionIcons[activity.action] || "📋"}</div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="font-medium text-slate-900">
+                            {actionLabels[activity.action] || activity.action}
+                          </span>
+                          <span className="text-sm text-slate-500">
+                            {new Date(activity.created_at).toLocaleString("nb-NO")}
+                          </span>
+                        </div>
+                        <div className="text-sm text-slate-600">
+                          {activity.user?.full_name || activity.user?.email}
+                        </div>
+                        {activity.metadata && Object.keys(activity.metadata).length > 0 && (
+                          <div className="mt-2 text-sm text-slate-500">
+                            {activity.metadata.email && (
+                              <span>E-post: {activity.metadata.email}</span>
+                            )}
+                            {activity.metadata.role && (
+                              <span className="ml-3">{getRoleBadge(activity.metadata.role)}</span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 

@@ -5,6 +5,7 @@ import PublicFooter from "@/components/PublicFooter";
 import CookieConsentBanner from "@/components/CookieConsentBanner";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
+import { ToastProvider } from "@/lib/toast";
 
 export const metadata: Metadata = {
   title: "LYXso – ServiceOS for bilbransjen",
@@ -29,6 +30,7 @@ export default function RootLayout({
         </div>
         <PublicFooter />
         <CookieConsentBanner />
+        <ToastProvider />
         <SpeedInsights />
         <Analytics />
       </body>

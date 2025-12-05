@@ -308,7 +308,7 @@ html {
   .legal-sidebar,
   button,
   .legal-button {
-    @apply hidden !important;
+    display: none !important;
   }
   
   .legal-section {
@@ -317,12 +317,12 @@ html {
   
   .warning-critical,
   .warning-important {
-    @apply border-2 border-black;
+    border: 2px solid black;
   }
   
   a[href]:after {
     content: " (" attr(href) ")";
-    @apply text-sm;
+    font-size: 0.875rem;
   }
   
   /* Ensure colors print correctly */

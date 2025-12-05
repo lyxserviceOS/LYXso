@@ -529,7 +529,7 @@ export default function BruksvilkarPage() {
                     </p>
                     <ul className="space-y-1.5 text-sm list-disc list-inside">
                       <li>Du vil motta varsel 7 dager før automatisk fornyelse</li>
-                      <li>Oppsi via Min Side > Innstillinger > Abonnement minst 24 timer før fornyelse</li>
+                      <li>Oppsi via Min Side &gt; Innstillinger &gt; Abonnement minst 24 timer før fornyelse</li>
                       <li>Ved fornyelse aksepterer du gjeldende priser (som kan ha endret seg)</li>
                       <li>Mislykket betaling ved fornyelse resulterer i umiddelbar suspensjon</li>
                     </ul>
