@@ -1,7 +1,7 @@
 // app/(protected)/markedsforing/ai/AiCampaignGenerator.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Sparkles, Loader2, TrendingUp, Target, Calendar, DollarSign } from "lucide-react";
 import { getApiBaseUrl, getDefaultOrgId } from "@/lib/apiConfig";
 
@@ -39,6 +39,92 @@ export default function AiCampaignGenerator() {
     limit: number;
     tier: string;
   } | null>(null);
+  const [selectedIdea, setSelectedIdea] = useState<CampaignIdea | null>(null);
+  const [creatingCampaign, setCreatingCampaign] = useState(false);
+
+  // Debug: Log when ideas state changes
+  useEffect(() => {
+    console.log("🔄 Ideas state changed:", {
+      ideasLength: ideas.length,
+      firstIdea: ideas[0]?.title || 'none'
+    });
+  }, [ideas]);
+
+  const handleCreateCampaign = async (idea: CampaignIdea) => {
+    setSelectedIdea(idea);
+    setCreatingCampaign(true);
+
+    try {
+      // 1. Generer bilde med DALL-E
+      console.log("🎨 Genererer bilde for kampanje:", idea.title);
+      const imageResponse = await fetch(
+        `${API_BASE_URL}/api/orgs/${ORG_ID}/ai/marketing/generate-image`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            prompt: `Professional marketing image for: ${idea.title}. ${idea.description}. High quality, eye-catching, suitable for social media advertising.`,
+            size: "1024x1024",
+          }),
+        }
+      );
+
+      if (!imageResponse.ok) {
+        throw new Error("Kunne ikke generere bilde");
+      }
+
+      const imageData = await imageResponse.json();
+      console.log("✅ Bilde generert:", imageData.url);
+
+      // 2. Opprett Facebook/Instagram kampanje
+      console.log("📱 Oppretter Meta-kampanje...");
+      const campaignResponse = await fetch(
+        `${API_BASE_URL}/api/marketing/meta/campaign`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            orgId: ORG_ID,
+            name: idea.title,
+            objective: "OUTCOME_ENGAGEMENT", // Kan være OUTCOME_LEADS, OUTCOME_SALES, etc.
+            budget: idea.suggestedBudget,
+            targeting: {
+              targetAudience: idea.targetAudience,
+            },
+            creative: {
+              headline: idea.title,
+              body: idea.description,
+              imageUrl: imageData.url,
+              callToAction: "LEARN_MORE",
+            },
+          }),
+        }
+      );
+
+      if (!campaignResponse.ok) {
+        throw new Error("Kunne ikke opprette Meta-kampanje");
+      }
+
+      const campaignData = await campaignResponse.json();
+      console.log("✅ Kampanje opprettet:", campaignData);
+
+      alert(
+        `🎉 Kampanje "${idea.title}" er opprettet!\n\n` +
+        `Kampanje-ID: ${campaignData.campaignId}\n` +
+        `Status: ${campaignData.status}\n\n` +
+        `Gå til Meta Business Manager for å aktivere kampanjen.`
+      );
+    } catch (err: any) {
+      console.error("❌ Feil ved opprettelse av kampanje:", err);
+      alert(
+        `Kunne ikke opprette kampanje:\n${err.message}\n\n` +
+        `Sjekk at Meta-kontoen din er konfigurert riktig.`
+      );
+    } finally {
+      setCreatingCampaign(false);
+      setSelectedIdea(null);
+    }
+  };
 
   const handleGenerate = async () => {
     if (!goal.trim()) {
@@ -80,10 +166,27 @@ export default function AiCampaignGenerator() {
 
       const data: GenerateResponse = await response.json();
 
-      if (data.output && data.output.ideas) {
+      console.log("✅ AI Response received:", data);
+      console.log("Response structure:", {
+        jobId: data.jobId,
+        status: data.status,
+        hasOutput: !!data.output,
+        outputKeys: data.output ? Object.keys(data.output) : [],
+        hasIdeas: data.output?.ideas ? true : false,
+        ideasLength: data.output?.ideas?.length || 0
+      });
+
+      // Sjekk om vi har ideas i output
+      if (data.output && data.output.ideas && Array.isArray(data.output.ideas)) {
+        console.log(`✅ Setting ${data.output.ideas.length} campaign ideas to state`);
         setIdeas(data.output.ideas);
       } else {
-        throw new Error("Ugyldig respons fra server");
+        console.error("❌ Invalid response structure:", {
+          hasOutput: !!data.output,
+          outputType: typeof data.output,
+          outputValue: data.output
+        });
+        throw new Error("Ugyldig respons fra server - mangler kampanjeidéer");
       }
     } catch (err: any) {
       setError(err.message || "En feil oppstod");
@@ -191,11 +294,11 @@ export default function AiCampaignGenerator() {
       )}
 
       {/* Resultater */}
-      {ideas.length > 0 && (
+      {ideas.length > 0 ? (
         <div className="space-y-6">
           <div className="border-t pt-6">
-            <h3 className="text-lg font-semibold mb-4">
-              {ideas.length} AI-genererte kampanjeidéer:
+            <h3 className="text-lg font-semibold mb-4 text-green-600">
+              ✅ {ideas.length} AI-genererte kampanjeidéer lastet inn!
             </h3>
           </div>
 
@@ -271,15 +374,37 @@ export default function AiCampaignGenerator() {
               )}
 
               <div className="mt-4 pt-4 border-t flex gap-2">
-                <button className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium">
+                <button 
+                  onClick={() => {
+                    const ideaText = `${idea.title}\n\n${idea.description}\n\nMålgruppe: ${idea.targetAudience}\nBudsjett: ${idea.suggestedBudget} kr\nVarighet: ${idea.duration}\n\nNøkkelmeldinger:\n${idea.keyMessages.join('\n')}`;
+                    navigator.clipboard.writeText(ideaText);
+                    alert('Kampanjeidé kopiert! 📋');
+                  }}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
+                >
                   Kopier idé
                 </button>
-                <button className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium">
-                  Opprett kampanje
+                <button 
+                  onClick={() => handleCreateCampaign(idea)}
+                  disabled={creatingCampaign}
+                  className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+                >
+                  {creatingCampaign && selectedIdea === idea ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Oppretter...
+                    </span>
+                  ) : (
+                    "Opprett kampanje"
+                  )}
                 </button>
               </div>
             </div>
           ))}
+        </div>
+      ) : (
+        <div className="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-lg text-center text-gray-500">
+          {loading ? "Genererer..." : "Ingen kampanjeidéer ennå. Klikk 'Generer' for å starte!"}
         </div>
       )}
 

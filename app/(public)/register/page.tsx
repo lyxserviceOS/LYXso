@@ -1,13 +1,17 @@
 "use client";
 
-import { FormEvent, useState, useEffect } from "react";
+import React, { FormEvent, useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { useAiOnboarding } from "@/lib/hooks/useAiOnboarding";
+import { useReCaptcha } from "@/hooks/useReCaptcha";
+import ReCaptcha from "@/components/ReCaptcha";
+import SlugInput from "@/components/SlugInput";
 import { Step2_1_BasicInfo } from "@/components/register/Step2_1_BasicInfo";
 import { Step2_2_ServicesAndPricing } from "@/components/register/Step2_2_ServicesAndPricing";
 import { Step2_3_OpeningHoursAndCapacity } from "@/components/register/Step2_3_OpeningHoursAndCapacity";
 import { Step2_4_AISuggestions } from "@/components/register/Step2_4_AISuggestions";
+import Step3_AddressAndMap from "@/components/register/Step3_AddressAndMap";
 import type { OnboardingStepData, OnboardingInput } from "@/types/ai-onboarding";
 import { Suspense } from "react";
 import { getApiBaseUrl } from "@/lib/apiConfig";
@@ -20,9 +24,13 @@ type Step1FormState = {
   fullName: string;
   email: string;
   password: string;
+  companySlug: string;
+  agreeToTerms: boolean;
+  receiveMarketing: boolean;
+  listInMarketplace: boolean;
 };
 
-type WizardStep = "step1" | "step2.1" | "step2.2" | "step2.3" | "step2.4";
+type WizardStep = "step1" | "step2.1" | "step2.2" | "step2.3" | "step2.4" | "step3";
 
 const initialOnboardingData: OnboardingStepData = {
   industries: [],
@@ -41,6 +49,26 @@ const initialOnboardingData: OnboardingStepData = {
     sunday: null,
   },
   capacityHeavyJobsPerDay: 3,
+};
+
+type AddressData = {
+  country: string;
+  city: string;
+  postalCode: string;
+  streetAddress: string;
+  lat: number | null;
+  lng: number | null;
+  markerMatchesAddress: boolean;
+};
+
+const initialAddressData: AddressData = {
+  country: "NO",
+  city: "",
+  postalCode: "",
+  streetAddress: "",
+  lat: null,
+  lng: null,
+  markerMatchesAddress: false,
 };
 
 export default function RegisterPageWrapper() {
@@ -63,13 +91,25 @@ function RegisterPage() {
     fullName: "",
     email: "",
     password: "",
+    companySlug: "",
+    agreeToTerms: false,
+    receiveMarketing: false,
+    listInMarketplace: false,
   });
   const [onboardingData, setOnboardingData] = useState<OnboardingStepData>(initialOnboardingData);
+  const [addressData, setAddressData] = useState<AddressData>(initialAddressData);
   const [step1Loading, setStep1Loading] = useState(false);
   const [step1Error, setStep1Error] = useState<string | null>(null);
   const [orgId, setOrgId] = useState<string | null>(null);
   const [companyName, setCompanyName] = useState<string>("");
   const [lastOnboardingInput, setLastOnboardingInput] = useState<OnboardingInput | null>(null);
+  
+  // reCAPTCHA
+  const { recaptchaRef, verify, reset: resetRecaptcha } = useReCaptcha();
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  
+  // Slug validation
+  const [slugError, setSlugError] = useState<string>("");
   
   // AI hints state for step 2
   const [aiHintsEnabledStep2, setAiHintsEnabledStep2] = useState(true);
@@ -131,10 +171,51 @@ function RegisterPage() {
   async function handleStep1Submit(e: FormEvent) {
     e.preventDefault();
     setStep1Error(null);
+    setSlugError("");
     setStep1Loading(true);
 
     try {
-      // 1) Create user in Supabase Auth
+      // 1) Validate terms agreement
+      if (!step1Form.agreeToTerms) {
+        setStep1Error("Du må godta vilkår og personvern for å fortsette");
+        setStep1Loading(false);
+        return;
+      }
+
+      // 2) Validate slug
+      if (!step1Form.companySlug || step1Form.companySlug.length < 3) {
+        setSlugError("Firma-URL må være minst 3 tegn");
+        setStep1Loading(false);
+        return;
+      }
+
+      // 3) Final slug check
+      const slugRes = await fetch(`${API_BASE_URL}/api/orgs/validate-slug?slug=${step1Form.companySlug}`);
+      const slugData = await slugRes.json();
+      
+      if (!slugData.available) {
+        setSlugError(slugData.message || "Denne URL-adressen er ikke tilgjengelig");
+        setStep1Loading(false);
+        return;
+      }
+
+      // 4) Verify reCAPTCHA
+      if (!recaptchaToken) {
+        setStep1Error("Vennligst bekreft at du ikke er en robot");
+        setStep1Loading(false);
+        return;
+      }
+
+      const captchaValid = await verify(recaptchaToken);
+      if (!captchaValid) {
+        setStep1Error("reCAPTCHA-verifisering feilet. Vennligst prøv igjen.");
+        resetRecaptcha();
+        setRecaptchaToken(null);
+        setStep1Loading(false);
+        return;
+      }
+
+      // 5) Create user in Supabase Auth
       const { data, error: signUpError } = await supabase.auth.signUp({
         email: step1Form.email.trim(),
         password: step1Form.password,
@@ -180,6 +261,14 @@ function RegisterPage() {
       setCompanyName(tempCompanyName);
 
       try {
+        console.log("[Register] Calling create-org-from-signup with:", {
+          userId,
+          email: step1Form.email.trim(),
+          fullName: step1Form.fullName.trim() || null,
+          companyName: tempCompanyName,
+          companySlug: step1Form.companySlug,
+        });
+
         const res = await fetch(
           `${API_BASE_URL}/api/public/create-org-from-signup`,
           {
@@ -192,22 +281,47 @@ function RegisterPage() {
               email: step1Form.email.trim(),
               fullName: step1Form.fullName.trim() || null,
               companyName: tempCompanyName,
+              companySlug: step1Form.companySlug,
+              preferences: {
+                receiveMarketing: step1Form.receiveMarketing,
+                listInMarketplace: step1Form.listInMarketplace,
+              },
             }),
           }
         );
 
+        console.log("[Register] API response status:", res.status);
+
         if (!res.ok) {
           const body = await res.text().catch(() => "");
-          console.error("create-org-from-signup error:", res.status, body);
-          setStep1Error(
-            "Bruker ble opprettet, men kunne ikke opprette organisasjon."
-          );
+          console.error("[Register] create-org-from-signup error:", {
+            status: res.status,
+            statusText: res.statusText,
+            body
+          });
+          
+          // Try to parse error message from body
+          let errorMessage = "Bruker ble opprettet, men kunne ikke opprette organisasjon.";
+          try {
+            const errorJson = JSON.parse(body);
+            if (errorJson.error) {
+              errorMessage += ` (${errorJson.error})`;
+            }
+            if (errorJson.details) {
+              console.error("[Register] Error details:", errorJson.details);
+            }
+          } catch (e) {
+            // Not JSON, log raw body
+            console.error("[Register] Raw error body:", body);
+          }
+          
+          setStep1Error(errorMessage);
           setStep1Loading(false);
           return;
         }
 
         const json = await res.json().catch(() => null);
-        console.log("create-org-from-signup OK:", json);
+        console.log("[Register] create-org-from-signup OK:", json);
 
         // Extract orgId from response
         if (json?.org?.id) {
@@ -231,7 +345,7 @@ function RegisterPage() {
     }
   }
 
-  function handleStep1Change(field: keyof Step1FormState, value: string) {
+  function handleStep1Change(field: keyof Step1FormState, value: string | boolean) {
     setStep1Form((prev) => ({ ...prev, [field]: value }));
   }
 
@@ -300,6 +414,8 @@ function RegisterPage() {
 
     const success = await applyOnboarding(orgId, aiSession.id);
     if (success) {
+      // Move to Step 3 (Address & Map) instead of completing
+      setCurrentStep("step3");
       // Clear persisted data on success
       try {
         sessionStorage.removeItem(STORAGE_KEY);
@@ -327,12 +443,65 @@ function RegisterPage() {
   }
 
   // Skip AI suggestions
+  function handleSkipAISuggestions() {
+    // Move to Step 3 instead of completing
+    setCurrentStep("step3");
+  }
+
+  // Handle Step 3 completion and save location
+  async function handleStep3Complete() {
+    if (!orgId) {
+      setStep1Error("Mangler organisasjons-ID");
+      return;
+    }
+
+    setStep1Loading(true);
+    setStep1Error(null);
+
   async function handleSkipAISuggestions() {
     // Clear persisted data on skip
     try {
-      sessionStorage.removeItem(STORAGE_KEY);
-    } catch (err) {
-      console.error("Failed to clear persisted data:", err);
+      // Save location data to backend
+      const response = await fetch(
+        `${API_BASE_URL}/api/orgs/${orgId}/complete-onboarding`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            address: addressData,
+            openingHours: onboardingData.openingHours,
+            capacity: {
+              heavyJobsPerDay: onboardingData.capacityHeavyJobsPerDay,
+            },
+            companyName: companyName,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Failed to complete onboarding:", errorText);
+        setStep1Error("Kunne ikke fullføre registreringen. Prøv igjen.");
+        setStep1Loading(false);
+        return;
+      }
+
+      // Clear persisted data
+      try {
+        sessionStorage.removeItem(STORAGE_KEY);
+      } catch (err) {
+        console.error("Failed to clear persisted data:", err);
+      }
+
+      // Redirect to email confirmation
+      router.push("/register/confirm-email");
+    } catch (error) {
+      console.error("Error completing registration:", error);
+      setStep1Error("Noe gikk galt. Vennligst prøv igjen.");
+    } finally {
+      setStep1Loading(false);
     }
     // Log user in and redirect to dashboard
     await loginAndRedirect();
@@ -442,6 +611,72 @@ function RegisterPage() {
                   minLength={8}
                   className="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-50 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   placeholder="Minst 8 tegn"
+                />
+              </div>
+
+              {/* Slug Input */}
+              <div>
+                <SlugInput
+                  value={step1Form.companySlug}
+                  onChange={(value) => handleStep1Change("companySlug", value)}
+                  error={slugError}
+                />
+              </div>
+
+              {/* Checkboxes */}
+              <div className="space-y-3 pt-2">
+                <label className="flex items-start gap-2 text-xs text-slate-300 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={step1Form.agreeToTerms}
+                    onChange={(e) => setStep1Form(prev => ({ ...prev, agreeToTerms: e.target.checked }))}
+                    required
+                    className="mt-0.5 rounded border-slate-700 bg-slate-950 text-blue-600 focus:ring-blue-500"
+                  />
+                  <span>
+                    Jeg godtar{" "}
+                    <a href="/vilkar" target="_blank" className="text-blue-400 hover:text-blue-300 underline">
+                      vilkårene
+                    </a>
+                    {" "}og{" "}
+                    <a href="/personvern" target="_blank" className="text-blue-400 hover:text-blue-300 underline">
+                      personvernerklæringen
+                    </a>
+                  </span>
+                </label>
+
+                <label className="flex items-start gap-2 text-xs text-slate-300 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={step1Form.receiveMarketing}
+                    onChange={(e) => setStep1Form(prev => ({ ...prev, receiveMarketing: e.target.checked }))}
+                    className="mt-0.5 rounded border-slate-700 bg-slate-950 text-blue-600 focus:ring-blue-500"
+                  />
+                  <span>
+                    Jeg ønsker å motta nyheter og markedsføring fra LYXso
+                  </span>
+                </label>
+
+                <label className="flex items-start gap-2 text-xs text-slate-300 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={step1Form.listInMarketplace}
+                    onChange={(e) => setStep1Form(prev => ({ ...prev, listInMarketplace: e.target.checked }))}
+                    className="mt-0.5 rounded border-slate-700 bg-slate-950 text-blue-600 focus:ring-blue-500"
+                  />
+                  <span>
+                    Legg bedriften min i LYXso-markedet/katalogen
+                  </span>
+                </label>
+              </div>
+
+              {/* reCAPTCHA */}
+              <div className="flex justify-center">
+                <ReCaptcha
+                  ref={recaptchaRef}
+                  onChange={setRecaptchaToken}
+                  onExpired={() => setRecaptchaToken(null)}
+                  onError={() => setRecaptchaToken(null)}
                 />
               </div>
 
@@ -570,12 +805,13 @@ function RegisterPage() {
         {currentStep === "step2.4" && orgId && (
           <>
             <div className="mb-4">
-              <div className="text-sm text-slate-400">Steg 2 av 2: AI-forslag (4 av 4)</div>
+              <div className="text-sm text-slate-400">Steg 2 av 3: AI-forslag (4 av 5)</div>
               <div className="mt-2 flex gap-1">
                 <div className="flex-1 h-1 bg-blue-600 rounded"></div>
                 <div className="flex-1 h-1 bg-blue-600 rounded"></div>
                 <div className="flex-1 h-1 bg-blue-600 rounded"></div>
                 <div className="flex-1 h-1 bg-blue-600 rounded"></div>
+                <div className="flex-1 h-1 bg-slate-700 rounded"></div>
               </div>
             </div>
             <Step2_4_AISuggestions
@@ -592,8 +828,35 @@ function RegisterPage() {
           </>
         )}
 
+        {/* Step 3: Address and Map */}
+        {currentStep === "step3" && (
+          <>
+            <div className="mb-4">
+              <div className="text-sm text-slate-400">Steg 3 av 3: Adresse & Lokasjon (5 av 5)</div>
+              <div className="mt-2 flex gap-1">
+                <div className="flex-1 h-1 bg-blue-600 rounded"></div>
+                <div className="flex-1 h-1 bg-blue-600 rounded"></div>
+                <div className="flex-1 h-1 bg-blue-600 rounded"></div>
+                <div className="flex-1 h-1 bg-blue-600 rounded"></div>
+                <div className="flex-1 h-1 bg-blue-600 rounded"></div>
+              </div>
+            </div>
+            <Step3_AddressAndMap
+              data={addressData}
+              onChange={setAddressData}
+              onNext={handleStep3Complete}
+              onBack={() => setCurrentStep("step2.4")}
+            />
+            {step1Error && (
+              <p className="mt-4 text-xs text-red-400 bg-red-950/40 border border-red-900/60 rounded-md px-3 py-2">
+                {step1Error}
+              </p>
+            )}
+          </>
+        )}
+
         {/* Fallback: If no step matches, show error */}
-        {!["step1", "step2.1", "step2.2", "step2.3", "step2.4"].includes(currentStep) && (
+        {!["step1", "step2.1", "step2.2", "step2.3", "step2.4", "step3"].includes(currentStep) && (
           <div className="text-center py-8">
             <p className="text-sm text-red-400">Ugyldig steg: {currentStep}</p>
             <button
