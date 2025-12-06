@@ -5,6 +5,7 @@ export interface Location {
   id: string;
   org_id: string;
   name: string;
+  code?: string | null;
   address: string | null;
   city: string | null;
   postal_code: string | null;
@@ -14,13 +15,23 @@ export interface Location {
   phone: string | null;
   email: string | null;
   
+  // Geolocation
+  latitude?: number | null;
+  longitude?: number | null;
+  
+  // WiFi for check-in validation
+  wifi_ssid?: string | null;
+  wifi_mac_address?: string | null;
+  
   // Operating hours (JSON object with days and times)
-  opening_hours: Record<string, { open: string; close: string }> | null;
+  operating_hours: Record<string, { open: string; close: string }> | null;
   
   // Settings
   is_active: boolean;
-  is_primary: boolean;
+  is_headquarters: boolean;
   timezone: string;
+  currency?: string;
+  language?: string;
   
   created_at: string;
   updated_at: string;
