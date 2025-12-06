@@ -7,6 +7,37 @@ import { Analytics } from "@vercel/analytics/next";
 
 const packages = [
   {
+    id: "gratis",
+    name: "Gratis",
+    price: "0",
+    period: "",
+    description: "Perfekt for å teste systemet og komme i gang",
+    features: [
+      "Booking & Kalender (10 bookinger/mnd)",
+      "Kunder & Kjøretøy (maks 50)",
+      "Tjenester & Produkter",
+      "Kundeportal basic",
+      "1 ansattprofil",
+      "1 GB lagring",
+      "E-post support",
+    ],
+    notIncluded: [
+      "Dekkhotell",
+      "Coatingjournal",
+      "Varelager",
+      "Leverandørhub",
+      "AI-moduler",
+      "PPF-modul",
+      "Markedsføring",
+      "Betaling",
+    ],
+    bestFor: ["Testing", "Nyoppstartede", "Veldig små bedrifter"],
+    cta: "Start gratis",
+    ctaLink: "/register?plan=gratis",
+    popular: false,
+    badge: null,
+  },
+  {
     id: "lite",
     name: "LYXso Lite",
     price: "599",
@@ -144,15 +175,16 @@ const packages = [
 ];
 
 const comparisonFeatures = [
-  { name: "Booking & Kalender", lite: true, pro: true, power: true, ai: true, enterprise: true },
-  { name: "Kunder & Kjøretøy", lite: true, pro: true, power: true, ai: true, enterprise: true },
-  { name: "Dekkhotell", lite: false, pro: true, power: true, ai: true, enterprise: true },
-  { name: "Coatingjournal", lite: false, pro: true, power: true, ai: true, enterprise: true },
-  { name: "PPF-jobbkort", lite: false, pro: true, power: true, ai: true, enterprise: true },
-  { name: "Varelager", lite: false, pro: false, power: true, ai: true, enterprise: true },
-  { name: "Leverandørhub", lite: false, pro: false, power: true, ai: true, enterprise: true },
-  { name: "AI-moduler", lite: false, pro: false, power: false, ai: true, enterprise: true },
-  { name: "Multi-lokasjon", lite: false, pro: false, power: false, ai: false, enterprise: true },
+  { name: "Booking & Kalender", gratis: true, lite: true, pro: true, power: true, ai: true, enterprise: true },
+  { name: "Kunder & Kjøretøy", gratis: true, lite: true, pro: true, power: true, ai: true, enterprise: true },
+  { name: "Betaling (Vipps/Stripe)", gratis: false, lite: true, pro: true, power: true, ai: true, enterprise: true },
+  { name: "Dekkhotell", gratis: false, lite: false, pro: true, power: true, ai: true, enterprise: true },
+  { name: "Coatingjournal", gratis: false, lite: false, pro: true, power: true, ai: true, enterprise: true },
+  { name: "PPF-jobbkort", gratis: false, lite: false, pro: true, power: true, ai: true, enterprise: true },
+  { name: "Varelager", gratis: false, lite: false, pro: false, power: true, ai: true, enterprise: true },
+  { name: "Leverandørhub", gratis: false, lite: false, pro: false, power: true, ai: true, enterprise: true },
+  { name: "AI-moduler", gratis: false, lite: false, pro: false, power: false, ai: true, enterprise: true },
+  { name: "Multi-lokasjon", gratis: false, lite: false, pro: false, power: false, ai: false, enterprise: true },
 ];
 
 const CheckIcon = () => (
@@ -317,6 +349,7 @@ export default function PricingPage() {
                 <thead>
                   <tr className="border-b-2 border-slate-800">
                     <th className="py-4 px-4 text-left text-sm font-semibold text-slate-300">Funksjon</th>
+                    <th className="py-4 px-4 text-center text-sm font-semibold text-slate-300">Gratis</th>
                     <th className="py-4 px-4 text-center text-sm font-semibold text-slate-300">Lite</th>
                     <th className="py-4 px-4 text-center text-sm font-semibold text-slate-300">Pro</th>
                     <th className="py-4 px-4 text-center text-sm font-semibold text-slate-300">Power</th>
@@ -328,6 +361,13 @@ export default function PricingPage() {
                   {comparisonFeatures.map((feature) => (
                     <tr key={feature.name} className="border-b border-slate-800/50 hover:bg-slate-900/30">
                       <td className="py-3 px-4 text-sm text-slate-300">{feature.name}</td>
+                      <td className="py-3 px-4 text-center">
+                        {feature.gratis ? (
+                          <span className="text-emerald-400 inline-block"><CheckIcon /></span>
+                        ) : (
+                          <span className="text-slate-600 inline-block"><XMarkIcon /></span>
+                        )}
+                      </td>
                       <td className="py-3 px-4 text-center">
                         {feature.lite ? (
                           <span className="text-emerald-400 inline-block"><CheckIcon /></span>
@@ -369,6 +409,7 @@ export default function PricingPage() {
                 <tfoot>
                   <tr className="border-t-2 border-slate-800">
                     <td className="py-4 px-4 text-sm font-semibold text-slate-300">Pris/mnd</td>
+                    <td className="py-4 px-4 text-center text-sm font-bold text-emerald-400">0 kr</td>
                     <td className="py-4 px-4 text-center text-sm font-bold text-slate-50">599 kr</td>
                     <td className="py-4 px-4 text-center text-sm font-bold text-slate-50">1.499 kr</td>
                     <td className="py-4 px-4 text-center text-sm font-bold text-slate-50">2.490 kr</td>
