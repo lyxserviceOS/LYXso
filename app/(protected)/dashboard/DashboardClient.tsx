@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { AIModuleCard } from "@/components/ai/AIModuleCard";
 import { SetupWizard } from "@/components/onboarding/SetupWizard";
+import OnboardingGuide from "@/components/onboarding/OnboardingGuide";
 import { Calendar, Megaphone, Calculator } from "lucide-react";
 
 type Booking = {
@@ -228,9 +229,9 @@ export function DashboardClient() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50">
       <div className="mx-auto max-w-6xl px-4 py-6 lg:px-8 lg:py-10">
-        {/* Setup Wizard */}
+        {/* Onboarding Guide - New comprehensive guide */}
         <div className="mb-8">
-          <SetupWizard />
+          <OnboardingGuide />
         </div>
 
         {/* Toppseksjon */}

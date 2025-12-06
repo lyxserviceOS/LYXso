@@ -1,11 +1,9 @@
+"use client";
+
 import type { Metadata } from "next";
 import Link from "next/link";
-
-export const metadata: Metadata = {
-  title: "LYXso – Markedsføring",
-  description:
-    "Kampanjer, leads og kanalstatistikk. Kobling mot AI-generert innhold og annonser.",
-};
+import { AIIntegrationPanel } from "@/components/AIIntegrationButtons";
+import CrossNavigation, { navigationMaps } from "@/components/CrossNavigation";
 
 export default function MarketingPage() {
   return (
@@ -151,6 +149,15 @@ export default function MarketingPage() {
             </div>
           </div>
         </section>
+
+        {/* AI Integration Panel */}
+        <AIIntegrationPanel context="marketing" title="🤖 AI-assistanse for markedsføring" />
+
+        {/* Cross Navigation */}
+        <CrossNavigation 
+          currentModule="Markedsføring"
+          relatedModules={navigationMaps.markedsforing}
+        />
       </div>
     </div>
   );

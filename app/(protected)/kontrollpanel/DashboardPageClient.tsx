@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import QuickActionsPanel from "@/components/QuickActionsPanel";
 import type { Booking, BookingStatus, BookingSource, PaymentStatus } from "@/types/booking";
 import { useOrgPlan } from "@/lib/useOrgPlan";
 import { getApiBaseUrl } from "@/lib/apiConfig";
@@ -509,6 +510,9 @@ export default function DashboardPageClient() {
             <p className="mt-1 text-[10px] text-[#64748B]">sett på lager</p>
           </div>
         </section>
+
+        {/* Quick Actions Panel */}
+        <QuickActionsPanel />
 
         {/* Bunntekst / forklaring */}
         <section className="rounded-2xl border border-[#E2E8F0] bg-white p-4 text-xs text-[#64748B]">

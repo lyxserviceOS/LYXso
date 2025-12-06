@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import AIIntegrationPanel from "@/components/ai/AIIntegrationPanel";
 import { useSearchParams } from "next/navigation";
 import { useOrgPlan } from "@/lib/useOrgPlan";
 import { getApiBaseUrl } from "@/lib/apiConfig";
@@ -512,6 +513,16 @@ export default function MarketingPageClient() {
   return (
     <div className="h-full w-full overflow-y-auto px-6 py-6">
       <div className="mx-auto max-w-6xl space-y-8">
+        {/* AI Integration Panel for Marketing */}
+        <div>
+          <AIIntegrationPanel 
+            module="marketing" 
+            userPlan="free" 
+            isEnabled={false}
+            onToggle={(enabled) => console.log('AI Marketing toggled:', enabled)}
+          />
+        </div>
+
         {/* HEADER */}
         <header className="space-y-2">
           <h1 className="text-2xl font-semibold tracking-tight text-slate-50">

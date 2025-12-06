@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 import SidebarNav from "@/components/SidebarNav";
 import AIAssistant from "@/components/AIAssistant";
+import Breadcrumbs from "@/components/Breadcrumbs";
 import { supabase } from "@/lib/supabaseClient";
 import { OrgPlanProvider, useOrgPlan } from "@/components/OrgPlanContext";
 
@@ -239,6 +240,7 @@ function ProtectedShell({ children }: { children: ReactNode }) {
 
         {/* Selve siden */}
         <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-4 py-4 sm:px-6 lg:px-8">
+          <Breadcrumbs />
           {children}
         </main>
 

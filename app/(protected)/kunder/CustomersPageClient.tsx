@@ -2,6 +2,8 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import AIIntegrationPanel from "@/components/ai/AIIntegrationPanel";
+import CrossNavigation, { navigationMaps } from "@/components/CrossNavigation";
 import {
   fetchCustomers,
   createCustomer,
@@ -284,6 +286,16 @@ export default function CustomersPageClient() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-4 px-4 py-8">
+      {/* AI Integration Panel for CRM */}
+      <div className="mb-6">
+        <AIIntegrationPanel 
+          module="crm" 
+          userPlan="free" 
+          isEnabled={false}
+          onToggle={(enabled) => console.log('AI CRM toggled:', enabled)}
+        />
+      </div>
+
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold">Kunder</h1>
@@ -814,6 +826,12 @@ export default function CustomersPageClient() {
           </div>
         </div>
       )}
+
+      {/* Cross Navigation */}
+      <CrossNavigation 
+        currentModule="Kunder"
+        relatedModules={navigationMaps.kunder}
+      />
     </div>
   );
 }

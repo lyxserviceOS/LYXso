@@ -2,6 +2,8 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import AIIntegrationPanel from "@/components/ai/AIIntegrationPanel";
+import CrossNavigation, { navigationMaps } from "@/components/CrossNavigation";
 import {
   fetchBookingDashboardData,
   fetchBookings,
@@ -1154,6 +1156,16 @@ export default function BookingPageClient() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-4 px-4 py-8">
+      {/* AI Integration Panel for Booking */}
+      <div className="mb-6">
+        <AIIntegrationPanel 
+          module="booking" 
+          userPlan="free" 
+          isEnabled={false}
+          onToggle={(enabled) => console.log('AI Booking toggled:', enabled)}
+        />
+      </div>
+
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold">Booking</h1>
@@ -1830,6 +1842,12 @@ export default function BookingPageClient() {
           saving={savingResource}
         />
       )}
+
+      {/* Cross Navigation */}
+      <CrossNavigation 
+        currentModule="Bookinger"
+        relatedModules={navigationMaps.booking}
+      />
     </div>
   );
 }

@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useEffect, useState, FormEvent } from "react";
+import { AIIntegrationPanel } from "@/components/AIIntegrationButtons";
+import CrossNavigation, { navigationMaps } from "@/components/CrossNavigation";
 import type { PaymentSummaryBucket } from "../../../types/payments";
 import { getApiBaseUrl } from "@/lib/apiConfig";
 
@@ -481,6 +483,15 @@ export default function AccountingPageClient() {
           backend (lyx-api) i neste runde.
         </div>
       </section>
+
+      {/* AI Integration Panel */}
+      <AIIntegrationPanel context="accounting" title="🤖 AI-assistanse for regnskap" />
+
+      {/* Cross Navigation */}
+      <CrossNavigation 
+        currentModule="Regnskap"
+        relatedModules={navigationMaps.regnskap}
+      />
     </div>
   );
 }
