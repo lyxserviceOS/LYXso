@@ -73,6 +73,34 @@ const nextConfig: NextConfig = {
 
   // SWC minification (faster than Terser)
   swcMinify: true,
+
+  // Redirects for webshop consistency
+  async redirects() {
+    return [
+      // Redirect old butikk URLs to shop
+      {
+        source: '/butikk',
+        destination: '/shop',
+        permanent: true, // 301 redirect
+      },
+      {
+        source: '/butikk/:path*',
+        destination: '/shop/:path*',
+        permanent: true,
+      },
+      // Redirect cart aliases
+      {
+        source: '/handlekurv',
+        destination: '/shop/cart',
+        permanent: true,
+      },
+      {
+        source: '/kasse',
+        destination: '/shop/checkout',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
