@@ -235,6 +235,12 @@ const sections: NavSection[] = [
         badge: "Ny",
       },
       {
+        label: "Support",
+        href: "/support",
+        icon: "💬",
+        badge: "Ny",
+      },
+      {
         label: "Integrasjoner",
         href: "/integrasjoner",
         icon: "🔌",

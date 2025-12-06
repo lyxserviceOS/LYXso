@@ -1,7 +1,77 @@
 // app/kontakt/page.tsx
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
 
 export default function KontaktPage() {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    company: "",
+    category: "general",
+    subject: "",
+    message: "",
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<{
+    type: "success" | "error" | null;
+    message: string;
+    ticketNumber?: string;
+  }>({ type: null, message: "" });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitStatus({ type: null, message: "" });
+
+    try {
+      const response = await fetch("/api/support/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Noe gikk galt");
+      }
+
+      setSubmitStatus({
+        type: "success",
+        message: data.message,
+        ticketNumber: data.ticket_number,
+      });
+
+      // Reset form
+      setFormData({
+        name: "",
+        email: "",
+        company: "",
+        category: "general",
+        subject: "",
+        message: "",
+      });
+    } catch (error: any) {
+      setSubmitStatus({
+        type: "error",
+        message: error.message || "Kunne ikke sende melding. Prøv igjen.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.id]: e.target.value,
+    }));
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50">
       <main className="mx-auto max-w-4xl space-y-16 px-4 py-12 lg:px-8 lg:py-16">
@@ -146,14 +216,35 @@ export default function KontaktPage() {
           </div>
         </section>
 
-        {/* Kontaktskjema placeholder */}
+        {/* Kontaktskjema */}
         <section className="rounded-xl border border-slate-800 bg-slate-900/60 p-8 space-y-6">
           <h2 className="text-2xl font-bold">Send oss en melding</h2>
           <p className="text-sm text-slate-400">
             Fyll ut skjemaet under, så tar vi kontakt så snart som mulig.
           </p>
           
-          <form className="space-y-4">
+          {submitStatus.type === "success" && (
+            <div className="rounded-lg border border-emerald-600 bg-emerald-900/20 p-4">
+              <p className="text-sm text-emerald-400 font-medium">
+                ✅ {submitStatus.message}
+              </p>
+              {submitStatus.ticketNumber && (
+                <p className="text-xs text-emerald-300 mt-2">
+                  Ticket-nummer: <strong>{submitStatus.ticketNumber}</strong>
+                </p>
+              )}
+            </div>
+          )}
+
+          {submitStatus.type === "error" && (
+            <div className="rounded-lg border border-red-600 bg-red-900/20 p-4">
+              <p className="text-sm text-red-400">
+                ❌ {submitStatus.message}
+              </p>
+            </div>
+          )}
+          
+          <form className="space-y-4" onSubmit={handleSubmit}>
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <label htmlFor="name" className="block text-sm font-medium text-slate-200">
@@ -163,6 +254,8 @@ export default function KontaktPage() {
                   type="text"
                   id="name"
                   required
+                  value={formData.name}
+                  onChange={handleChange}
                   className="w-full rounded-lg border border-slate-700 bg-slate-950/80 px-4 py-2 text-sm text-slate-100 placeholder-slate-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                   placeholder="Ditt navn"
                 />
@@ -175,6 +268,8 @@ export default function KontaktPage() {
                   type="email"
                   id="email"
                   required
+                  value={formData.email}
+                  onChange={handleChange}
                   className="w-full rounded-lg border border-slate-700 bg-slate-950/80 px-4 py-2 text-sm text-slate-100 placeholder-slate-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                   placeholder="din@epost.no"
                 />
@@ -188,8 +283,43 @@ export default function KontaktPage() {
               <input
                 type="text"
                 id="company"
+                value={formData.company}
+                onChange={handleChange}
                 className="w-full rounded-lg border border-slate-700 bg-slate-950/80 px-4 py-2 text-sm text-slate-100 placeholder-slate-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 placeholder="Bedriftsnavn (valgfritt)"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="category" className="block text-sm font-medium text-slate-200">
+                Kategori
+              </label>
+              <select
+                id="category"
+                value={formData.category}
+                onChange={handleChange}
+                className="w-full rounded-lg border border-slate-700 bg-slate-950/80 px-4 py-2 text-sm text-slate-100 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              >
+                <option value="general">Generelt spørsmål</option>
+                <option value="technical">Teknisk support</option>
+                <option value="billing">Fakturering</option>
+                <option value="partnership">Partnerskap</option>
+                <option value="demo">Demo forespørsel</option>
+                <option value="feedback">Tilbakemelding</option>
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="subject" className="block text-sm font-medium text-slate-200">
+                Emne
+              </label>
+              <input
+                type="text"
+                id="subject"
+                value={formData.subject}
+                onChange={handleChange}
+                className="w-full rounded-lg border border-slate-700 bg-slate-950/80 px-4 py-2 text-sm text-slate-100 placeholder-slate-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                placeholder="Kort beskrivelse av henvendelsen"
               />
             </div>
 
@@ -201,6 +331,8 @@ export default function KontaktPage() {
                 id="message"
                 required
                 rows={6}
+                value={formData.message}
+                onChange={handleChange}
                 className="w-full rounded-lg border border-slate-700 bg-slate-950/80 px-4 py-2 text-sm text-slate-100 placeholder-slate-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 placeholder="Hva lurer du på?"
               />
@@ -208,14 +340,11 @@ export default function KontaktPage() {
 
             <button
               type="submit"
-              className="w-full rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white hover:bg-blue-500 transition-colors"
+              disabled={isSubmitting}
+              className="w-full rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white hover:bg-blue-500 transition-colors disabled:bg-slate-700 disabled:cursor-not-allowed"
             >
-              Send melding
+              {isSubmitting ? "Sender..." : "Send melding"}
             </button>
-
-            <p className="text-xs text-slate-400 text-center">
-              Merk: Dette skjemaet er ikke koblet til backend ennå. Send e-post til post@lyxso.no i mellomtiden.
-            </p>
           </form>
         </section>
 

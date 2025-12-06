@@ -7,8 +7,11 @@ import SupplierKeysManager from "./components/SupplierKeysManager";
 import ProductList from "./components/ProductList";
 import OrderList from "./components/OrderList";
 import VisibilityRulesManager from "./components/VisibilityRulesManager";
+import BulkImportManager from "./components/advanced/BulkImportManager";
+import DiscountManager from "./components/advanced/DiscountManager";
+import InventoryTracker from "./components/advanced/InventoryTracker";
 
-type TabKey = "oversikt" | "egne-produkter" | "partnere" | "ordrer" | "innstillinger" | "leverandorer";
+type TabKey = "oversikt" | "egne-produkter" | "partnere" | "ordrer" | "innstillinger" | "leverandorer" | "avansert";
 
 const CATEGORIES: { code: ProductCategory; label: string }[] = [
   { code: "dekk", label: "Dekk" },
@@ -76,6 +79,7 @@ export default function NettbutikkPageClient() {
           { key: "leverandorer", label: "Leverandører" },
           { key: "ordrer", label: "Ordrer" },
           { key: "innstillinger", label: "Innstillinger" },
+          { key: "avansert", label: "Avansert" },
         ].map((tab) => (
           <button
             key={tab.key}
@@ -197,6 +201,32 @@ export default function NettbutikkPageClient() {
 
       {/* Innstillinger Tab */}
       {activeTab === "innstillinger" && <VisibilityRulesManager />}
+
+      {/* Avansert Tab */}
+      {activeTab === "avansert" && (
+        <div className="space-y-6">
+          <div>
+            <h2 className="text-lg font-semibold text-slate-100">
+              Avanserte funksjoner
+            </h2>
+            <p className="text-sm text-slate-400">
+              Kraftige verktøy for å administrere nettbutikken din
+            </p>
+          </div>
+
+          {/* Advanced Tools */}
+          <div className="space-y-6">
+            {/* Bulk Import */}
+            <BulkImportManager />
+            
+            {/* Discount Codes */}
+            <DiscountManager />
+            
+            {/* Inventory Tracking */}
+            <InventoryTracker />
+          </div>
+        </div>
+      )}
 
       {/* Legacy settings - can be removed or merged into VisibilityRulesManager */}
       {activeTab === "innstillinger_old" && (
