@@ -1,7 +1,12 @@
 // app/(protected)/ai-agent/page.tsx
-// LYXba AI Agent - Module 26
-import LyxbaAgentClient from "./LyxbaAgentClient";
+import { Metadata } from 'next';
+import LYXbaControlPanelClient from "./LYXbaControlPanelClient";
+
+export const metadata: Metadata = {
+  title: 'LYXba Control Panel | LYXso',
+  description: 'Administrer din AI booking agent',
+};
 
 export default function AIAgentPage() {
-  return <LyxbaAgentClient />;
+  return <LYXbaControlPanelClient />;
 }
