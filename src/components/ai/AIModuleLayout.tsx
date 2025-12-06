@@ -126,15 +126,26 @@ export function AIModuleLayout({
       {/* Main Content - Two Columns */}
       {hasAccess && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left: AI Chat - placeholder since AIChatInterface might not exist */}
+          {/* Left: AI Chat */}
           <div>
             <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <Icon className="w-5 h-5" />
               Chat med AI
             </h2>
+            {/* Placeholder for AIChatInterface - import if needed */}
             <Card>
-              <CardContent className="p-6">
-                <p className="text-sm text-gray-500">Chat-interface kommer her</p>
+              <CardContent className="p-6 space-y-4">
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <p className="text-sm text-gray-700 italic">{chatWelcomeMessage}</p>
+                </div>
+                <div className="space-y-2">
+                  <input
+                    type="text"
+                    placeholder={chatPlaceholder || "Skriv en melding..."}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <p className="text-xs text-gray-500">Chat-funksjonalitet kommer snart</p>
+                </div>
               </CardContent>
             </Card>
           </div>

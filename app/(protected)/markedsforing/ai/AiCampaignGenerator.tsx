@@ -30,6 +30,7 @@ type GenerateResponse = {
 export default function AiCampaignGenerator() {
   const [goal, setGoal] = useState("");
   const [period, setPeriod] = useState("Q1 2025");
+  const [selectedDates, setSelectedDates] = useState<Date[]>([]);
   const [targetAudience, setTargetAudience] = useState("");
   const [loading, setLoading] = useState(false);
   const [ideas, setIdeas] = useState<CampaignIdea[]>([]);
@@ -41,6 +42,7 @@ export default function AiCampaignGenerator() {
   } | null>(null);
   const [selectedIdea, setSelectedIdea] = useState<CampaignIdea | null>(null);
   const [creatingCampaign, setCreatingCampaign] = useState(false);
+  const [showCalendar, setShowCalendar] = useState(false);
 
   // Debug: Log when ideas state changes
   useEffect(() => {
@@ -223,34 +225,77 @@ export default function AiCampaignGenerator() {
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Periode
-            </label>
-            <input
-              type="text"
-              value={period}
-              onChange={(e) => setPeriod(e.target.value)}
-              placeholder="Q1 2025, Vår 2025, osv."
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              disabled={loading}
-            />
-          </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Velg datoer for publisering
+          </label>
+          <button
+            type="button"
+            onClick={() => setShowCalendar(!showCalendar)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg text-left hover:border-purple-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors"
+            disabled={loading}
+          >
+            <div className="flex items-center justify-between">
+              <span className={selectedDates.length === 0 ? "text-gray-400" : "text-gray-900"}>
+                {selectedDates.length === 0 
+                  ? "Klikk for å velge datoer" 
+                  : `${selectedDates.length} dato${selectedDates.length > 1 ? 'er' : ''} valgt`}
+              </span>
+              <Calendar className="w-5 h-5 text-gray-400" />
+            </div>
+          </button>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Målgruppe (valgfritt)
-            </label>
-            <input
-              type="text"
-              value={targetAudience}
-              onChange={(e) => setTargetAudience(e.target.value)}
-              placeholder="Bilentusiaster, Firmabiler, osv."
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              disabled={loading}
+          {showCalendar && (
+            <DatePickerCalendar 
+              selectedDates={selectedDates}
+              onSelectDate={(date) => {
+                setSelectedDates(prev => {
+                  const dateStr = date.toISOString().split('T')[0];
+                  const exists = prev.some(d => d.toISOString().split('T')[0] === dateStr);
+                  if (exists) {
+                    return prev.filter(d => d.toISOString().split('T')[0] !== dateStr);
+                  } else {
+                    return [...prev, date].sort((a, b) => a.getTime() - b.getTime());
+                  }
+                });
+              }}
+              onClear={() => setSelectedDates([])}
             />
-          </div>
+          )}
+
+          {selectedDates.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-2">
+              {selectedDates.map((date, idx) => (
+                <span 
+                  key={idx}
+                  className="inline-flex items-center gap-1 px-2 py-1 bg-purple-100 text-purple-700 rounded-md text-xs"
+                >
+                  {date.toLocaleDateString('nb-NO', { day: '2-digit', month: 'short', year: 'numeric' })}
+                  <button
+                    type="button"
+                    onClick={() => setSelectedDates(prev => prev.filter((_, i) => i !== idx))}
+                    className="hover:text-purple-900"
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Målgruppe (valgfritt)
+          </label>
+          <input
+            type="text"
+            value={targetAudience}
+            onChange={(e) => setTargetAudience(e.target.value)}
+            placeholder="Bilentusiaster, Firmabiler, osv."
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            disabled={loading}
+          />
         </div>
 
         <button
@@ -305,7 +350,7 @@ export default function AiCampaignGenerator() {
           {ideas.map((idea, index) => (
             <div
               key={index}
-              className="border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow"
+              className="border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow bg-white"
             >
               <div className="flex items-start justify-between mb-3">
                 <h4 className="text-lg font-semibold text-gray-900">
@@ -359,7 +404,7 @@ export default function AiCampaignGenerator() {
               </div>
 
               {idea.keyMessages && idea.keyMessages.length > 0 && (
-                <div>
+                <div className="mb-4">
                   <p className="text-sm font-medium text-gray-700 mb-2">
                     Nøkkelmeldinger:
                   </p>
@@ -373,20 +418,22 @@ export default function AiCampaignGenerator() {
                 </div>
               )}
 
-              <div className="mt-4 pt-4 border-t flex gap-2">
+              <div className="mt-4 pt-4 border-t border-gray-200 flex gap-3">
                 <button 
+                  type="button"
                   onClick={() => {
-                    const ideaText = `${idea.title}\n\n${idea.description}\n\nMålgruppe: ${idea.targetAudience}\nBudsjett: ${idea.suggestedBudget} kr\nVarighet: ${idea.duration}\n\nNøkkelmeldinger:\n${idea.keyMessages.join('\n')}`;
+                    const ideaText = `${idea.title}\n\n${idea.description}\n\nMålgruppe: ${idea.targetAudience}\nBudsjett: ${idea.suggestedBudget} kr\nVarighet: ${idea.duration}\n\nNøkkelmeldinger:\n${idea.keyMessages?.join('\n') || 'Ingen'}`;
                     navigator.clipboard.writeText(ideaText);
                     alert('Kampanjeidé kopiert! 📋');
                   }}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
                 >
-                  Kopier idé
+                  📋 Kopier idé
                 </button>
                 <button 
+                  type="button"
                   onClick={() => handleCreateCampaign(idea)}
-                  disabled={creatingCampaign}
+                  disabled={creatingCampaign && selectedIdea === idea}
                   className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors text-sm font-medium"
                 >
                   {creatingCampaign && selectedIdea === idea ? (
@@ -395,7 +442,7 @@ export default function AiCampaignGenerator() {
                       Oppretter...
                     </span>
                   ) : (
-                    "Opprett kampanje"
+                    "🚀 Opprett kampanje"
                   )}
                 </button>
               </div>
@@ -417,6 +464,116 @@ export default function AiCampaignGenerator() {
           </p>
         </div>
       )}
+    </div>
+  );
+}
+
+// DatePicker Calendar Component
+type DatePickerCalendarProps = {
+  selectedDates: Date[];
+  onSelectDate: (date: Date) => void;
+  onClear: () => void;
+};
+
+function DatePickerCalendar({ selectedDates, onSelectDate, onClear }: DatePickerCalendarProps) {
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+
+  const getDaysInMonth = (date: Date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDayOfWeek = firstDay.getDay();
+
+    return { daysInMonth, startingDayOfWeek, year, month };
+  };
+
+  const isDateSelected = (date: Date) => {
+    const dateStr = date.toISOString().split('T')[0];
+    return selectedDates.some(d => d.toISOString().split('T')[0] === dateStr);
+  };
+
+  const isPastDate = (date: Date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return date < today;
+  };
+
+  const { daysInMonth, startingDayOfWeek, year, month } = getDaysInMonth(currentMonth);
+  const monthName = currentMonth.toLocaleDateString('nb-NO', { month: 'long', year: 'numeric' });
+
+  const days = [];
+  for (let i = 0; i < startingDayOfWeek; i++) {
+    days.push(<div key={`empty-${i}`} className="h-10"></div>);
+  }
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const date = new Date(year, month, day);
+    const selected = isDateSelected(date);
+    const past = isPastDate(date);
+
+    days.push(
+      <button
+        key={day}
+        type="button"
+        onClick={() => !past && onSelectDate(date)}
+        disabled={past}
+        className={`h-10 rounded-lg text-sm font-medium transition-colors ${
+          selected
+            ? 'bg-purple-600 text-white hover:bg-purple-700'
+            : past
+            ? 'text-gray-300 cursor-not-allowed'
+            : 'text-gray-700 hover:bg-purple-50'
+        }`}
+      >
+        {day}
+      </button>
+    );
+  }
+
+  return (
+    <div className="mt-2 p-4 border border-gray-200 rounded-lg bg-white shadow-lg">
+      <div className="flex items-center justify-between mb-4">
+        <button
+          type="button"
+          onClick={() => setCurrentMonth(new Date(year, month - 1))}
+          className="p-2 hover:bg-gray-100 rounded-lg"
+        >
+          ←
+        </button>
+        <span className="font-semibold text-gray-900 capitalize">{monthName}</span>
+        <button
+          type="button"
+          onClick={() => setCurrentMonth(new Date(year, month + 1))}
+          className="p-2 hover:bg-gray-100 rounded-lg"
+        >
+          →
+        </button>
+      </div>
+
+      <div className="grid grid-cols-7 gap-1 mb-2 text-xs text-gray-500 font-medium">
+        {['Søn', 'Man', 'Tir', 'Ons', 'Tor', 'Fre', 'Lør'].map(day => (
+          <div key={day} className="text-center">{day}</div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-7 gap-1">
+        {days}
+      </div>
+
+      <div className="mt-4 pt-4 border-t flex justify-between items-center">
+        <span className="text-xs text-gray-600">
+          {selectedDates.length} dato{selectedDates.length !== 1 ? 'er' : ''} valgt
+        </span>
+        <button
+          type="button"
+          onClick={onClear}
+          className="text-xs text-purple-600 hover:text-purple-700 font-medium"
+        >
+          Nullstill
+        </button>
+      </div>
     </div>
   );
 }

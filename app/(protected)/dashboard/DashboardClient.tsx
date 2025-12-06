@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
+import { AIModuleCard } from "@/components/ai/AIModuleCard";
+import { Calendar, Megaphone, Calculator } from "lucide-react";
 
 type Booking = {
   id: string;
@@ -386,6 +388,40 @@ export function DashboardClient() {
                 <li>• Koble dashboardet mot booking-kalenderen.</li>
                 <li>• Koble inn omsetning (payments_summary) og KPI-grafer.</li>
               </ul>
+            </div>
+
+            {/* AI-moduler for rask tilgang */}
+            <div className="space-y-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 px-1">
+                AI-ASSISTENTER
+              </p>
+              
+              <AIModuleCard
+                module="booking"
+                title="AI Booking"
+                description="Optimaliser bookinger med AI"
+                icon={Calendar}
+                stats={{ value: "12", label: "I dag" }}
+                gradient="from-blue-500 to-cyan-500"
+              />
+
+              <AIModuleCard
+                module="marketing"
+                title="AI Marketing"
+                description="Generer kampanjer automatisk"
+                icon={Megaphone}
+                stats={{ value: "8", label: "Aktive" }}
+                gradient="from-pink-500 to-purple-500"
+              />
+
+              <AIModuleCard
+                module="accounting"
+                title="AI Regnskap"
+                description="Automatisk finansiell analyse"
+                icon={Calculator}
+                stats={{ value: "485k", label: "Omsetning" }}
+                gradient="from-emerald-500 to-teal-500"
+              />
             </div>
           </div>
         </div>

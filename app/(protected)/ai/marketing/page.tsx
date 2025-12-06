@@ -1,9 +1,14 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useOrgPlan } from "@/components/OrgPlanContext";
-import { buildOrgApiUrl } from "@/lib/apiConfig";
-import AIChatInterface from "@/components/ai/AIChatInterface";
+import { useState } from 'react';
+import { useOrgPlan } from '@/components/OrgPlanContext';
+import { buildOrgApiUrl } from '@/lib/apiConfig';
+import { AIModuleLayout } from '@/components/ai/AIModuleLayout';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   Megaphone,
   TrendingUp,
@@ -13,9 +18,7 @@ import {
   CheckCircle,
   AlertCircle,
   Loader2,
-  Lightbulb,
-  MessageSquare,
-} from "lucide-react";
+} from 'lucide-react';
 
 export default function AIMarketingPage() {
   const { org } = useOrgPlan();
@@ -23,11 +26,10 @@ export default function AIMarketingPage() {
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Form state
-  const [goal, setGoal] = useState("");
-  const [services, setServices] = useState("");
-  const [targetAudience, setTargetAudience] = useState("");
-  const [tone, setTone] = useState("profesjonell");
+  const [goal, setGoal] = useState('');
+  const [services, setServices] = useState('');
+  const [targetAudience, setTargetAudience] = useState('');
+  const [tone, setTone] = useState('profesjonell');
 
   const handleGenerateCampaignIdeas = async () => {
     if (!org?.id) return;
@@ -37,323 +39,182 @@ export default function AIMarketingPage() {
     setResult(null);
 
     try {
-      const endpoint = buildOrgApiUrl(org.id, "ai/marketing/campaign-ideas");
+      const endpoint = buildOrgApiUrl(org.id, 'ai/marketing/campaign-ideas');
       const response = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          goal,
-          services,
-          targetAudience,
-          tone,
-        }),
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ goal, services, targetAudience, tone }),
       });
 
       if (!response.ok) {
         const errData = await response.json();
-        throw new Error(errData.message || "Kunne ikke generere kampanjeidéer");
+        throw new Error(errData.message || 'Kunne ikke generere kampanjeidéer');
       }
 
       const data = await response.json();
-      // API sender tilbake { jobId, status, output: { ideas: [...] } }
-      // Vi setter result til output-objektet
       setResult(data.output || data);
     } catch (err: any) {
-      setError(err.message || "Noe gikk galt");
+      setError(err.message || 'Noe gikk galt');
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <div className="container mx-auto p-6 max-w-6xl">
-      {/* Header */}
-      <div className="mb-6">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="p-2 bg-gradient-to-br from-pink-500 to-purple-500 rounded-lg">
-            <Megaphone className="w-6 h-6 text-white" />
-          </div>
-          <h1 className="text-3xl font-bold text-gray-900">
-            AI Marketing Assistent
-          </h1>
-        </div>
-        <p className="text-gray-600">
-          AI-drevet kampanjegenerering og markedsføringsoptimalisering
-        </p>
+  const QuickAction = (
+    <div className="space-y-4">
+      <div>
+        <Label htmlFor="goal">Kampanjemål</Label>
+        <Input
+          id="goal"
+          value={goal}
+          onChange={(e) => setGoal(e.target.value)}
+          placeholder="F.eks. 'Øke bookinger i januar'"
+          className="mt-1"
+        />
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Target className="w-5 h-5 text-pink-600" />
-            <span className="text-sm text-gray-600">Aktive kampanjer</span>
-          </div>
-          <p className="text-2xl font-bold text-gray-900">8</p>
-          <p className="text-xs text-gray-500 mt-1">Kjører nå</p>
-        </div>
-
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Users className="w-5 h-5 text-purple-600" />
-            <span className="text-sm text-gray-600">Rekkevidde</span>
-          </div>
-          <p className="text-2xl font-bold text-gray-900">2.4k</p>
-          <p className="text-xs text-gray-500 mt-1">Denne måneden</p>
-        </div>
-
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <TrendingUp className="w-5 h-5 text-green-600" />
-            <span className="text-sm text-gray-600">Konvertering</span>
-          </div>
-          <p className="text-2xl font-bold text-gray-900">4.2%</p>
-          <p className="text-xs text-gray-500 mt-1">ROI: 320%</p>
-        </div>
-
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Sparkles className="w-5 h-5 text-orange-600" />
-            <span className="text-sm text-gray-600">AI-generert</span>
-          </div>
-          <p className="text-2xl font-bold text-purple-600">142</p>
-          <p className="text-xs text-gray-500 mt-1">Kampanjer</p>
-        </div>
+      <div>
+        <Label htmlFor="services">Tjenester</Label>
+        <Input
+          id="services"
+          value={services}
+          onChange={(e) => setServices(e.target.value)}
+          placeholder="F.eks. 'coating, detailing'"
+          className="mt-1"
+        />
       </div>
 
-      {/* Main Content - Two Columns */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left: AI Chat */}
-        <div>
-          <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <MessageSquare className="w-5 h-5" />
-            Chat med Marketing AI
-          </h2>
-          <AIChatInterface
-            orgId={org?.id || ""}
-            context="marketing"
-            welcomeMessage="Hei! Jeg er din AI marketing-assistent. Jeg kan hjelpe deg med å lage kampanjer, skrive annonsetekster, analysere målgrupper og optimalisere budsjetter. Hva ønsker du å markedsføre?"
-            placeholder="Spør om markedsføringshjelp..."
-          />
-        </div>
+      <div>
+        <Label htmlFor="audience">Målgruppe</Label>
+        <Input
+          id="audience"
+          value={targetAudience}
+          onChange={(e) => setTargetAudience(e.target.value)}
+          placeholder="F.eks. 'bilentusiaster 25-45 år'"
+          className="mt-1"
+        />
+      </div>
 
-        {/* Error */}
-        {error && (
-          <div className="mt-4 rounded-md bg-red-50 border border-red-200 p-4">
+      <div>
+        <Label htmlFor="tone">Tone</Label>
+        <Select value={tone} onValueChange={setTone}>
+          <SelectTrigger id="tone" className="mt-1">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="profesjonell">Profesjonell</SelectItem>
+            <SelectItem value="entusiastisk">Entusiastisk</SelectItem>
+            <SelectItem value="avslappet">Avslappet</SelectItem>
+            <SelectItem value="prestisje">Prestisje/luksus</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <Button
+        onClick={handleGenerateCampaignIdeas}
+        disabled={loading || !goal || !org?.id}
+        className="w-full"
+        size="lg"
+      >
+        {loading ? (
+          <>
+            <Loader2 className="w-5 h-5 animate-spin mr-2" />
+            Genererer...
+          </>
+        ) : (
+          <>
+            <Sparkles className="w-5 h-5 mr-2" />
+            Generer Kampanjeidéer
+          </>
+        )}
+      </Button>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="flex items-start gap-2">
+            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
             <p className="text-sm text-red-800">{error}</p>
           </div>
-        )}
-
-        {/* Result */}
-        {result && result.ideas && (
-          <div className="mt-6 space-y-4">
-            <h3 className="text-lg font-semibold text-slate-900 mb-4">
-              AI-genererte kampanjeidéer
-            </h3>
-            
-            {result.ideas.map((idea: any, idx: number) => (
-              <div key={idx} className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h4 className="text-base font-semibold text-slate-900">{idea.title}</h4>
-                    <p className="mt-2 text-sm text-slate-600">{idea.description}</p>
-                  </div>
-                  <div className="ml-4 text-right">
-                    <div className="text-xs text-slate-500">Varighet</div>
-                    <div className="text-sm font-medium text-slate-900">{idea.duration}</div>
-                  </div>
-                </div>
-                
-                <div className="mt-4 grid grid-cols-2 gap-4">
-                  <div>
-                    <div className="text-xs font-medium text-slate-500 uppercase">Målgruppe</div>
-                    <div className="mt-1 text-sm text-slate-900">{idea.targetAudience}</div>
-                  </div>
-                  <div>
-                    <div className="text-xs font-medium text-slate-500 uppercase">Foreslått budsjett</div>
-                    <div className="mt-1 text-sm text-slate-900">{idea.suggestedBudget} kr</div>
-                  </div>
-                  <div>
-                    <div className="text-xs font-medium text-slate-500 uppercase">Estimert rekkevidde</div>
-                    <div className="mt-1 text-sm text-slate-900">{idea.estimatedReach.toLocaleString()} personer</div>
-                  </div>
-                  <div>
-                    <div className="text-xs font-medium text-slate-500 uppercase">Kanaler</div>
-                    <div className="mt-1 flex flex-wrap gap-1">
-                      {idea.channels.map((ch: string) => (
-                        <span key={ch} className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800">
-                          {ch}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="mt-4">
-                  <div className="text-xs font-medium text-slate-500 uppercase mb-2">Nøkkelmeldinger</div>
-                  <ul className="list-disc list-inside space-y-1">
-                    {idea.keyMessages.map((msg: string, i: number) => (
-                      <li key={i} className="text-sm text-slate-700">{msg}</li>
-                    ))}
-                  </ul>
-                </div>
-                
-                <div className="mt-4 pt-4 border-t border-slate-200">
-                  <div className="text-xs font-medium text-slate-500 uppercase mb-1">Call-to-action</div>
-                  <div className="inline-flex items-center rounded-md bg-green-50 border border-green-200 px-3 py-2 text-sm font-medium text-green-800">
-                    {idea.cta}
-                  </div>
-                </div>
-              </div>
-            ))}
-        {/* Right: Campaign Generator */}
-        <div className="space-y-6">
-          <div className="bg-white border border-gray-200 rounded-lg p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <Lightbulb className="w-5 h-5 text-pink-600" />
-              Generer Kampanjeidéer
-            </h2>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Kampanjemål
-                </label>
-                <input
-                  type="text"
-                  value={goal}
-                  onChange={(e) => setGoal(e.target.value)}
-                  placeholder="F.eks. 'Øke bookinger i januar' eller 'Lansere ny tjeneste'"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Tjenester
-                </label>
-                <input
-                  type="text"
-                  value={services}
-                  onChange={(e) => setServices(e.target.value)}
-                  placeholder="F.eks. 'coating, detailing, dekkhotell'"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Målgruppe
-                </label>
-                <input
-                  type="text"
-                  value={targetAudience}
-                  onChange={(e) => setTargetAudience(e.target.value)}
-                  placeholder="F.eks. 'bilentusiaster 25-45 år'"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Tone
-                </label>
-                <select
-                  value={tone}
-                  onChange={(e) => setTone(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-                >
-                  <option value="profesjonell">Profesjonell</option>
-                  <option value="entusiastisk">Entusiastisk</option>
-                  <option value="avslappet">Avslappet</option>
-                  <option value="prestisje">Prestisje/luksus</option>
-                </select>
-              </div>
-
-              <button
-                onClick={handleGenerateCampaignIdeas}
-                disabled={loading || !goal || !org?.id}
-                className="w-full px-4 py-3 bg-gradient-to-r from-pink-600 to-purple-600 text-white rounded-lg hover:from-pink-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    Genererer kampanjer...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="w-5 h-5" />
-                    Generer Kampanjeidéer
-                  </>
-                )}
-              </button>
-            </div>
-
-            {error && (
-              <div className="mt-4 bg-red-50 border border-red-200 rounded-lg p-4">
-                <div className="flex items-start gap-2">
-                  <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-                  <p className="text-sm text-red-800">{error}</p>
-                </div>
-              </div>
-            )}
-
-            {result && (
-              <div className="mt-4 space-y-3">
-                <div className="bg-gradient-to-br from-pink-50 to-purple-50 border border-pink-200 rounded-lg p-4">
-                  <div className="flex items-start gap-2 mb-3">
-                    <CheckCircle className="w-5 h-5 text-pink-600 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <h3 className="font-semibold text-pink-900 mb-2">AI-genererte kampanjeidéer</h3>
-                      <div className="text-sm text-gray-700 whitespace-pre-wrap">
-                        {result.ideas || JSON.stringify(result, null, 2)}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {!loading && !result && !error && (
-              <div className="mt-4 text-center py-8">
-                <Lightbulb className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500 text-sm">
-                  Fyll ut feltene over og få AI-drevne kampanjeidéer
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Features */}
-          <div className="bg-gradient-to-br from-pink-50 to-purple-50 border border-pink-200 rounded-lg p-6">
-            <h3 className="font-semibold text-pink-900 mb-4">
-              Hva AI kan hjelpe med
-            </h3>
-            <div className="space-y-2 text-sm text-pink-800">
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-pink-600 flex-shrink-0" />
-                <span>Generere kampanjeidéer og strategier</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-pink-600 flex-shrink-0" />
-                <span>Skrive overbevisende annonsetekster</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-pink-600 flex-shrink-0" />
-                <span>Analysere målgrupper og segmentering</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-pink-600 flex-shrink-0" />
-                <span>Optimalisere budsjetter og ROI</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-pink-600 flex-shrink-0" />
-                <span>Foreslå kanaler og timing</span>
-              </div>
-            </div>
-          </div>
         </div>
-      </div>
+      )}
+
+      {result && result.ideas && (
+        <div className="space-y-3 max-h-96 overflow-y-auto">
+          {result.ideas.map((idea: any, idx: number) => (
+            <div key={idx} className="border border-gray-200 rounded-lg p-4 bg-white">
+              <h4 className="font-semibold text-gray-900 mb-2">{idea.title}</h4>
+              <p className="text-sm text-gray-600 mb-2">{idea.description}</p>
+              <div className="flex items-center gap-2 text-xs text-gray-500">
+                <span>Budget: {idea.suggestedBudget} kr</span>
+                <span>•</span>
+                <span>Rekkevidde: {idea.estimatedReach?.toLocaleString()} personer</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {!loading && !result && !error && (
+        <div className="text-center py-8">
+          <Sparkles className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+          <p className="text-gray-500 text-sm">
+            Fyll ut feltene og få AI-drevne kampanjeidéer
+          </p>
+        </div>
+      )}
     </div>
+  );
+
+  return (
+    <AIModuleLayout
+      module="marketing"
+      title="AI Marketing Assistent"
+      description="AI-drevet kampanjegenerering og markedsføringsoptimalisering"
+      icon={Megaphone}
+      stats={[
+        {
+          label: 'Aktive kampanjer',
+          value: '8',
+          icon: Target,
+          color: 'text-pink-600',
+          subtitle: 'Kjører nå',
+        },
+        {
+          label: 'Rekkevidde',
+          value: '2.4k',
+          icon: Users,
+          color: 'text-purple-600',
+          subtitle: 'Denne måneden',
+        },
+        {
+          label: 'Konvertering',
+          value: '4.2%',
+          icon: TrendingUp,
+          color: 'text-green-600',
+          subtitle: 'ROI: 320%',
+        },
+        {
+          label: 'AI-generert',
+          value: '142',
+          icon: Sparkles,
+          color: 'text-orange-600',
+          subtitle: 'Kampanjer',
+        },
+      ]}
+      chatContext="marketing"
+      chatWelcomeMessage="Hei! Jeg er din AI marketing-assistent. Jeg kan hjelpe deg med å lage kampanjer, skrive annonsetekster, analysere målgrupper og optimalisere budsjetter. Hva ønsker du å markedsføre?"
+      chatPlaceholder="Spør om markedsføringshjelp..."
+      quickAction={QuickAction}
+      features={[
+        'Generere kampanjeidéer og strategier',
+        'Skrive overbevisende annonsetekster',
+        'Analysere målgrupper og segmentering',
+        'Optimalisere budsjetter og ROI',
+        'Foreslå kanaler og timing',
+      ]}
+      requiredPlan="professional"
+      orgId={org?.id || ''}
+      hasAccess={true}
+    />
   );
 }

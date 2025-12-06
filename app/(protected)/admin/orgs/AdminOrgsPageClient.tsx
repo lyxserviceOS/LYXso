@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import {
   fetchAdminOrgs,
   updateOrgActiveStatus,
@@ -225,38 +226,40 @@ export default function AdminOrgsPageClient() {
                     <tr key={org.id} className="align-top">
                       {/* Partner + logo-plassholder */}
                       <td className="px-4 py-3">
-                        <div className="flex items-center gap-3">
-                          <div className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg border border-slate-200 bg-slate-50 text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-400">
-                            {org.logoUrl ? (
-                              <>
-                                {/* 
-                                  Anbefalt oppløsning for logo:
-                                  160x160 px, kvadratisk, PNG eller SVG.
-                                  Du kan senere erstatte <img> med Next.js <Image>.
-                                */}
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img
-                                  src={org.logoUrl}
-                                  alt={`Logo for ${org.name}`}
-                                  className="h-full w-full object-cover"
-                                />
-                              </>
-                            ) : (
-                              <span>LOGO</span>
-                            )}
+                        <Link href={`/admin/orgs/${org.id}`} className="block hover:opacity-80 transition-opacity">
+                          <div className="flex items-center gap-3">
+                            <div className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg border border-slate-200 bg-slate-50 text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-400">
+                              {org.logoUrl ? (
+                                <>
+                                  {/* 
+                                    Anbefalt oppløsning for logo:
+                                    160x160 px, kvadratisk, PNG eller SVG.
+                                    Du kan senere erstatte <img> med Next.js <Image>.
+                                  */}
+                                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                                  <img
+                                    src={org.logoUrl}
+                                    alt={`Logo for ${org.name}`}
+                                    className="h-full w-full object-cover"
+                                  />
+                                </>
+                              ) : (
+                                <span>LOGO</span>
+                              )}
+                            </div>
+                            <div className="space-y-0.5">
+                              <p className="text-sm font-medium text-slate-900 hover:text-purple-600">
+                                {org.name}
+                              </p>
+                              <p className="text-[11px] text-slate-500">
+                                ID:{" "}
+                                <span className="font-mono text-[10px]">
+                                  {org.id}
+                                </span>
+                              </p>
+                            </div>
                           </div>
-                          <div className="space-y-0.5">
-                            <p className="text-sm font-medium text-slate-900">
-                              {org.name}
-                            </p>
-                            <p className="text-[11px] text-slate-500">
-                              ID:{" "}
-                              <span className="font-mono text-[10px]">
-                                {org.id}
-                              </span>
-                            </p>
-                          </div>
-                        </div>
+                        </Link>
                       </td>
 
                       {/* Plan */}
