@@ -488,7 +488,7 @@ export default function OnboardingPageClient() {
                       handleChange("companyName", e.target.value)
                     }
                     className="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-50 outline-none focus:border-blue-500"
-                    placeholder="F.eks. LYX Bilpleie Økern"
+                    placeholder="F.eks. LYX Bilpleiepleiepleie Økern"
                     required
                   />
                 </div>

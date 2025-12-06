@@ -93,12 +93,19 @@ const sections: NavSection[] = [
     ],
   },
 
-  // AI ASSISTENT (samlet alle AI-funksjoner)
+  // AI ASSISTENT (samlet alle AI-funksjoner) - ALLTID SYNLIG
   {
     title: "AI Assistent",
     icon: "🤖",
-    collapsible: true,
+    collapsible: false, // Alltid åpen for synlighet
     items: [
+      {
+        label: "AI Oversikt",
+        href: "/ai",
+        icon: "🏠",
+        badge: "Ny",
+        description: "Se alle AI-moduler og muligheter",
+      },
       {
         label: "Marketing AI",
         href: "/ai/marketing",
@@ -136,7 +143,7 @@ const sections: NavSection[] = [
         badge: "AI",
       },
       {
-        label: "Booking Agent",
+        label: "LYXba Agent",
         href: "/ai-agent",
         icon: "🤖",
         requiresModule: "ai_agent",

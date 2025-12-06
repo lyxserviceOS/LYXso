@@ -30,7 +30,7 @@ const MOCK_DATA: CEODashboardData = {
   org_summaries: [
     {
       id: "org-1",
-      name: "LYX Bil Oslo",
+      name: "LYX Bilpleie Oslo",
       org_number: "123456789",
       plan: "paid",
       is_active: true,
@@ -47,7 +47,7 @@ const MOCK_DATA: CEODashboardData = {
     },
     {
       id: "org-2",
-      name: "LYX Bil Bergen",
+      name: "LYX Bilpleie Bergen",
       org_number: "987654321",
       plan: "paid",
       is_active: true,
@@ -109,7 +109,7 @@ const MOCK_DATA: CEODashboardData = {
       location_id: "loc-1",
       location_name: "Hovedlokalet Oslo",
       org_id: "org-1",
-      org_name: "LYX Bil Oslo",
+      org_name: "LYX Bilpleie Oslo",
       booking_slots_available: 40,
       booking_slots_used: 35,
       utilization_percentage: 87.5,
@@ -122,7 +122,7 @@ const MOCK_DATA: CEODashboardData = {
       location_id: "loc-2",
       location_name: "Bergen Sentrum",
       org_id: "org-2",
-      org_name: "LYX Bil Bergen",
+      org_name: "LYX Bilpleie Bergen",
       booking_slots_available: 32,
       booking_slots_used: 24,
       utilization_percentage: 75,
@@ -136,7 +136,7 @@ const MOCK_DATA: CEODashboardData = {
   marketing_metrics: [
     {
       org_id: "org-1",
-      org_name: "LYX Bil Oslo",
+      org_name: "LYX Bilpleie Oslo",
       total_spend: 45000,
       spend_this_month: 8500,
       leads_count: 320,
@@ -148,7 +148,7 @@ const MOCK_DATA: CEODashboardData = {
     },
     {
       org_id: "org-2",
-      org_name: "LYX Bil Bergen",
+      org_name: "LYX Bilpleie Bergen",
       total_spend: 32000,
       spend_this_month: 6200,
       leads_count: 210,
@@ -166,9 +166,9 @@ const MOCK_DATA: CEODashboardData = {
       type: "warning",
       category: "capacity",
       title: "Dekkhotell nesten fullt",
-      message: "Dekkhotellet på LYX Bil Oslo er 84% fullt. Vurder å utvide kapasiteten eller kontakte kunder med gamle dekk.",
+      message: "Dekkhotellet på LYX Bilpleie Oslo er 84% fullt. Vurder å utvide kapasiteten eller kontakte kunder med gamle dekk.",
       org_id: "org-1",
-      org_name: "LYX Bil Oslo",
+      org_name: "LYX Bilpleie Oslo",
       location_id: "loc-1",
       location_name: "Hovedlokalet Oslo",
       value: 84,

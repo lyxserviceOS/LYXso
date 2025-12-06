@@ -317,7 +317,7 @@ export default function BliPartnerPageClient() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-50 outline-none focus:border-blue-500"
-              placeholder="F.eks. LYX Bilpleie, 923 456 789 …"
+              placeholder="F.eks. LYX Bilpleiepleie, 923 456 789 …"
             />
             {searching && (
               <span className="absolute right-3 top-2.5 text-[11px] text-slate-400">
@@ -380,7 +380,7 @@ export default function BliPartnerPageClient() {
                 value={form.companyName}
                 onChange={(e) => updateForm("companyName", e.target.value)}
                 className="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-50 outline-none focus:border-blue-500"
-                placeholder="LYX Bilpleie Økern"
+                placeholder="LYX Bilpleiepleie Økern"
               />
             </div>
           </div>

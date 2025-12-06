@@ -343,7 +343,7 @@ export default async function HomePage() {
             <div className="flex-1">
               <h2 className="text-2xl font-bold mb-4">Bygd i verkstedet – ikke på et møterom</h2>
               <p className="text-slate-300 leading-relaxed">
-                LYXso er utviklet sammen med LYX Bil i Oslo og andre bilbedrifter som trengte mer enn bare en kalender. Resultatet er et system som forstår hverdagen din: lange behandlinger, dekkhotell, sesongtopper, coating-oppfølging og kunder som vil ha rask respons.
+                LYXso er utviklet sammen med LYX Bilpleiepleie i Oslo og andre bilbedrifter som trengte mer enn bare en kalender. Resultatet er et system som forstår hverdagen din: lange behandlinger, dekkhotell, sesongtopper, coating-oppfølging og kunder som vil ha rask respons.
               </p>
             </div>
           </div>
@@ -860,7 +860,7 @@ export default async function HomePage() {
                   LB
                 </div>
                 <div>
-                  <p className="font-semibold text-slate-200">LYX Bil</p>
+                  <p className="font-semibold text-slate-200">LYX Bilpleiepleie</p>
                   <p className="text-xs text-slate-400">Oslo - Bilpleie & detailing</p>
                 </div>
               </div>

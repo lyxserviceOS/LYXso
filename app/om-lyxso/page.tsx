@@ -24,7 +24,7 @@ export default function OmLyxsoPage() {
               LYXso startet ikke som et tech-prosjekt. Det startet med en frustrasjon: hvorfor finnes det ingen systemer som faktisk forstår hverdagen til bilpleie-bedrifter?
             </p>
             <p>
-              Mens LYX Bil vokste i Oslo, ble det tydelig at eksisterende bookingsystemer og CRM-løsninger ikke var bygd for langvarige behandlinger, coating-oppfølging over flere år, dekkhotell med hundrevis av dekksett, eller kunder som vil ha rask respons på kveldstid.
+              Mens LYX Bilpleiepleie vokste i Oslo, ble det tydelig at eksisterende bookingsystemer og CRM-løsninger ikke var bygd for langvarige behandlinger, coating-oppfølging over flere år, dekkhotell med hundrevis av dekksett, eller kunder som vil ha rask respons på kveldstid.
             </p>
             <p>
               Så vi bestemte oss for å bygge løsningen selv – ikke som et produkt for å selge, men som et verktøy vi faktisk ville bruke hver dag.

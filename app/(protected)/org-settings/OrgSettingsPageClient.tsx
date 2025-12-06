@@ -852,7 +852,7 @@ export default function OrgSettingsPageClient() {
               value={companyInfo.name}
               onChange={(e) => setCompanyInfo(prev => ({ ...prev, name: e.target.value }))}
               className="w-full border border-slate-700 rounded bg-slate-900 px-3 py-2 text-sm text-slate-100"
-              placeholder="F.eks. LYX Bil AS"
+              placeholder="F.eks. LYX Bilpleie AS"
             />
           </div>
 

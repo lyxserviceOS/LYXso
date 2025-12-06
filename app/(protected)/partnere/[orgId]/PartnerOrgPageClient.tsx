@@ -233,7 +233,7 @@ export default function PartnerOrgPageClient() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm text-slate-50 outline-none focus:border-blue-500"
-                  placeholder="F.eks. LYX Bilpleie AS"
+                  placeholder="F.eks. LYX Bilpleiepleie AS"
                 />
               </div>
 

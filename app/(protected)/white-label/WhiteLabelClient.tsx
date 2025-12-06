@@ -26,9 +26,9 @@ const DEFAULT_CONFIG: WhiteLabelConfig = {
   heading_font_family: "Inter",
   
   email_logo_url: null,
-  email_from_name: "LYX Bil",
+  email_from_name: "LYX Bilpleie",
   email_from_address: "booking@lyxbil.no",
-  email_footer_text: "LYX Bil AS | Org.nr: 123456789",
+  email_footer_text: "LYX Bilpleie AS | Org.nr: 123456789",
   
   sms_sender_name: "LYXBil",
   
@@ -37,7 +37,7 @@ const DEFAULT_CONFIG: WhiteLabelConfig = {
     instagram: "https://instagram.com/lyxbil",
   },
   
-  footer_company_name: "LYX Bil AS",
+  footer_company_name: "LYX Bilpleie AS",
   footer_address: "Industrigata 1, 0181 Oslo",
   footer_links: [
     { label: "Personvern", url: "/personvern" },

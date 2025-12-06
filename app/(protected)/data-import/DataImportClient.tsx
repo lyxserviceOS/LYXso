@@ -223,7 +223,7 @@ export default function DataImportClient() {
         <div className="flex items-start gap-3">
           <span className="text-xl">🧪</span>
           <div>
-            <h3 className="font-semibold text-amber-900">Pilot-fase: LYX Bil som testlokasjon</h3>
+            <h3 className="font-semibold text-amber-900">Pilot-fase: LYX Bilpleie som testlokasjon</h3>
             <p className="text-sm text-amber-700 mt-1">
               Denne modulen brukes til å importere ekte data fra din virksomhet til LYXso.
               Før du slipper inn andre partnere, bruker du ditt eget selskap som &quot;laboratorium&quot; 
