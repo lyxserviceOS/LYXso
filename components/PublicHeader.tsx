@@ -59,6 +59,9 @@ export default function PublicHeader() {
   const navLinks = [
     { href: "/", label: "Hjem" },
     { href: "/om-lyxso", label: "Om LYXso" },
+    { href: "/priser", label: "Priser" },
+    { href: "/shop", label: "Nettbutikk" },
+    { href: "/demo", label: "Demo" },
     { href: "/kontakt", label: "Kontakt" },
   ];
 

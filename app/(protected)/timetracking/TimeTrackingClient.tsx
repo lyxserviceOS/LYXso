@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClient from '@/lib/supabase/client''
+import { createClient } from '@/lib/supabase/client'
 import { toast } from 'react-hot-toast'
 import { 
   Clock, 
@@ -327,8 +327,10 @@ export default function TimeTrackingClient() {
 
   if (loading) {
     return (
-      <div className="p-6">
-        <LoadingSkeleton type="card" count={3} />
+      <div className="p-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <LoadingSkeleton rows={3} />
+        <LoadingSkeleton rows={3} />
+        <LoadingSkeleton rows={3} />
       </div>
     )
   }

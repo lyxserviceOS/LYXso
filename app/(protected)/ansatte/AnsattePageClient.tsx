@@ -16,6 +16,7 @@ type Employee = {
   phone: string | null;
   role: string | null;
   isActive: boolean;
+  deletedAt?: string | null;
 };
 
 type ApiError = string | null;
@@ -24,6 +25,7 @@ export default function AnsattePageClient() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<ApiError>(null);
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [viewMode, setViewMode] = useState<'active' | 'inactive' | 'deleted'>('active');
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [name, setName] = useState("");
@@ -34,6 +36,7 @@ export default function AnsattePageClient() {
 
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [archivingId, setArchivingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!ORG_ID) {
@@ -166,10 +169,10 @@ export default function AnsattePageClient() {
 
   async function handleDelete(id: string) {
     if (!ORG_ID) return;
-    if (!window.confirm("Slette denne ansatte?")) return;
+    if (!window.confirm("Arkivere denne ansatte? (De vil flyttes til 'Inaktive' og kan gjenopprettes senere)")) return;
 
     try {
-      setDeletingId(id);
+      setArchivingId(id);
       setError(null);
 
       const res = await fetch(
@@ -184,17 +187,61 @@ export default function AnsattePageClient() {
       if (!res.ok && res.status !== 204) {
         const text = await res.text();
         throw new Error(
-          `Klarte ikke å slette ansatt (${res.status}): ${text}`,
+          `Klarte ikke å arkivere ansatt (${res.status}): ${text}`,
         );
       }
 
-      setEmployees((prev) => prev.filter((e) => e.id !== id));
+      // Oppdater lokal state: marker som inaktiv
+      setEmployees((prev) => 
+        prev.map(e => e.id === id ? { ...e, isActive: false } : e)
+      );
+      
       if (editingId === id) {
         resetForm();
       }
     } catch (err: any) {
-      console.error("Feil ved sletting av ansatt:", err);
-      setError(err?.message ?? "Feil ved sletting av ansatt.");
+      console.error("Feil ved arkivering av ansatt:", err);
+      setError(err?.message ?? "Feil ved arkivering av ansatt.");
+    } finally {
+      setArchivingId(null);
+    }
+  }
+
+  async function handlePermanentDelete(id: string) {
+    if (!ORG_ID) return;
+    if (!window.confirm("⚠️ PERMANENT SLETTING\n\nVil du PERMANENT slette denne ansatte?\n\nDette kan IKKE angres, men historikk og bookinger beholdes.\n\nAnbefaling: Bruk 'Arkiver' i stedet.")) return;
+
+    try {
+      setDeletingId(id);
+      setError(null);
+
+      const res = await fetch(
+        `${API_BASE_URL}/api/orgs/${encodeURIComponent(
+          ORG_ID,
+        )}/employees/${encodeURIComponent(id)}/permanent`,
+        {
+          method: "DELETE",
+        },
+      );
+
+      if (!res.ok && res.status !== 204) {
+        const text = await res.text();
+        throw new Error(
+          `Klarte ikke å slette permanent (${res.status}): ${text}`,
+        );
+      }
+
+      // Oppdater lokal state: sett deleted_at
+      setEmployees((prev) => 
+        prev.map(e => e.id === id ? { ...e, deletedAt: new Date().toISOString() } : e)
+      );
+      
+      if (editingId === id) {
+        resetForm();
+      }
+    } catch (err: any) {
+      console.error("Feil ved permanent sletting:", err);
+      setError(err?.message ?? "Feil ved permanent sletting.");
     } finally {
       setDeletingId(null);
     }
@@ -209,6 +256,17 @@ export default function AnsattePageClient() {
       </div>
     );
   }
+
+  // Filter ansatte basert på viewMode (2 kategorier: active og inactive/archived)
+  const filteredEmployees = employees.filter(e => {
+    if (viewMode === 'active') return e.isActive;
+    if (viewMode === 'inactive') return !e.isActive; // Inkluderer både inaktive og slettede
+    if (viewMode === 'deleted') return !e.isActive && !!e.deletedAt;
+    return false;
+  });
+
+  const activeCount = employees.filter(e => e.isActive).length;
+  const inactiveCount = employees.filter(e => !e.isActive).length; // Alle inaktive (arkiverte)
 
   return (
     <div className="h-full w-full overflow-y-auto bg-slate-50 px-6 py-6">
@@ -225,6 +283,40 @@ export default function AnsattePageClient() {
               Denne listen brukes for kapasitet, kalender og senere
               tilgangsstyring.
             </p>
+          </div>
+          
+          {/* Filter toggle buttons - 3 kategorier */}
+          <div className="flex gap-2">
+            <button
+              onClick={() => setViewMode('active')}
+              className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                viewMode === 'active'
+                  ? "bg-green-600 text-white shadow-sm"
+                  : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-50"
+              }`}
+            >
+              ✅ Aktive ({activeCount})
+            </button>
+            <button
+              onClick={() => setViewMode('inactive')}
+              className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                viewMode === 'inactive'
+                  ? "bg-orange-600 text-white shadow-sm"
+                  : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-50"
+              }`}
+            >
+              ⏸️ Inaktive ({inactiveCount})
+            </button>
+            <button
+              onClick={() => setViewMode('deleted')}
+              className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                viewMode === 'deleted'
+                  ? "bg-red-600 text-white shadow-sm"
+                  : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-50"
+              }`}
+            >
+              🗑️ Slettet ({deletedCount})
+            </button>
           </div>
         </header>
 
@@ -348,15 +440,21 @@ export default function AnsattePageClient() {
           {/* Liste */}
           <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
             <h2 className="text-sm font-semibold text-slate-900">
-              Eksisterende ansatte
+              {viewMode === 'active' && "Aktive ansatte"}
+              {viewMode === 'inactive' && "Inaktive ansatte"}
+              {viewMode === 'deleted' && "Permanent slettede ansatte"}
             </h2>
             <p className="mt-1 text-xs text-slate-500">
-              Denne listen knyttes senere mot kapasitet, kalender og rettigheter.
+              {viewMode === 'active' && "Ansatte som er aktive i systemet."}
+              {viewMode === 'inactive' && "Ansatte som er deaktivert, men kan reaktiveres."}
+              {viewMode === 'deleted' && "Ansatte som er permanent slettet. Historikk og bookinger beholdes."}
             </p>
 
-            {employees.length === 0 ? (
+            {filteredEmployees.length === 0 ? (
               <div className="mt-3 rounded-md border border-dashed border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-500">
-                Ingen ansatte registrert ennå.
+                {viewMode === 'active' && "Ingen aktive ansatte registrert ennå."}
+                {viewMode === 'inactive' && "Ingen inaktive ansatte."}
+                {viewMode === 'deleted' && "Ingen permanent slettede ansatte."}
               </div>
             ) : (
               <div className="mt-3 overflow-hidden rounded-md border border-slate-200">
@@ -371,7 +469,7 @@ export default function AnsattePageClient() {
                     </tr>
                   </thead>
                   <tbody>
-                    {employees.map((emp) => (
+                    {filteredEmployees.map((emp) => (
                       <tr
                         key={emp.id}
                         className="border-t border-slate-200 bg-white hover:bg-slate-50"
@@ -407,21 +505,55 @@ export default function AnsattePageClient() {
                         <td className="px-3 py-2 align-top text-right text-[11px]">
                           <button
                             type="button"
+                            onClick={() => window.open(`/ansatte/${emp.id}`, '_blank')}
+                            className="mr-2 text-indigo-600 hover:text-indigo-800"
+                            title="Vis ansattkort"
+                          >
+                            🪪 Kort
+                          </button>
+                          <button
+                            type="button"
                             onClick={() => startEdit(emp)}
                             className="mr-2 text-blue-600 hover:text-blue-800"
                           >
                             Rediger
                           </button>
-                          <button
-                            type="button"
-                            onClick={() => handleDelete(emp.id)}
-                            disabled={deletingId === emp.id}
-                            className="text-red-600 hover:text-red-800 disabled:opacity-60"
-                          >
-                            {deletingId === emp.id
-                              ? "Sletter…"
-                              : "Slett"}
-                          </button>
+                          
+                          {/* Aktive: Kan arkiveres (bli inaktiv) */}
+                          {viewMode === 'active' && (
+                            <button
+                              type="button"
+                              onClick={() => handleDelete(emp.id)}
+                              disabled={archivingId === emp.id}
+                              className="text-orange-600 hover:text-orange-800 disabled:opacity-60"
+                            >
+                              {archivingId === emp.id
+                                ? "Deaktiverer…"
+                                : "Deaktiver"}
+                            </button>
+                          )}
+                          
+                          {/* Inaktive: Kan slettes permanent */}
+                          {viewMode === 'inactive' && (
+                            <button
+                              type="button"
+                              onClick={() => handlePermanentDelete(emp.id)}
+                              disabled={deletingId === emp.id}
+                              className="text-red-600 hover:text-red-800 disabled:opacity-60"
+                              title="⚠️ Permanent sletting - kan ikke angres"
+                            >
+                              {deletingId === emp.id
+                                ? "Sletter…"
+                                : "🗑️ Slett permanent"}
+                            </button>
+                          )}
+                          
+                          {/* Slettet: Ingen handlinger */}
+                          {viewMode === 'deleted' && (
+                            <span className="text-slate-400 text-xs">
+                              Permanent slettet
+                            </span>
+                          )}
                         </td>
                       </tr>
                     ))}

@@ -3,8 +3,12 @@
 import React, { useState } from "react";
 import { useOrgPlan } from "@/components/OrgPlanContext";
 import { PARTNER_DEFINITIONS, type ProductCategory } from "@/types/product";
+import SupplierKeysManager from "./components/SupplierKeysManager";
+import ProductList from "./components/ProductList";
+import OrderList from "./components/OrderList";
+import VisibilityRulesManager from "./components/VisibilityRulesManager";
 
-type TabKey = "oversikt" | "egne-produkter" | "partnere" | "ordrer" | "innstillinger";
+type TabKey = "oversikt" | "egne-produkter" | "partnere" | "ordrer" | "innstillinger" | "leverandorer";
 
 const CATEGORIES: { code: ProductCategory; label: string }[] = [
   { code: "dekk", label: "Dekk" },
@@ -69,6 +73,7 @@ export default function NettbutikkPageClient() {
           { key: "oversikt", label: "Oversikt" },
           { key: "egne-produkter", label: "Egne produkter" },
           { key: "partnere", label: "Partnerprodukter" },
+          { key: "leverandorer", label: "Leverandører" },
           { key: "ordrer", label: "Ordrer" },
           { key: "innstillinger", label: "Innstillinger" },
         ].map((tab) => (
@@ -125,36 +130,7 @@ export default function NettbutikkPageClient() {
       )}
 
       {/* Egne produkter Tab */}
-      {activeTab === "egne-produkter" && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-sm font-semibold text-slate-100">
-                Egne produkter
-              </h2>
-              <p className="text-xs text-slate-400">
-                Produkter du selger fra eget lager
-              </p>
-            </div>
-            <button
-              type="button"
-              className="rounded-lg bg-blue-600 px-4 py-2 text-xs font-medium text-white hover:bg-blue-700"
-            >
-              + Legg til produkt
-            </button>
-          </div>
-
-          {/* Empty state */}
-          <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-8 text-center">
-            <p className="text-sm text-slate-400">
-              Du har ingen egne produkter ennå.
-            </p>
-            <p className="mt-1 text-xs text-slate-500">
-              Klikk &quot;Legg til produkt&quot; for å legge til ditt første produkt.
-            </p>
-          </div>
-        </div>
-      )}
+      {activeTab === "egne-produkter" && <ProductList />}
 
       {/* Partnerprodukter Tab */}
       {activeTab === "partnere" && (
@@ -211,28 +187,19 @@ export default function NettbutikkPageClient() {
         </div>
       )}
 
-      {/* Ordrer Tab */}
-      {activeTab === "ordrer" && (
-        <div className="space-y-4">
-          <div>
-            <h2 className="text-sm font-semibold text-slate-100">Ordrer</h2>
-            <p className="text-xs text-slate-400">
-              Oversikt over kundeordrer fra nettbutikken
-            </p>
-          </div>
-
-          {/* Empty state */}
-          <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-8 text-center">
-            <p className="text-sm text-slate-400">Ingen ordrer ennå.</p>
-            <p className="mt-1 text-xs text-slate-500">
-              Ordrer vil vises her når kunder handler i nettbutikken din.
-            </p>
-          </div>
-        </div>
+      {/* Leverandører Tab */}
+      {activeTab === "leverandorer" && (
+        <SupplierKeysManager />
       )}
 
+      {/* Ordrer Tab */}
+      {activeTab === "ordrer" && <OrderList />}
+
       {/* Innstillinger Tab */}
-      {activeTab === "innstillinger" && (
+      {activeTab === "innstillinger" && <VisibilityRulesManager />}
+
+      {/* Legacy settings - can be removed or merged into VisibilityRulesManager */}
+      {activeTab === "innstillinger_old" && (
         <div className="space-y-4">
           <div>
             <h2 className="text-sm font-semibold text-slate-100">

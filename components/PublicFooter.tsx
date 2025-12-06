@@ -44,7 +44,7 @@ export default function PublicFooter() {
                 </Link>
               </li>
               <li>
-                <Link href="/#priser" className="hover:text-slate-200 transition-colors">
+                <Link href="/priser" className="hover:text-slate-200 transition-colors">
                   Priser
                 </Link>
               </li>

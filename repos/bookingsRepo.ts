@@ -40,14 +40,21 @@ async function handleJsonResponse<T>(
   context: string,
 ): Promise<T> {
   if (!res.ok) {
-    const text = await res.text().catch(() => "");
+    let errorDetails = "";
+    try {
+      const json = await res.json();
+      errorDetails = json.error || json.details || JSON.stringify(json);
+    } catch {
+      errorDetails = await res.text().catch(() => "");
+    }
+    
     // eslint-disable-next-line no-console
     console.error(`[bookingsRepo] ${context} feilet`, {
       status: res.status,
       statusText: res.statusText,
-      body: text,
+      body: errorDetails,
     });
-    throw new Error(`Feil i ${context}: ${res.status} ${res.statusText}`);
+    throw new Error(`Feil i ${context}: ${res.status} - ${errorDetails || res.statusText}`);
   }
 
   return (await res.json()) as T;

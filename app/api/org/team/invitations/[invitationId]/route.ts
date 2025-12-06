@@ -9,10 +9,10 @@ const API_BASE_URL = getApiBaseUrl();
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: { invitationId: string } }
+  { params }: { params: Promise<{ invitationId: string }> }
 ) {
   try {
-    const { invitationId } = params;
+    const { invitationId } = await params;
     const searchParams = request.nextUrl.searchParams;
     const orgId = searchParams.get("orgId");
     const action = searchParams.get("action");
@@ -60,10 +60,10 @@ export async function POST(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { invitationId: string } }
+  { params }: { params: Promise<{ invitationId: string }> }
 ) {
   try {
-    const { invitationId } = params;
+    const { invitationId } = await params;
     const searchParams = request.nextUrl.searchParams;
     const orgId = searchParams.get("orgId");
 

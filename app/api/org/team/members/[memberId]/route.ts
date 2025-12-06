@@ -9,10 +9,10 @@ const API_BASE_URL = getApiBaseUrl();
  */
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { memberId: string } }
+  { params }: { params: Promise<{ memberId: string }> }
 ) {
   try {
-    const { memberId } = params;
+    const { memberId } = await params;
     const searchParams = request.nextUrl.searchParams;
     const orgId = searchParams.get("orgId");
     const body = await request.json();
@@ -57,10 +57,10 @@ export async function PUT(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { memberId: string } }
+  { params }: { params: Promise<{ memberId: string }> }
 ) {
   try {
-    const { memberId } = params;
+    const { memberId } = await params;
     const searchParams = request.nextUrl.searchParams;
     const orgId = searchParams.get("orgId");
 

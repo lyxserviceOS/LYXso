@@ -376,7 +376,7 @@ export default function ModulesControlClient() {
   const [hasChanges, setHasChanges] = useState(false)
   
   const supabase = createClient()
-  const { executeUpdate, isUpdating } = useOptimisticUpdate()
+  const { updateOptimistically, isUpdating } = useOptimisticUpdate<Module[]>([])
 
   const categories = ['Alle', ...Array.from(new Set(MODULE_DEFINITIONS.map(m => m.category)))]
 
@@ -420,7 +420,8 @@ export default function ModulesControlClient() {
   }
 
   async function saveModuleSettings() {
-    await executeUpdate(
+    await updateOptimistically(
+      modules,
       async () => {
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) throw new Error('Not authenticated')
@@ -444,12 +445,6 @@ export default function ModulesControlClient() {
           })
 
         if (error) throw error
-
-        return { success: true }
-      },
-      {
-        successMessage: 'Modulinnstillinger lagret!',
-        errorMessage: 'Kunne ikke lagre innstillinger'
       }
     )
     
@@ -488,8 +483,10 @@ export default function ModulesControlClient() {
 
   if (loading) {
     return (
-      <div className="p-6">
-        <LoadingSkeleton type="card" count={3} />
+      <div className="p-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <LoadingSkeleton rows={3} />
+        <LoadingSkeleton rows={3} />
+        <LoadingSkeleton rows={3} />
       </div>
     )
   }

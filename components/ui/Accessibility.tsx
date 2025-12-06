@@ -337,9 +337,9 @@ export function FormField({
       )}
 
       <div>
-        {React.cloneElement(children as React.ReactElement, {
+        {React.cloneElement(children as React.ReactElement<any>, {
           id,
-          'aria-invalid': error ? 'true' : 'false',
+          'aria-invalid': error ? true : false,
           'aria-describedby': [error && errorId, hint && hintId].filter(Boolean).join(' ') || undefined,
           'aria-required': required,
         })}

@@ -8,7 +8,7 @@ import { useState, useEffect } from 'react';
 import { Package, Plus, Search, Filter, AlertTriangle, TrendingDown, Barcode, Camera } from 'lucide-react';
 import { showToast } from '@/lib/toast';
 import LoadingSkeleton from '@/components/ui/LoadingSkeleton';
-import EmptyState from '@/components/ui/EmptyState';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface InventoryItem {
   id: string;
@@ -155,8 +155,10 @@ export default function InventoryManager() {
         <EmptyState
           title="Ingen varer funnet"
           description="Legg til din første vare for å komme i gang"
-          actionLabel="Legg til vare"
-          onAction={() => showToast.info('Opprett-funksjon kommer snart')}
+          action={{
+            label: "Legg til vare",
+            onClick: () => showToast.info('Opprett-funksjon kommer snart')
+          }}
         />
       ) : (
         <div className="bg-white rounded-xl shadow-sm overflow-hidden">

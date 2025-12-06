@@ -8,7 +8,7 @@ import { useState, useEffect } from 'react';
 import { Plus, Search, QrCode, Calendar, AlertCircle, Camera } from 'lucide-react';
 import { showToast } from '@/lib/toast';
 import LoadingSkeleton from '@/components/ui/LoadingSkeleton';
-import EmptyState from '@/components/ui/EmptyState';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface TireSet {
   id: string;
@@ -152,8 +152,10 @@ export default function TireHotelManager() {
         <EmptyState
           title="Ingen dekksett lagret"
           description="Registrer ditt første dekksett for å komme i gang"
-          actionLabel="Lagre dekk"
-          onAction={() => showToast.info('Opprett-funksjon kommer snart')}
+          action={{
+            label: "Lagre dekk",
+            onClick: () => showToast.info('Opprett-funksjon kommer snart')
+          }}
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

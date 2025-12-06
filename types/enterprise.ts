@@ -100,7 +100,7 @@ export interface CompanyModule {
   is_enabled: boolean;
   enabled_at: string;
   disabled_at?: string;
-  configuration: Record<string, any>;
+  configuration: Record<string, string | number | boolean>;
   usage_stats: {
     activations: number;
     last_used?: string;
@@ -121,8 +121,8 @@ export interface IndustryType {
   description?: string;
   icon?: string;
   default_modules: string[];
-  workflow_template?: Record<string, any>;
-  service_categories?: Record<string, any>;
+  workflow_template?: Record<string, string | number | boolean>;
+  service_categories?: Record<string, string[]>;
   created_at: string;
 }
 
@@ -161,7 +161,7 @@ export interface CompanySupplierConfig {
   company_id: string;
   supplier_id: string;
   is_enabled: boolean;
-  api_credentials?: Record<string, any>;
+  api_credentials?: Record<string, string>;
   is_favorite: boolean;
   auto_order_enabled: boolean;
   discount_percentage: number;
@@ -186,7 +186,7 @@ export interface SupplierPriceCache {
   estimated_delivery_days?: number;
   cached_at: string;
   expires_at: string;
-  raw_response?: Record<string, any>;
+  raw_response?: Record<string, unknown>;
   created_at: string;
 }
 
@@ -284,7 +284,7 @@ export interface PricingStrategy {
   price_sensitivity: 'high' | 'medium' | 'low';
   competitor_pricing?: Record<string, number>;
   demand_multiplier: number;
-  seasonal_adjustments?: Record<string, any>;
+  seasonal_adjustments?: Record<string, number>;
   dynamic_pricing_enabled: boolean;
   min_price: number;
   max_price: number;
@@ -297,7 +297,7 @@ export interface PricingRule {
   company_id: string;
   rule_name: string;
   rule_type: 'geography' | 'time_based' | 'volume' | 'customer_segment' | 'demand';
-  conditions: Record<string, any>;
+  conditions: Record<string, string | number | boolean>;
   adjustment_type: 'percentage' | 'fixed_amount' | 'multiply';
   adjustment_value: number;
   priority: number;
@@ -350,7 +350,7 @@ export interface VehicleData {
     severity: 'low' | 'medium' | 'high';
     frequency: number;
   }>;
-  service_intervals?: Record<string, any>;
+  service_intervals?: Record<string, number>;
   compatible_parts?: Record<string, string[]>;
   fetched_from_api: boolean;
   last_api_check?: string;
@@ -435,7 +435,7 @@ export interface CoatingApplication {
   layers_applied: number;
   warranty_years?: number;
   warranty_expiry_date?: string;
-  paint_thickness_readings?: Record<string, any>;
+  paint_thickness_readings?: Record<string, number>;
   before_images?: string[];
   after_images?: string[];
   ai_coverage_analysis?: {
@@ -484,7 +484,7 @@ export interface PPFJob {
   film_brand?: string;
   film_type?: string;
   coverage_area: 'full_front' | 'full_wrap' | 'custom' | 'hood' | 'bumper';
-  coverage_details?: Record<string, any>;
+  coverage_details?: Record<string, string | number>;
   estimated_completion?: string;
   actual_completion?: string;
   quality_check_passed?: boolean;
@@ -534,7 +534,7 @@ export interface PaymentTransaction {
   paid_at?: string;
   refunded_at?: string;
   refund_amount?: number;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, string | number | boolean>;
   created_at: string;
   updated_at: string;
 }
@@ -624,7 +624,7 @@ export interface MarketProduct {
   price: number;
   currency: string;
   images?: string[];
-  specifications?: Record<string, any>;
+  specifications?: Record<string, string | number>;
   stock_quantity?: number;
   is_available: boolean;
   shipping_available: boolean;
@@ -656,14 +656,14 @@ export interface CompanyLocation {
   manager_id?: string;
   is_headquarter: boolean;
   timezone: string;
-  business_hours?: Record<string, any>;
+  business_hours?: Record<string, { open: string; close: string }>;
   location_code?: string;
   latitude?: number;
   longitude?: number;
   is_active: boolean;
   created_at: string;
   updated_at: string;
-  manager?: any; // Profile data
+  manager?: { id: string; email: string; full_name?: string }; // Profile data
 }
 
 export interface LocationEmployee {
@@ -688,7 +688,7 @@ export interface LocationPerformance {
   avg_booking_value: number;
   customer_satisfaction_score?: number;
   employee_count: number;
-  top_services?: Record<string, any>;
+  top_services?: Record<string, number>;
   created_at: string;
   location?: CompanyLocation;
 }

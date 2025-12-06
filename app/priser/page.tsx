@@ -3,6 +3,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { Analytics } from "@vercel/analytics/next";
 
 const packages = [
   {
@@ -245,15 +246,6 @@ export default function PricingPage() {
                         <span className="text-5xl font-bold text-slate-50">{pkg.price}</span>
                         <span className="text-slate-400">kr/mnd</span>
                       </div>
-                      {pkg.priceNote && (
-                        <p className="mt-1 text-sm text-slate-500">{pkg.priceNote}</p>
-                      )}
-                      {pkg.usagePricing && (
-                        <p className="mt-2 text-sm text-blue-400">{pkg.usagePricing}</p>
-                      )}
-                      {pkg.valueProposition && (
-                        <p className="mt-3 text-sm font-semibold text-emerald-400">{pkg.valueProposition}</p>
-                      )}
                     </div>
 
                     <Link

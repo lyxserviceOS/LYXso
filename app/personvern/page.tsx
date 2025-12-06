@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { 
   Shield, Lock, Eye, FileText, AlertTriangle, Home, Menu, X, 
   Database, Cloud, Users, Mail, Phone, MapPin, ExternalLink,
-  CheckCircle, XCircle, Download, Trash2, Edit, Info
+  CheckCircle, XCircle, Download, Trash2, Edit, Info, CreditCard
 } from 'lucide-react';
 
 export default function PersonvernPage() {
