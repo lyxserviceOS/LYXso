@@ -1,0 +1,31 @@
+# robots.txt for LYXso
+# https://www.lyxso.no/robots.txt
+
+# Allow all crawlers
+User-agent: *
+Allow: /
+
+# Disallow private/protected areas
+Disallow: /api/
+Disallow: /kontrollpanel/
+Disallow: /admin/
+Disallow: /ceo/
+Disallow: /min-side/
+Disallow: /onboarding/
+Disallow: /auth/
+Disallow: /(protected)/
+
+# Allow public pages
+Allow: /
+Allow: /priser
+Allow: /om-lyxso
+Allow: /kontakt
+Allow: /demo
+Allow: /demo-booking
+Allow: /enterprise
+Allow: /lyx-vision
+Allow: /personvern
+Allow: /bruksvilkar
+
+# Sitemap
+Sitemap: https://www.lyxso.no/sitemap.xml

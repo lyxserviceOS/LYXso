@@ -9,9 +9,73 @@ import { ToastProvider } from "@/lib/toast";
 import AnalyticsTracking from "@/components/Analytics";
 
 export const metadata: Metadata = {
-  title: "LYXso – ServiceOS for bilbransjen",
+  metadataBase: new URL('https://www.lyxso.no'),
+  title: {
+    default: "LYXso – ServiceOS for bilbransjen | Booking, Kalender & AI for Verksteder",
+    template: "%s | LYXso"
+  },
   description:
-    "LYXso samler booking, kalender, kundekort, markedsføring, regnskap og AI-oppfølging i én plattform – spesielt tilpasset bedrifter innen bilbransjen.",
+    "LYXso samler booking, kalender, kundekort, markedsføring, regnskap og AI-oppfølging i én plattform – spesielt tilpasset bedrifter innen bilbransjen. Norges moderne system for bilpleie, dekkhotell, PPF og verksteder.",
+  keywords: [
+    "bilbooking",
+    "verkstedsystem",
+    "dekkhotell system",
+    "bilpleie software",
+    "PPF booking",
+    "coating oppfølging",
+    "bilverksted kalender",
+    "kundestyring bil",
+    "norsk bilsystem",
+    "bilbransje programvare"
+  ],
+  authors: [{ name: "LYXso AS" }],
+  creator: "LYXso AS",
+  publisher: "LYXso AS",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  openGraph: {
+    type: "website",
+    locale: "nb_NO",
+    url: "https://www.lyxso.no",
+    siteName: "LYXso",
+    title: "LYXso – ServiceOS for bilbransjen",
+    description:
+      "Moderne system for booking, kalender, kundekort og AI-oppfølging. Bygget spesielt for bilpleie, dekkhotell, PPF og verksteder i Norge.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "LYXso - ServiceOS for bilbransjen",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "LYXso – ServiceOS for bilbransjen",
+    description:
+      "Moderne system for booking, kalender og AI-oppfølging. Bygget for bilpleie, dekkhotell, PPF og verksteder.",
+    images: ["/og-image.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  verification: {
+    // Add your verification codes here when available
+    // google: "your-google-verification-code",
+    // yandex: "your-yandex-verification-code",
+  },
 };
 
 export default function RootLayout({

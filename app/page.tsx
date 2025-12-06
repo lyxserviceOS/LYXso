@@ -4,6 +4,18 @@ import { Analytics } from "@vercel/analytics/next";
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { OrganizationSchema, SoftwareApplicationSchema, FAQSchema, ProductSchema } from '@/components/StructuredData';
+
+export const metadata = {
+  title: "LYXso – ServiceOS for bilbransjen | Booking, Kalender & AI",
+  description: "Moderne system for bilpleie, dekkhotell, PPF og verksteder. Få full kontroll på booking, kalender, kundekort, dekkhotell og AI-oppfølging. Gratis prøveperiode i 14 dager.",
+  keywords: ["bilbooking", "verkstedsystem", "dekkhotell", "bilpleie software", "PPF booking", "coating oppfølging"],
+  openGraph: {
+    title: "LYXso – ServiceOS for bilbransjen",
+    description: "Moderne system for bilpleie, dekkhotell, PPF og verksteder. Full kontroll på booking og oppfølging.",
+    type: "website",
+  },
+};
 
 export default async function HomePage() {
   // Sjekk om bruker er innlogget
@@ -40,6 +52,27 @@ export default async function HomePage() {
   return (
     <>
       <Analytics />
+      <OrganizationSchema />
+      <SoftwareApplicationSchema />
+      <ProductSchema />
+      <FAQSchema questions={[
+        {
+          question: "Hvor lang tid tar det å sette opp LYXso?",
+          answer: "De fleste bedrifter er oppe og går på under 10 minutter. Du registrerer deg, legger inn dine tjenester og åpningstider, og kan starte booking umiddelbart."
+        },
+        {
+          question: "Trenger jeg teknisk kompetanse for å bruke LYXso?",
+          answer: "Nei! LYXso er bygget for å være intuitivt og enkelt. Hvis du kan bruke Facebook eller Google Calendar, kan du bruke LYXso."
+        },
+        {
+          question: "Er mine data sikre hos dere?",
+          answer: "Absolutt. LYXso bruker samme sikkerhetsteknologi som banker (256-bit SSL-kryptering). All data lagres trygt i Europa, og vi er GDPR-kompatible."
+        },
+        {
+          question: "Kan jeg kansellere når som helst?",
+          answer: "Ja! Det er ingen bindingstid på LYXso. Du kan kansellere abonnementet når som helst med umiddelbar effekt."
+        }
+      ]} />
       <div className="min-h-screen bg-slate-950 text-slate-50">
         <main className="mx-auto max-w-7xl space-y-20 px-4 py-12 lg:px-8 lg:py-16">
           
