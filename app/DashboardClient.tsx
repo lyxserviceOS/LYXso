@@ -192,6 +192,8 @@ export default function DashboardClient() {
           isRecurring: (item.is_recurring as boolean) || false,
           recurrenceRule: (item.recurrence_rule as string) || null,
           parentBookingId: (item.parent_booking_id as string) || null,
+          seriesId: (item.series_id as string) || null,
+          seriesIndex: (item.series_index as number) || null,
           createdAt: (item.created_at as string) || null,
           updatedAt: (item.updated_at as string) || null,
           confirmedAt: (item.confirmed_at as string) || null,

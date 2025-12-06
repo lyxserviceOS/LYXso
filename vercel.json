@@ -1,7 +1,27 @@
 {
+  "version": 2,
   "buildCommand": "npm run build",
   "devCommand": "npm run dev",
   "installCommand": "npm install",
   "framework": "nextjs",
+  "env": {
+    "NEXT_PUBLIC_SUPABASE_URL": "@supabase_url",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "@supabase_anon_key",
+    "NEXT_PUBLIC_ORG_ID": "@org_id",
+    "NEXT_PUBLIC_API_BASE": "@api_base",
+    "NEXT_PUBLIC_ADMIN_EMAIL": "@admin_email",
+    "NEXT_PUBLIC_RECAPTCHA_SITE_KEY": "@recaptcha_site_key",
+    "NEXT_PUBLIC_SENTRY_DSN": "@sentry_dsn"
+  },
+  "build": {
+    "env": {
+      "NEXT_TELEMETRY_DISABLED": "1"
+    }
+  },
+  "functions": {
+    "app/api/**/*.ts": {
+      "maxDuration": 30
+    }
+  }
   "outputDirectory": ".next"
 }

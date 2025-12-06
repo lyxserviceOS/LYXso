@@ -1,0 +1,10 @@
+.env*
+.git
+node_modules
+.next
+*.log
+*.md
+!README.md
+repos
+test-*.ts
+quick-fix.ps1

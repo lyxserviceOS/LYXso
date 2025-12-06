@@ -3,10 +3,18 @@
 
 import { useEffect, useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import type { Industry, ModuleCode } from "@/types/industry";
 import { INDUSTRIES, ORG_MODULES, getRecommendedModules, DEFAULT_MODULES } from "@/types/industry";
 import { getApiBaseUrl } from "@/lib/apiConfig";
 
+// Dynamic import MapSelector to avoid SSR issues with Leaflet
+const MapSelector = dynamic(() => import("@/components/onboarding/MapSelector"), {
+  ssr: false,
+  loading: () => <div className="h-96 bg-slate-800 rounded-lg animate-pulse" />
+});
+
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
 const API_BASE = getApiBaseUrl();
 const ORG_ID = process.env.NEXT_PUBLIC_ORG_ID;
 
@@ -25,6 +33,10 @@ type FormState = {
   // Tjenestetype (work mode)
   hasFixedLocation: boolean;
   isMobile: boolean;
+  // Location metadata
+  latitude: number | null;
+  longitude: number | null;
+  locationConfirmed: boolean;
 
   // Steg 2 – bransjevalg (flervalg)
   industries: Industry[];
@@ -69,6 +81,9 @@ export default function OnboardingPageClient() {
     city: "",
     hasFixedLocation: true,
     isMobile: false,
+    latitude: null,
+    longitude: null,
+    locationConfirmed: false,
     // Bransje
     industries: [],
     // Moduler
@@ -313,6 +328,12 @@ export default function OnboardingPageClient() {
         addressLine1: form.addressLine1,
         postcode: form.postcode,
         city: form.city,
+        // Location metadata
+        locationMetadata: form.latitude && form.longitude ? {
+          lat: form.latitude,
+          lng: form.longitude,
+          confirmed: form.locationConfirmed
+        } : null,
         // Work mode
         hasFixedLocation: form.hasFixedLocation,
         isMobile: form.isMobile,
@@ -569,6 +590,30 @@ export default function OnboardingPageClient() {
                   />
                 </div>
               </div>
+
+              {/* Map Selector - show if hasFixedLocation is checked */}
+              {form.hasFixedLocation && (
+                <div className="mt-6 border-t border-slate-800 pt-6">
+                  <h3 className="text-sm font-semibold text-slate-100 mb-4">
+                    Plasser bedriften din på kartet
+                  </h3>
+                  <MapSelector
+                    address={form.addressLine1}
+                    city={form.city}
+                    postcode={form.postcode}
+                    initialLat={form.latitude || 59.9139}
+                    initialLng={form.longitude || 10.7522}
+                    onLocationSelected={(lat, lng, confirmed) => {
+                      setForm(prev => ({
+                        ...prev,
+                        latitude: lat,
+                        longitude: lng,
+                        locationConfirmed: confirmed
+                      }));
+                    }}
+                  />
+                </div>
+              )}
 
               {/* Tjenestetype: Fast adresse, mobil, eller begge */}
               <div className="mt-4 border-t border-slate-800 pt-4">

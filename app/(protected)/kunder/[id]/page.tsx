@@ -13,6 +13,8 @@ import {
 import type { Booking } from "@/types/booking";
 import AddNoteButton from "./AddNoteButton";
 import CustomerAISummary from "./CustomerAISummary";
+import VehicleSection from "./VehicleSection";
+import { TagSection, GDPRSection } from "./ClientSections";
 import type { CustomerContext } from "@/repos/aiAssistantRepo";
 
 type PageProps = {
@@ -356,6 +358,17 @@ export default async function CustomerDetailPage({ params }: PageProps) {
 
           {/* RIGHT COLUMN */}
           <div className="space-y-6">
+            {/* KJØRETØY */}
+            <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-slate-900">
+                  Kjøretøy
+                </h2>
+              </div>
+              
+              <VehicleSection customerId={customerId} />
+            </section>
+
             {/* KUNDEDETALJER */}
             <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
               <h2 className="mb-4 text-lg font-semibold text-slate-900">
@@ -394,6 +407,20 @@ export default async function CustomerDetailPage({ params }: PageProps) {
                 )}
               </dl>
             </section>
+
+            {/* TAGS */}
+            <TagSection customerId={customerId} />
+
+            {/* GDPR & PERSONVERN */}
+            <GDPRSection
+              customerId={customerId}
+              customerEmail={customer.email || ""}
+              consents={{
+                marketing: false,
+                data_processing: true,
+                updated_at: customer.createdAt || "",
+              }}
+            />
 
             {/* BETALINGSOVERSIKT */}
             <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">

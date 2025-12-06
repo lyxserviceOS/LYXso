@@ -61,6 +61,8 @@ export interface Booking {
   isRecurring: boolean;
   recurrenceRule: string | null;
   parentBookingId: string | null;
+  seriesId: string | null;
+  seriesIndex: number | null;
 
   // Timestamps
   createdAt: string | null;

@@ -17,6 +17,8 @@ import type {
 } from "@/types/booking";
 import type { Location, Resource, ResourceType } from "@/types/location";
 import { WeekCalendar } from "./components/WeekCalendar";
+import { BookingModal, type BookingFormData } from "@/components/booking/BookingModal";
+import { BookingDetailPanel } from "@/components/booking/BookingDetailPanel";
 
 const STATUS_LABELS: Record<BookingStatus, string> = {
   pending: "Venter",
@@ -621,6 +623,8 @@ export default function BookingPageClient() {
   const [customers, setCustomers] = useState<BookingCustomerSummary[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   
+  const [locations] = useState<Location[]>(MOCK_LOCATIONS);
+  const [resources] = useState<Resource[]>(MOCK_RESOURCES);
   // Module 18: Locations and Resources
   const [locations, setLocations] = useState<Location[]>([]);
   const [resources, setResources] = useState<Resource[]>([]);
@@ -642,10 +646,12 @@ export default function BookingPageClient() {
     null,
   );
 
-  const [viewMode, setViewMode] = useState<ViewMode>("list");
+  const [viewMode, setViewMode] = useState<ViewMode>("week");
   
-  // Location management modal
   const [showLocationModal, setShowLocationModal] = useState(false);
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [editingBooking, setEditingBooking] = useState<Booking | null>(null);
+  
   
   // Location/Resource edit modals
   const [showEditLocationModal, setShowEditLocationModal] = useState(false);
@@ -667,10 +673,9 @@ export default function BookingPageClient() {
   // Status-oppdatering på valgt booking
   const [updatingStatus, setUpdatingStatus] = useState(false);
   
-  // Filter resources based on selected location
   const filteredResources = useMemo(() => {
     if (selectedLocationId === "all") return resources;
-    return resources.filter(r => r.location_id === selectedLocationId);
+    return resources.filter(r => r.location_id === selectedLocationId && r.is_active);
   }, [resources, selectedLocationId]);
 
   // -----------------------------
@@ -915,93 +920,57 @@ export default function BookingPageClient() {
 
   // Åpne modal for ny booking
   function handleOpenNewBooking() {
-    setNewForm(EMPTY_NEW_BOOKING);
-    setNewError(null);
-    setShowNewModal(true);
+    setEditingBooking(null);
+    setShowBookingModal(true);
+  }
+  
+  // Åpne modal for å redigere booking
+  function handleEditBooking(booking: Booking) {
+    setEditingBooking(booking);
+    setShowBookingModal(true);
   }
 
   // Lukke modal
-  function handleCloseNewBooking() {
-    if (savingNew) return;
-    setShowNewModal(false);
-  }
-
-  // Når man velger en kunde fra listen → sett både id og navn
-  function handleChangeCustomerSelect(value: string) {
-    if (value === "none") {
-      setNewForm((prev) => ({
-        ...prev,
-        customerId: "none",
-        customerName: prev.customerName,
-      }));
-      return;
-    }
-    const selected = customers.find((c) => c.id === value);
-    setNewForm((prev) => ({
-      ...prev,
-      customerId: value,
-      customerName: selected?.name ?? prev.customerName,
-    }));
+  function handleCloseBookingModal() {
+    setShowBookingModal(false);
+    setEditingBooking(null);
   }
 
   // -----------------------------
-  // Lagre ny booking
+  // Lagre booking (ny eller rediger)
   // -----------------------------
-  async function handleSubmitNewBooking(e: React.FormEvent) {
-    e.preventDefault();
-    setNewError(null);
-
-    const trimmedCustomerName = newForm.customerName.trim();
-    const trimmedServiceName = newForm.serviceName.trim();
-
-    if (!trimmedCustomerName) {
-      setNewError("Kundenavn må fylles ut.");
-      return;
-    }
-    if (!trimmedServiceName) {
-      setNewError("Tjenestenavn må fylles ut.");
-      return;
-    }
-    if (!newForm.startTime) {
-      setNewError("Starttid må fylles ut.");
-      return;
-    }
-    if (!newForm.endTime) {
-      setNewError("Sluttid må fylles ut.");
-      return;
-    }
-
-    setSavingNew(true);
+  async function handleSaveBooking(data: BookingFormData) {
     try {
       const payload: any = {
-        customerName: trimmedCustomerName,
-        serviceName: trimmedServiceName,
-        startTime: newForm.startTime,
-        endTime: newForm.endTime,
-        status: newForm.status,
+        customerName: data.customerName,
+        serviceName: data.serviceName,
+        startTime: data.startTime,
+        endTime: data.endTime,
+        status: data.status,
+        notes: data.notes || "",
       };
 
-      if (newForm.employeeId !== "none") {
-        payload.employeeId = newForm.employeeId;
+      if (data.employeeId !== "none") {
+        payload.employeeId = data.employeeId;
       }
-      if (newForm.customerId !== "none") {
-        payload.customerId = newForm.customerId;
-      }
-      if (newForm.notes.trim()) {
-        payload.notes = newForm.notes.trim();
+      if (data.customerId !== "none" && data.customerId !== "new") {
+        payload.customerId = data.customerId;
       }
 
-      const { booking } = await createBooking(payload);
-
-      setBookings((prev) => [...prev, booking]);
-      setSelectedBookingId(booking.id);
-
-      setShowNewModal(false);
+      if (editingBooking) {
+        // Update existing booking
+        const { booking } = await updateBooking(editingBooking.id, payload);
+        setBookings((prev) => prev.map((b) => (b.id === booking.id ? booking : b)));
+        setSelectedBookingId(booking.id);
+      } else {
+        // Create new booking
+        const { booking } = await createBooking(payload);
+        setBookings((prev) => [...prev, booking]);
+        setSelectedBookingId(booking.id);
+      }
     } catch (err) {
-      console.error("[BookingPageClient] createBooking error", err);
-      setNewError("Kunne ikke opprette booking. Sjekk felt og prøv igjen.");
-    } finally {
-      setSavingNew(false);
+      console.error("[BookingPageClient] saveBooking error", err);
+      throw err; // Re-throw to let modal handle the error
     }
   }
 
@@ -1026,6 +995,50 @@ export default function BookingPageClient() {
       setError("Kunne ikke oppdatere status på booking.");
     } finally {
       setUpdatingStatus(false);
+    }
+  }
+
+  // -----------------------------
+  // Drag & Drop - flytte booking til ny tid
+  // -----------------------------
+  async function handleBookingDrop(bookingId: string, newStartTime: string, newResourceId?: string) {
+    setError(null);
+
+    try {
+      const booking = bookings.find(b => b.id === bookingId);
+      if (!booking || !booking.startTime || !booking.endTime) {
+        throw new Error("Booking not found or missing time data");
+      }
+
+      // Calculate new end time based on original duration
+      const originalStart = new Date(booking.startTime);
+      const originalEnd = new Date(booking.endTime);
+      const durationMs = originalEnd.getTime() - originalStart.getTime();
+      
+      const newStart = new Date(newStartTime);
+      const newEnd = new Date(newStart.getTime() + durationMs);
+
+      // Update booking via API
+      const { booking: updatedBooking } = await updateBooking(bookingId, {
+        startTime: newStart.toISOString(),
+        endTime: newEnd.toISOString(),
+        ...(newResourceId && { resourceId: newResourceId }),
+      });
+
+      // Update local state
+      setBookings((prev) =>
+        prev.map((b) => (b.id === updatedBooking.id ? updatedBooking : b)),
+      );
+
+      // Show success feedback (optional - could use toast notification)
+      console.log("[BookingPageClient] Booking moved successfully", updatedBooking);
+      
+    } catch (err) {
+      console.error("[BookingPageClient] handleBookingDrop error", err);
+      setError("Kunne ikke flytte bookingen. Prøv igjen.");
+      
+      // Refresh bookings to ensure UI is in sync
+      await handleRefreshBookings();
     }
   }
 
@@ -1340,6 +1353,7 @@ export default function BookingPageClient() {
               bookings={filteredBookings}
               resources={filteredResources}
               onBookingClick={(id) => setSelectedBookingId(id)}
+              onBookingDrop={handleBookingDrop}
               selectedBookingId={selectedBookingId}
               startDate={new Date()}
             />
@@ -1612,331 +1626,36 @@ export default function BookingPageClient() {
         </section>
 
         {/* HØYRE: Detaljer for valgt booking */}
-        <aside className="rounded-xl border border-slate-200 bg-white p-4 text-sm">
-          <h2 className="mb-3 text-sm font-medium">Detaljer</h2>
-
-          {!selectedBooking ? (
-            <p className="text-xs text-slate-500">
-              Klikk på en booking i listen eller dagvisningen for å se detaljer.
-            </p>
-          ) : (
-            <div className="space-y-3 text-xs">
-              <div>
-                <div className="text-[11px] font-medium text-slate-500">
-                  Kunde
-                </div>
-                <div>
-                  {selectedBooking.customerId ? (
-                    <Link
-                      href={`/kunder/${selectedBooking.customerId}`}
-                      className="text-sky-700 hover:underline"
-                    >
-                      {getCustomerName(selectedBooking)}
-                    </Link>
-                  ) : (
-                    getCustomerName(selectedBooking)
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <div className="text-[11px] font-medium text-slate-500">
-                  Tjeneste
-                </div>
-                <div>{getServiceName(selectedBooking)}</div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <div className="text-[11px] font-medium text-slate-500">
-                    Start
-                  </div>
-                  <div>{formatDateTime(selectedBooking.startTime)}</div>
-                </div>
-                <div>
-                  <div className="text-[11px] font-medium text-slate-500">
-                    Slutt
-                  </div>
-                  <div>{formatDateTime(selectedBooking.endTime)}</div>
-                </div>
-              </div>
-
-              <div>
-                <div className="text-[11px] font-medium text-slate-500">
-                  Ansatt
-                </div>
-                <div>{getEmployeeName(selectedBooking.employeeId ?? null)}</div>
-              </div>
-
-              <div>
-                <div className="text-[11px] font-medium text-slate-500">
-                  Status
-                </div>
-                <div className="mt-1 flex flex-wrap items-center gap-2">
-                  <span
-                    className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium ${
-                      selectedBooking.status === "confirmed"
-                        ? "bg-emerald-50 text-emerald-700"
-                        : selectedBooking.status === "completed"
-                        ? "bg-slate-900 text-slate-50"
-                        : selectedBooking.status === "cancelled"
-                        ? "bg-red-50 text-red-700"
-                        : "bg-amber-50 text-amber-700"
-                    }`}
-                  >
-                    {STATUS_LABELS[selectedBooking.status] ??
-                      selectedBooking.status}
-                  </span>
-
-                  <div className="flex flex-wrap gap-1">
-                    {selectedBooking.status !== "confirmed" && (
-                      <button
-                        type="button"
-                        disabled={updatingStatus}
-                        onClick={() => handleChangeStatus("confirmed")}
-                        className="rounded border border-slate-300 px-2 py-0.5 text-[10px] text-slate-700 hover:bg-slate-50 disabled:opacity-50"
-                      >
-                        Sett som bekreftet
-                      </button>
-                    )}
-                    {selectedBooking.status !== "completed" && (
-                      <button
-                        type="button"
-                        disabled={updatingStatus}
-                        onClick={() => handleChangeStatus("completed")}
-                        className="rounded border border-emerald-400 px-2 py-0.5 text-[10px] text-emerald-700 hover:bg-emerald-50 disabled:opacity-50"
-                      >
-                        Marker som fullført
-                      </button>
-                    )}
-                    {selectedBooking.status !== "cancelled" && (
-                      <button
-                        type="button"
-                        disabled={updatingStatus}
-                        onClick={() => handleChangeStatus("cancelled")}
-                        className="rounded border border-red-400 px-2 py-0.5 text-[10px] text-red-700 hover:bg-red-50 disabled:opacity-50"
-                      >
-                        Kanseller booking
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {selectedBooking.notes && (
-                <div>
-                  <div className="text-[11px] font-medium text-slate-500">
-                    Notater
-                  </div>
-                  <p className="whitespace-pre-line text-slate-700">
-                    {selectedBooking.notes}
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
+        <aside>
+          <BookingDetailPanel
+            booking={selectedBooking}
+            customer={selectedBooking ? customers.find(c => c.id === selectedBooking.customerId) : null}
+            onStatusChange={async (bookingId, newStatus) => {
+              setUpdatingStatus(true);
+              try {
+                await handleChangeStatus(newStatus);
+              } finally {
+                setUpdatingStatus(false);
+              }
+            }}
+            onEdit={handleEditBooking}
+            loading={updatingStatus}
+          />
         </aside>
       </div>
 
-      {/* MODAL: Ny booking */}
-      {showNewModal && (
-        <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/40 px-4">
-          <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-4 text-sm shadow-lg">
-            <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-sm font-semibold">Ny booking</h2>
-              <button
-                type="button"
-                onClick={handleCloseNewBooking}
-                className="text-xs text-slate-500 hover:text-slate-700"
-                disabled={savingNew}
-              >
-                Lukk
-              </button>
-            </div>
-
-            {newError && (
-              <p className="mb-2 rounded bg-red-50 px-2 py-1 text-xs text-red-700">
-                {newError}
-              </p>
-            )}
-
-            <form onSubmit={handleSubmitNewBooking} className="space-y-3">
-              <div>
-                <label className="mb-1 block text-xs font-medium text-slate-600">
-                  Kunde (velg eksisterende)
-                </label>
-                <select
-                  className="w-full rounded border border-slate-300 px-2 py-1 text-xs"
-                  value={newForm.customerId}
-                  onChange={(e) => handleChangeCustomerSelect(e.target.value)}
-                >
-                  <option value="none">Ingen valgt</option>
-                  {customers.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="mb-1 block text-xs font-medium text-slate-600">
-                  Kundenavn (vises i booking)
-                </label>
-                <input
-                  type="text"
-                  className="w-full rounded border border-slate-300 px-2 py-1 text-xs"
-                  value={newForm.customerName}
-                  onChange={(e) =>
-                    setNewForm((prev) => ({
-                      ...prev,
-                      customerName: e.target.value,
-                    }))
-                  }
-                  placeholder="F.eks. Ola Nordmann"
-                />
-              </div>
-
-              <div>
-                <label className="mb-1 block text-xs font-medium text-slate-600">
-                  Tjeneste
-                </label>
-                <select
-                  className="mb-2 w-full rounded border border-slate-300 px-2 py-1 text-xs"
-                  value={newForm.serviceName}
-                  onChange={(e) =>
-                    setNewForm((prev) => ({
-                      ...prev,
-                      serviceName: e.target.value,
-                    }))
-                  }
-                >
-                  <option value="">Velg tjeneste …</option>
-                  {services.map((s) => (
-                    <option key={s.id} value={s.name}>
-                      {s.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="mb-1 block text-xs font-medium text-slate-600">
-                  Ansatt
-                </label>
-                <select
-                  className="w-full rounded border border-slate-300 px-2 py-1 text-xs"
-                  value={newForm.employeeId}
-                  onChange={(e) =>
-                    setNewForm((prev) => ({
-                      ...prev,
-                      employeeId: e.target.value,
-                    }))
-                  }
-                >
-                  <option value="none">Ingen tildelt</option>
-                  {employees.map((emp) => (
-                    <option key={emp.id} value={emp.id}>
-                      {emp.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="mb-1 block text-xs font-medium text-slate-600">
-                    Starttid
-                  </label>
-                  <input
-                    type="datetime-local"
-                    className="w-full rounded border border-slate-300 px-2 py-1 text-xs"
-                    value={newForm.startTime}
-                    onChange={(e) =>
-                      setNewForm((prev) => ({
-                        ...prev,
-                        startTime: e.target.value,
-                      }))
-                    }
-                  />
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs font-medium text-slate-600">
-                    Sluttid
-                  </label>
-                  <input
-                    type="datetime-local"
-                    className="w-full rounded border border-slate-300 px-2 py-1 text-xs"
-                    value={newForm.endTime}
-                    onChange={(e) =>
-                      setNewForm((prev) => ({
-                        ...prev,
-                        endTime: e.target.value,
-                      }))
-                    }
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="mb-1 block text-xs font-medium text-slate-600">
-                  Status
-                </label>
-                <select
-                  className="w-full rounded border border-slate-300 px-2 py-1 text-xs"
-                  value={newForm.status}
-                  onChange={(e) =>
-                    setNewForm((prev) => ({
-                      ...prev,
-                      status: e.target.value as BookingStatus,
-                    }))
-                  }
-                >
-                  <option value="pending">Venter</option>
-                  <option value="confirmed">Bekreftet</option>
-                  <option value="completed">Fullført</option>
-                  <option value="cancelled">Kansellert</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="mb-1 block text-xs font-medium text-slate-600">
-                  Notater (valgfritt)
-                </label>
-                <textarea
-                  className="w-full rounded border border-slate-300 px-2 py-1 text-xs"
-                  rows={2}
-                  value={newForm.notes}
-                  onChange={(e) =>
-                    setNewForm((prev) => ({
-                      ...prev,
-                      notes: e.target.value,
-                    }))
-                  }
-                />
-              </div>
-
-              <div className="mt-3 flex items-center justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={handleCloseNewBooking}
-                  className="rounded border border-slate-300 px-3 py-1.5 text-xs text-slate-700 hover:bg-slate-50"
-                  disabled={savingNew}
-                >
-                  Avbryt
-                </button>
-                <button
-                  type="submit"
-                  disabled={savingNew}
-                  className="rounded bg-slate-900 px-3 py-1.5 text-xs font-medium text-slate-50 hover:bg-slate-800 disabled:opacity-50"
-                >
-                  {savingNew ? "Lagrer …" : "Lagre booking"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* MODAL: Booking (Ny eller Rediger) */}
+      <BookingModal
+        isOpen={showBookingModal}
+        onClose={handleCloseBookingModal}
+        onSave={handleSaveBooking}
+        booking={editingBooking}
+        customers={customers}
+        services={services}
+        employees={employees}
+        locations={locations}
+        resources={resources}
+      />
       
       {/* MODAL: Location Management - Module 18 */}
       {showLocationModal && (
