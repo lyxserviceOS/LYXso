@@ -1,9 +1,7 @@
 import type { Service } from "@/types/service";
+import { getApiBaseUrl } from "@/lib/apiConfig";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_LYXSO_API_BASE_URL ??
-  process.env.NEXT_PUBLIC_API_BASE_URL ??
-  "http://localhost:4000";
+const API_BASE_URL = getApiBaseUrl();
 
 const ORG_ID = process.env.NEXT_PUBLIC_ORG_ID;
 

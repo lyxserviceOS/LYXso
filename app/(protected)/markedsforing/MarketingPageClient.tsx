@@ -5,14 +5,14 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useOrgPlan } from "@/lib/useOrgPlan";
+import { getApiBaseUrl } from "@/lib/apiConfig";
 import {
   getOrgPlanLabel,
   getOrgPlanPriceInfo,
   getOrgPlanShortInfo,
 } from "@/lib/orgPlan";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:4000";
+const API_BASE_URL = getApiBaseUrl();
 
 const ORG_ID =
   process.env.NEXT_PUBLIC_DEFAULT_ORG_ID ??

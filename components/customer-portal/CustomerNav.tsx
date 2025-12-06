@@ -12,6 +12,7 @@ const navItems = [
   { href: '/min-side/coating', label: 'Coating', icon: Shield },
   { href: '/min-side/betalinger', label: 'Betalinger', icon: FileText },
   { href: '/min-side/profil', label: 'Min profil', icon: User },
+  { href: '/min-side/profil', label: 'Profil', icon: User },
 ];
 
 export default function CustomerNav() {

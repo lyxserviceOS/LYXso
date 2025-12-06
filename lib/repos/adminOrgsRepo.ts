@@ -2,6 +2,8 @@
 // Repo-lag for admin-oversikt over organisasjoner (orgs-tabellen).
 // Snakker med Fastify-API-et på port 4000 via /api/admin/orgs- endepunktene.
 
+import { getApiBaseUrl } from "@/lib/apiConfig";
+
 export type AdminOrg = {
   id: string;
   createdAt: string | null;
@@ -16,8 +18,7 @@ export type AdminOrg = {
   trialEndsAt: string | null;
 };
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_LYXSO_API_BASE_URL ?? "http://localhost:4000";
+const API_BASE_URL = getApiBaseUrl();
 
 /**
  * Hjelper for å pakke ut JSON og kaste pene feil.

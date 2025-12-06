@@ -1,10 +1,8 @@
 import { notFound } from 'next/navigation';
 import LandingPageRenderer from '@/components/landing-page/LandingPageRenderer';
+import { getApiBaseUrl } from "@/lib/apiConfig";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_LYXSO_API_URL ||
-  process.env.NEXT_PUBLIC_API_BASE ||
-  'http://localhost:4000';
+const API_BASE_URL = getApiBaseUrl();
 
 async function getLandingPageData(orgSlug: string) {
   try {

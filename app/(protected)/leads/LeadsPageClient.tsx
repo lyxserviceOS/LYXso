@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import { MessageSquare, Phone, Mail, Calendar, Filter, Search, RefreshCw } from "lucide-react";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:4000';
+import { getApiBaseUrl } from "@/lib/apiConfig";
+
+const API_BASE = getApiBaseUrl();
 const ORG_ID = process.env.NEXT_PUBLIC_ORG_ID;
 
 type Lead = {

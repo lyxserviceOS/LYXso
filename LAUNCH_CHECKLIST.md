@@ -377,13 +377,30 @@ ORG_ID=ae407558-7f44-40cb-8fe9-1d023212b926
 ```
 
 ### Frontend (.env.local i lyxso-app)
+**✅ SENTRALISERT - Bruker kun én API-URL-variabel!**
+
 ```env
+# API Configuration - REQUIRED
 NEXT_PUBLIC_API_BASE_URL=http://localhost:4000
-NEXT_PUBLIC_LYXSO_API_BASE_URL=http://localhost:4000
+
+# Organization ID - REQUIRED
 NEXT_PUBLIC_ORG_ID=ae407558-7f44-40cb-8fe9-1d023212b926
+
+# Supabase Configuration - REQUIRED
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+
+# Admin Email (for admin checks)
+NEXT_PUBLIC_ADMIN_EMAIL=your-admin-email@example.com
 ```
+
+**⚠️ VIKTIG:** Alle gamle API-URL-variabler er fjernet:
+- ~~NEXT_PUBLIC_API_BASE~~ ❌ Fjernet
+- ~~NEXT_PUBLIC_LYXSO_API_BASE_URL~~ ❌ Fjernet
+- ~~NEXT_PUBLIC_LYXSO_API_URL~~ ❌ Fjernet
+- ~~NEXT_PUBLIC_API_URL~~ ❌ Fjernet
+
+**Bruk kun `NEXT_PUBLIC_API_BASE_URL`** for alle API-kall!
 
 ---
 

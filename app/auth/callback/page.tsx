@@ -6,11 +6,9 @@
 import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
+import { getApiBaseUrl } from "@/lib/apiConfig";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_LYXSO_API_URL ??
-  process.env.NEXT_PUBLIC_API_BASE ??
-  "http://localhost:4000";
+const API_BASE_URL = getApiBaseUrl();
 
 function CallbackContent() {
   const router = useRouter();

@@ -13,11 +13,10 @@ import { Step2_3_OpeningHoursAndCapacity } from "@/components/register/Step2_3_O
 import { Step2_4_AISuggestions } from "@/components/register/Step2_4_AISuggestions";
 import Step3_AddressAndMap from "@/components/register/Step3_AddressAndMap";
 import type { OnboardingStepData, OnboardingInput } from "@/types/ai-onboarding";
+import { Suspense } from "react";
+import { getApiBaseUrl } from "@/lib/apiConfig";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_LYXSO_API_URL ??
-  process.env.NEXT_PUBLIC_API_BASE ??
-  "http://localhost:4000";
+const API_BASE_URL = getApiBaseUrl();
 
 const STORAGE_KEY = "lyxso_register_onboarding_data";
 
@@ -417,6 +416,14 @@ function RegisterPage() {
     if (success) {
       // Move to Step 3 (Address & Map) instead of completing
       setCurrentStep("step3");
+      // Clear persisted data on success
+      try {
+        sessionStorage.removeItem(STORAGE_KEY);
+      } catch (err) {
+        console.error("Failed to clear persisted data:", err);
+      }
+      // Log user in and redirect to dashboard
+      await loginAndRedirect();
     }
   }
 
@@ -451,6 +458,8 @@ function RegisterPage() {
     setStep1Loading(true);
     setStep1Error(null);
 
+  async function handleSkipAISuggestions() {
+    // Clear persisted data on skip
     try {
       // Save location data to backend
       const response = await fetch(
@@ -493,6 +502,32 @@ function RegisterPage() {
       setStep1Error("Noe gikk galt. Vennligst prøv igjen.");
     } finally {
       setStep1Loading(false);
+    }
+    // Log user in and redirect to dashboard
+    await loginAndRedirect();
+  }
+
+  // Login and redirect to dashboard
+  async function loginAndRedirect() {
+    try {
+      // Sign in with the credentials
+      const { error } = await supabase.auth.signInWithPassword({
+        email: step1Form.email.trim(),
+        password: step1Form.password,
+      });
+
+      if (error) {
+        console.error("Auto-login error:", error);
+        // If login fails, redirect to login page
+        router.push("/login?message=Konto opprettet. Vennligst logg inn.");
+        return;
+      }
+
+      // Successful login - redirect to dashboard
+      router.push("/min-side");
+    } catch (err) {
+      console.error("Unexpected error during auto-login:", err);
+      router.push("/login?message=Konto opprettet. Vennligst logg inn.");
     }
   }
 

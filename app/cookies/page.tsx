@@ -1,56 +1,162 @@
-import type { Metadata } from 'next';
+'use client';
 
-export const metadata: Metadata = {
-  title: 'Cookie-policy | LYXso',
-  description: 'Informasjonskapsler (cookies) hos LYXso',
-};
+import { useState } from 'react';
+import Link from 'next/link';
+import { 
+  Eye, Cookie, Home, Menu, X, Shield, FileText, Mail,
+  CheckCircle, Settings, Info, Globe, Lock, BarChart
+} from 'lucide-react';
 
 export default function CookiesPage() {
+  const [showTOC, setShowTOC] = useState(false);
+  const [cookiePreferences, setCookiePreferences] = useState({
+    necessary: true,
+    functional: true,
+    analytics: false,
+    marketing: false
+  });
+
+  const handleSavePreferences = () => {
+    localStorage.setItem('lyxso_cookie_preferences', JSON.stringify(cookiePreferences));
+    alert('✅ Cookie-innstillinger lagret!');
+  };
+
   return (
-    <main className="bg-slate-950 text-slate-100 min-h-screen">
-      <div className="max-w-4xl mx-auto px-6 py-16">
-        <h1 className="text-4xl font-bold mb-6">Cookie-policy</h1>
-        
-        <div className="text-slate-300 space-y-8">
-          <section>
-            <p className="text-sm text-slate-400 mb-8">
-              Sist oppdatert: {new Date().toLocaleDateString('nb-NO')}
+    <main className="bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-slate-100 min-h-screen">
+      {/* Mobile Navigation */}
+      <div className="lg:hidden sticky top-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-slate-700">
+        <div className="flex items-center justify-between px-4 py-3">
+          <Link href="/" className="flex items-center gap-2 text-slate-300 hover:text-white">
+            <Home className="w-5 h-5" />
+            <span className="text-sm font-medium">Hjem</span>
+          </Link>
+          <button
+            onClick={() => setShowTOC(!showTOC)}
+            className="flex items-center gap-2 px-4 py-2 bg-purple-600/20 text-purple-400 rounded-lg border border-purple-500/30"
+          >
+            {showTOC ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            <span className="text-sm font-semibold">Innhold</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Hero */}
+      <div className="relative bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 border-b border-slate-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20">
+          <div className="text-center max-w-4xl mx-auto">
+            <div className="inline-flex items-center justify-center w-20 h-20 lg:w-24 lg:h-24 bg-gradient-to-br from-purple-600/30 to-purple-800/30 rounded-2xl mb-8 border-2 border-purple-500/30">
+              <Cookie className="w-10 h-10 lg:w-12 lg:h-12 text-purple-400" />
+            </div>
+            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold mb-6 bg-gradient-to-r from-purple-400 to-purple-300 bg-clip-text text-transparent">
+              Cookie-policy
+            </h1>
+            <p className="text-lg sm:text-xl text-slate-300 mb-8">
+              Hvordan LYXso bruker informasjonskapsler (cookies) for å forbedre din brukeropplevelse
             </p>
-            <p>
-              Denne cookie-policyen forklarer hva cookies er, hvordan LYXso bruker dem, og hvordan
-              du kan administrere dine preferanser.
+            <div className="flex flex-wrap justify-center gap-3">
+              <Link href="/personvern" className="px-6 py-3 bg-green-600/20 text-green-400 rounded-lg border border-green-500/30 hover:bg-green-600/30">
+                <Shield className="w-4 h-4 inline mr-2" />Personvern
+              </Link>
+              <Link href="/bruksvilkar" className="px-6 py-3 bg-blue-600/20 text-blue-400 rounded-lg border border-blue-500/30 hover:bg-blue-600/30">
+                <FileText className="w-4 h-4 inline mr-2" />Bruksvilkår
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Cookie Manager */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="bg-gradient-to-r from-purple-900/40 to-purple-800/40 border-2 border-purple-600/60 rounded-2xl p-6 lg:p-8">
+          <h3 className="text-2xl font-bold text-purple-100 mb-6 flex items-center gap-3">
+            <Settings className="w-8 h-8" />
+            Cookie-innstillinger
+          </h3>
+
+          <div className="space-y-4">
+            <div className="bg-slate-800/50 p-5 rounded-lg">
+              <div className="flex justify-between items-center mb-2">
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="w-5 h-5 text-green-400" />
+                  <span className="font-semibold">Nødvendige cookies</span>
+                </div>
+                <span className="px-3 py-1 bg-green-900/30 text-green-400 text-xs rounded-full">Alltid på</span>
+              </div>
+              <p className="text-sm text-slate-400">Essensielle for at siden skal fungere</p>
+            </div>
+
+            <div className="bg-slate-800/50 p-5 rounded-lg">
+              <div className="flex justify-between items-center mb-2">
+                <div className="flex items-center gap-3">
+                  <Settings className="w-5 h-5 text-blue-400" />
+                  <span className="font-semibold">Funksjonelle cookies</span>
+                </div>
+                <button
+                  onClick={() => setCookiePreferences(p => ({ ...p, functional: !p.functional }))}
+                  className={`w-14 h-7 rounded-full ${cookiePreferences.functional ? 'bg-blue-600' : 'bg-slate-600'}`}
+                >
+                  <div className={`w-5 h-5 bg-white rounded-full transition-transform ${cookiePreferences.functional ? 'translate-x-8' : 'translate-x-1'}`} />
+                </button>
+              </div>
+              <p className="text-sm text-slate-400">Husker dine preferanser</p>
+            </div>
+
+            <div className="bg-slate-800/50 p-5 rounded-lg">
+              <div className="flex justify-between items-center mb-2">
+                <div className="flex items-center gap-3">
+                  <BarChart className="w-5 h-5 text-purple-400" />
+                  <span className="font-semibold">Analyse cookies</span>
+                </div>
+                <button
+                  onClick={() => setCookiePreferences(p => ({ ...p, analytics: !p.analytics }))}
+                  className={`w-14 h-7 rounded-full ${cookiePreferences.analytics ? 'bg-purple-600' : 'bg-slate-600'}`}
+                >
+                  <div className={`w-5 h-5 bg-white rounded-full transition-transform ${cookiePreferences.analytics ? 'translate-x-8' : 'translate-x-1'}`} />
+                </button>
+              </div>
+              <p className="text-sm text-slate-400">Hjelper oss forbedre tjenesten</p>
+            </div>
+          </div>
+
+          <button
+            onClick={handleSavePreferences}
+            className="w-full mt-6 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg"
+          >
+            Lagre innstillinger
+          </button>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
+        <div className="bg-slate-900/70 rounded-2xl p-6 lg:p-10 space-y-10">
+          
+          <section>
+            <h2 className="text-3xl font-bold mb-6 flex items-center gap-3">
+              <Info className="w-8 h-8 text-purple-400" />
+              Hva er cookies?
+            </h2>
+            <p className="text-slate-300 leading-relaxed">
+              Cookies er små tekstfiler som lagres på din enhet når du besøker nettsteder. De brukes
+              til å gjenkjenne deg ved senere besøk og forbedre brukeropplevelsen.
             </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold text-slate-100 mb-4">1. Hva er cookies?</h2>
-            <p>
-              Cookies (informasjonskapsler) er små tekstfiler som lagres på din enhet (datamaskin,
-              mobil, nettbrett) når du besøker en nettside. De brukes til å gjenkjenne deg ved senere
-              besøk og forbedre din brukeropplevelse.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-semibold text-slate-100 mb-4">2. Hvilke cookies bruker vi?</h2>
-            
-            <h3 className="text-xl font-semibold text-slate-200 mb-3 mt-6">2.1 Strengt nødvendige cookies</h3>
-            <p className="mb-4">
-              Disse cookiesene er nødvendige for at nettstedet skal fungere og kan ikke slås av.
-            </p>
-            <div className="bg-slate-900 p-4 rounded-lg">
-              <table className="w-full text-sm">
+            <h2 className="text-3xl font-bold mb-6">Cookies vi bruker</h2>
+            <div className="bg-purple-900/20 p-6 rounded-xl border border-purple-700/30">
+              <table className="w-full">
                 <thead>
                   <tr className="border-b border-slate-700">
-                    <th className="text-left py-2">Cookie-navn</th>
-                    <th className="text-left py-2">Formål</th>
-                    <th className="text-left py-2">Varighet</th>
+                    <th className="text-left py-3">Cookie</th>
+                    <th className="text-left py-3">Formål</th>
+                    <th className="text-left py-3">Varighet</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800">
                   <tr>
                     <td className="py-3 font-mono text-xs">sb-access-token</td>
-                    <td className="py-3">Autentisering (Supabase)</td>
+                    <td className="py-3">Autentisering</td>
                     <td className="py-3">1 time</td>
                   </tr>
                   <tr>
@@ -59,195 +165,60 @@ export default function CookiesPage() {
                     <td className="py-3">30 dager</td>
                   </tr>
                   <tr>
-                    <td className="py-3 font-mono text-xs">__Secure-next-auth.session-token</td>
-                    <td className="py-3">Sesjonshåndtering</td>
-                    <td className="py-3">Sesjon</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <h3 className="text-xl font-semibold text-slate-200 mb-3 mt-6">2.2 Funksjonelle cookies</h3>
-            <p className="mb-4">
-              Disse cookiesene lar oss huske dine valg og preferanser.
-            </p>
-            <div className="bg-slate-900 p-4 rounded-lg">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-slate-700">
-                    <th className="text-left py-2">Cookie-navn</th>
-                    <th className="text-left py-2">Formål</th>
-                    <th className="text-left py-2">Varighet</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800">
-                  <tr>
                     <td className="py-3 font-mono text-xs">lyxso_preferences</td>
-                    <td className="py-3">Brukerpreferanser (tema, språk)</td>
-                    <td className="py-3">1 år</td>
-                  </tr>
-                  <tr>
-                    <td className="py-3 font-mono text-xs">lyxso_cookie_consent</td>
-                    <td className="py-3">Lagrer ditt samtykke</td>
+                    <td className="py-3">Brukervalg</td>
                     <td className="py-3">1 år</td>
                   </tr>
                 </tbody>
               </table>
             </div>
-
-            <h3 className="text-xl font-semibold text-slate-200 mb-3 mt-6">2.3 Ytelse og analyse-cookies (valgfri)</h3>
-            <p className="mb-4">
-              Disse cookiesene hjelper oss å forstå hvordan du bruker nettstedet, slik at vi kan forbedre det.
-              <strong> Du kan velge å ikke godta disse.</strong>
-            </p>
-            <div className="bg-slate-900 p-4 rounded-lg">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-slate-700">
-                    <th className="text-left py-2">Leverandør</th>
-                    <th className="text-left py-2">Formål</th>
-                    <th className="text-left py-2">Varighet</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800">
-                  <tr>
-                    <td className="py-3">Google Analytics</td>
-                    <td className="py-3">Bruksstatistikk og analyser</td>
-                    <td className="py-3">2 år</td>
-                  </tr>
-                  <tr>
-                    <td className="py-3">Plausible Analytics</td>
-                    <td className="py-3">Personvernvennlig analyse (ingen persondata)</td>
-                    <td className="py-3">Sesjon</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <h3 className="text-xl font-semibold text-slate-200 mb-3 mt-6">2.4 Markedsføring og sporing (valgfri)</h3>
-            <p className="mb-4">
-              Disse cookiesene brukes til å vise relevant markedsføring og måle effekten av kampanjer.
-              <strong> Du kan velge å ikke godta disse.</strong>
-            </p>
-            <div className="bg-slate-900 p-4 rounded-lg">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-slate-700">
-                    <th className="text-left py-2">Leverandør</th>
-                    <th className="text-left py-2">Formål</th>
-                    <th className="text-left py-2">Varighet</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800">
-                  <tr>
-                    <td className="py-3">Meta Pixel</td>
-                    <td className="py-3">Sporing av annonsekonverteringer</td>
-                    <td className="py-3">90 dager</td>
-                  </tr>
-                  <tr>
-                    <td className="py-3">Google Ads</td>
-                    <td className="py-3">Remarketing og konverteringssporing</td>
-                    <td className="py-3">90 dager</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold text-slate-100 mb-4">3. Hvorfor bruker vi cookies?</h2>
-            <ul className="list-disc pl-6 space-y-2">
-              <li><strong>Sikkerhet:</strong> Holde deg pålogget og beskytte kontoen din</li>
-              <li><strong>Funksjonalitet:</strong> Huske dine preferanser og innstillinger</li>
-              <li><strong>Ytelse:</strong> Forstå hvordan nettstedet brukes og forbedre hastighet</li>
-              <li><strong>Analyse:</strong> Måle trafikk og bruksmønstre for å forbedre tjenesten</li>
-              <li><strong>Markedsføring:</strong> Vise relevant innhold og måle kampanjeeffektivitet</li>
-            </ul>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-semibold text-slate-100 mb-4">4. Førstepartscookies vs. tredjepartscookies</h2>
-            
-            <h3 className="text-xl font-semibold text-slate-200 mb-3 mt-6">Førstepartscookies</h3>
-            <p>
-              Satt av LYXso.no direkte. Brukes til autentisering, preferanser og grunnleggende funksjonalitet.
+            <h2 className="text-3xl font-bold mb-6">Slik blokkerer du cookies</h2>
+            <p className="text-slate-300 mb-4">
+              Du kan når som helst blokkere cookies i nettleserinnstillingene dine:
             </p>
-
-            <h3 className="text-xl font-semibold text-slate-200 mb-3 mt-6">Tredjepartscookies</h3>
-            <p>
-              Satt av eksterne tjenester (Google Analytics, Meta Pixel, etc.). Brukes til analyse og
-              markedsføring. Du kan velge å blokkere disse uten at grunnleggende funksjonalitet påvirkes.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-semibold text-slate-100 mb-4">5. Hvordan administrere cookies</h2>
-            
-            <h3 className="text-xl font-semibold text-slate-200 mb-3 mt-6">5.1 Via cookie-banner</h3>
-            <p>
-              Første gang du besøker LYXso.no får du opp en cookie-banner hvor du kan:
-            </p>
-            <ul className="list-disc pl-6 space-y-2">
-              <li>Godta alle cookies</li>
-              <li>Godta kun nødvendige cookies</li>
-              <li>Tilpasse preferanser (velg hvilke kategorier du vil godta)</li>
-            </ul>
-            <p className="mt-4">
-              Du kan når som helst endre dine preferanser via innstillinger i din konto eller ved å
-              klikke på "Cookie-innstillinger" i footer.
-            </p>
-
-            <h3 className="text-xl font-semibold text-slate-200 mb-3 mt-6">5.2 Via nettleseren</h3>
-            <p className="mb-4">
-              De fleste nettlesere lar deg kontrollere cookies via innstillingene:
-            </p>
-            <ul className="list-disc pl-6 space-y-2">
+            <ul className="space-y-2 list-disc list-inside text-slate-300">
               <li><strong>Chrome:</strong> Innstillinger → Personvern og sikkerhet → Cookies</li>
-              <li><strong>Firefox:</strong> Innstillinger → Personvern og sikkerhet → Informasjonskapsler</li>
-              <li><strong>Safari:</strong> Innstillinger → Personvern → Cookies</li>
-              <li><strong>Edge:</strong> Innstillinger → Personvern → Cookies</li>
+              <li><strong>Firefox:</strong> Innstillinger → Personvern og sikkerhet → Cookies</li>
+              <li><strong>Safari:</strong> Innstillinger → Personvern → Blokkér alle cookies</li>
+              <li><strong>Edge:</strong> Innstillinger → Cookies og nettstedtillatelser</li>
             </ul>
-            <p className="mt-4">
-              <strong>Merk:</strong> Hvis du blokkerer alle cookies, kan noen deler av LYXso slutte å fungere.
-            </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold text-slate-100 mb-4">6. Do Not Track (DNT)</h2>
-            <p>
-              LYXso respekterer Do Not Track-signaler. Hvis du har aktivert DNT i nettleseren din,
-              vil vi ikke sette analyse- eller markedsføringscookies (kun strengt nødvendige cookies).
+            <h2 className="text-3xl font-bold mb-6">Kontakt oss</h2>
+            <p className="text-slate-300 mb-4">
+              Har du spørsmål om vår bruk av cookies? Kontakt oss:
             </p>
+            <div className="bg-slate-800/50 p-5 rounded-lg">
+              <p className="flex items-center gap-2 mb-2">
+                <Mail className="w-5 h-5 text-purple-400" />
+                <a href="mailto:personvern@lyxso.no" className="text-purple-400 hover:text-purple-300">
+                  personvern@lyxso.no
+                </a>
+              </p>
+            </div>
           </section>
 
-          <section>
-            <h2 className="text-2xl font-semibold text-slate-100 mb-4">7. Endringer i cookie-policy</h2>
-            <p>
-              Vi kan oppdatere denne cookie-policyen fra tid til annen. Siste oppdateringsdato vises
-              øverst på siden. Ved vesentlige endringer vil du få beskjed via e-post eller banner på nettstedet.
-            </p>
-          </section>
+        </div>
+      </div>
 
-          <section>
-            <h2 className="text-2xl font-semibold text-slate-100 mb-4">8. Kontakt oss</h2>
-            <p>
-              Har du spørsmål om vår bruk av cookies?
-            </p>
-            <p className="mt-4">
-              <strong>E-post:</strong>{' '}
-              <a href="mailto:personvern@lyxso.no" className="text-blue-400 hover:underline">
-                personvern@lyxso.no
-              </a><br />
-              <strong>Les også:</strong>{' '}
-              <a href="/personvern" className="text-blue-400 hover:underline">
-                Personvernerklæring
-              </a>{' '}
-              |{' '}
-              <a href="/bruksvilkar" className="text-blue-400 hover:underline">
-                Bruksvilkår
-              </a>
-            </p>
-          </section>
+      {/* CTA */}
+      <div className="bg-gradient-to-r from-purple-900/30 to-purple-800/30 border-t border-slate-700">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-16 text-center">
+          <Cookie className="w-20 h-20 text-purple-400 mx-auto mb-6" />
+          <h3 className="text-4xl font-bold mb-4">Du har kontroll</h3>
+          <p className="text-lg text-slate-300 mb-8">
+            Administrer dine cookie-innstillinger når som helst
+          </p>
+          <button
+            onClick={() => window.scrollTo({ top: 300, behavior: 'smooth' })}
+            className="px-8 py-4 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl"
+          >
+            Gå til innstillinger
+          </button>
         </div>
       </div>
     </main>

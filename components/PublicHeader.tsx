@@ -59,8 +59,10 @@ export default function PublicHeader() {
   const navLinks = [
     { href: "/", label: "Hjem" },
     { href: "/om-lyxso", label: "Om LYXso" },
+    { href: "/priser", label: "Priser" },
+    { href: "/shop", label: "Nettbutikk" },
+    { href: "/demo", label: "Demo" },
     { href: "/kontakt", label: "Kontakt" },
-    { href: "/bli-partner", label: "Bli partner" },
   ];
 
   return (
@@ -94,20 +96,36 @@ export default function PublicHeader() {
           ))}
 
           {isLoggedIn ? (
-            <button
-              onClick={handleLogout}
-              disabled={isLoggingOut}
-              className="rounded-md bg-slate-700 px-4 py-2 text-xs font-medium text-white hover:bg-slate-600 transition-colors disabled:bg-slate-800 disabled:cursor-not-allowed"
-            >
-              {isLoggingOut ? "Logger ut..." : "Logg ut"}
-            </button>
+            <div className="flex items-center gap-3">
+              <Link
+                href="/kontrollpanel"
+                className="rounded-md bg-blue-600 px-4 py-2 text-xs font-medium text-white hover:bg-blue-500 transition-colors"
+              >
+                Gå til kontrollpanel
+              </Link>
+              <button
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+                className="rounded-md bg-slate-700 px-4 py-2 text-xs font-medium text-white hover:bg-slate-600 transition-colors disabled:bg-slate-800 disabled:cursor-not-allowed"
+              >
+                {isLoggingOut ? "Logger ut..." : "Logg ut"}
+              </button>
+            </div>
           ) : (
-            <Link
-              href="/login"
-              className="rounded-md bg-blue-600 px-4 py-2 text-xs font-medium text-white hover:bg-blue-500 transition-colors"
-            >
-              Logg inn
-            </Link>
+            <div className="flex items-center gap-3">
+              <Link
+                href="/register"
+                className="rounded-md border border-blue-600 px-4 py-2 text-xs font-medium text-blue-400 hover:bg-blue-600/10 transition-colors"
+              >
+                Kom i gang
+              </Link>
+              <Link
+                href="/login"
+                className="rounded-md bg-blue-600 px-4 py-2 text-xs font-medium text-white hover:bg-blue-500 transition-colors"
+              >
+                Logg inn
+              </Link>
+            </div>
           )}
         </nav>
 
@@ -141,24 +159,42 @@ export default function PublicHeader() {
             ))}
 
             {isLoggedIn ? (
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  handleLogout();
-                }}
-                disabled={isLoggingOut}
-                className="rounded-md bg-slate-700 px-4 py-2 text-sm font-medium text-white hover:bg-slate-600 transition-colors text-center mt-2 disabled:bg-slate-800 disabled:cursor-not-allowed"
-              >
-                {isLoggingOut ? "Logger ut..." : "Logg ut"}
-              </button>
+              <div className="flex flex-col gap-2 mt-2">
+                <Link
+                  href="/kontrollpanel"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 transition-colors text-center"
+                >
+                  Gå til kontrollpanel
+                </Link>
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    handleLogout();
+                  }}
+                  disabled={isLoggingOut}
+                  className="rounded-md bg-slate-700 px-4 py-2 text-sm font-medium text-white hover:bg-slate-600 transition-colors text-center disabled:bg-slate-800 disabled:cursor-not-allowed"
+                >
+                  {isLoggingOut ? "Logger ut..." : "Logg ut"}
+                </button>
+              </div>
             ) : (
-              <Link
-                href="/login"
-                onClick={() => setMobileMenuOpen(false)}
-                className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 transition-colors text-center mt-2"
-              >
-                Logg inn
-              </Link>
+              <div className="flex flex-col gap-2 mt-2">
+                <Link
+                  href="/register"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="rounded-md border border-blue-600 px-4 py-2 text-sm font-medium text-blue-400 hover:bg-blue-600/10 transition-colors text-center"
+                >
+                  Kom i gang
+                </Link>
+                <Link
+                  href="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 transition-colors text-center"
+                >
+                  Logg inn
+                </Link>
+              </div>
             )}
           </div>
         </nav>

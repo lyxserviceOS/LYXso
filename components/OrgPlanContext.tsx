@@ -184,6 +184,8 @@ export function OrgPlanProvider({
   );
 }
 
+export type { OrgPlanContextValue, OrgSettings };
+
 export function useOrgPlan(): OrgPlanContextValue {
   const ctx = useContext(OrgPlanContext);
   if (!ctx) {

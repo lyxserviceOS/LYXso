@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { Booking, BookingStatus, BookingSource, PaymentStatus } from "@/types/booking";
 import { useOrgPlan } from "@/lib/useOrgPlan";
+import { getApiBaseUrl } from "@/lib/apiConfig";
 import {
   getOrgPlanLabel,
   getOrgPlanShortInfo,
@@ -12,7 +13,7 @@ import {
 } from "@/lib/orgPlan";
 
 // API-konfig
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE || "http://localhost:3001";
+const API_BASE_URL = getApiBaseUrl();
 const ORG_ID =
   process.env.NEXT_PUBLIC_ORG_ID ??
   "ae407558-7f44-40cb-8fe9-1d023212b926";

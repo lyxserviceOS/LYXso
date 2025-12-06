@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState, FormEvent } from "react";
+import { getApiBaseUrl } from "@/lib/apiConfig";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE || "http://localhost:4000";
+const API_BASE_URL = getApiBaseUrl();
 const ORG_ID =
   process.env.NEXT_PUBLIC_ORG_ID ?? "ae407558-7f44-40cb-8fe9-1d023212b926";
 

@@ -43,7 +43,7 @@ const MOCK_LOCATIONS: Location[] = [
     country: "NO",
     phone: "+47 22 33 44 55",
     email: "verksted@lyxso.no",
-    opening_hours: {
+    operating_hours: {
       monday: { open: "08:00", close: "17:00" },
       tuesday: { open: "08:00", close: "17:00" },
       wednesday: { open: "08:00", close: "17:00" },
@@ -51,7 +51,7 @@ const MOCK_LOCATIONS: Location[] = [
       friday: { open: "08:00", close: "16:00" },
     },
     is_active: true,
-    is_primary: true,
+    is_headquarters: true,
     timezone: "Europe/Oslo",
     created_at: "2024-01-01",
     updated_at: "2024-01-01",
@@ -66,7 +66,7 @@ const MOCK_LOCATIONS: Location[] = [
     country: "NO",
     phone: "+47 38 00 11 22",
     email: "sor@lyxso.no",
-    opening_hours: {
+    operating_hours: {
       monday: { open: "09:00", close: "17:00" },
       tuesday: { open: "09:00", close: "17:00" },
       wednesday: { open: "09:00", close: "17:00" },
@@ -74,7 +74,7 @@ const MOCK_LOCATIONS: Location[] = [
       friday: { open: "09:00", close: "15:00" },
     },
     is_active: true,
-    is_primary: false,
+    is_headquarters: false,
     timezone: "Europe/Oslo",
     created_at: "2024-03-01",
     updated_at: "2024-03-01",
@@ -198,6 +198,421 @@ function formatDateLabel(value: string | null): string {
   });
 }
 
+// Skjema-state for ny booking
+type NewBookingForm = {
+  customerName: string;
+  customerId: string; // "none" eller faktisk id
+  serviceName: string;
+  employeeId: string; // "none" eller faktisk id
+  locationId: string; // "all" eller faktisk id
+  resourceId: string; // "none" eller faktisk id
+  startTime: string; // "2025-11-25T10:00"
+  endTime: string;
+  notes: string;
+  status: BookingStatus;
+};
+
+const EMPTY_NEW_BOOKING: NewBookingForm = {
+  customerName: "",
+  customerId: "none",
+  serviceName: "",
+  employeeId: "none",
+  locationId: "all",
+  resourceId: "none",
+  startTime: "",
+  endTime: "",
+  notes: "",
+  status: "confirmed",
+};
+
+// Location Form Modal Component
+function LocationFormModal({
+  location,
+  isOpen,
+  onClose,
+  onSave,
+  saving,
+}: {
+  location: Location | null;
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (data: Partial<Location>) => void;
+  saving: boolean;
+}) {
+  const [formData, setFormData] = useState({
+    name: location?.name || '',
+    code: location?.code || '',
+    address: location?.address || '',
+    postal_code: location?.postal_code || '',
+    city: location?.city || '',
+    country: location?.country || 'NO',
+    phone: location?.phone || '',
+    email: location?.email || '',
+    timezone: location?.timezone || 'Europe/Oslo',
+    is_active: location?.is_active ?? true,
+    is_headquarters: location?.is_headquarters ?? false,
+  });
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-30 flex items-center justify-center bg-black/40 px-4">
+      <div className="w-full max-w-2xl max-h-[90vh] overflow-auto rounded-xl border border-slate-200 bg-white p-6 shadow-lg">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-semibold">
+            {location ? 'Rediger lokasjon' : 'Ny lokasjon'}
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-slate-400 hover:text-slate-600"
+          >
+            ✕
+          </button>
+        </div>
+
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          onSave(formData);
+        }} className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1">
+                Navn *
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1">
+                Kode
+              </label>
+              <input
+                type="text"
+                value={formData.code}
+                onChange={(e) => setFormData({ ...formData, code: e.target.value })}
+                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+                placeholder="OSL-01"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-slate-700 mb-1">
+              Adresse
+            </label>
+            <input
+              type="text"
+              value={formData.address}
+              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+            />
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1">
+                Postnummer
+              </label>
+              <input
+                type="text"
+                value={formData.postal_code}
+                onChange={(e) => setFormData({ ...formData, postal_code: e.target.value })}
+                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1">
+                By
+              </label>
+              <input
+                type="text"
+                value={formData.city}
+                onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1">
+                Land
+              </label>
+              <input
+                type="text"
+                value={formData.country}
+                onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+              />
+            </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1">
+                Telefon
+              </label>
+              <input
+                type="tel"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1">
+                E-post
+              </label>
+              <input
+                type="email"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-slate-700 mb-1">
+              Tidssone
+            </label>
+            <select
+              value={formData.timezone}
+              onChange={(e) => setFormData({ ...formData, timezone: e.target.value })}
+              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+            >
+              <option value="Europe/Oslo">Europe/Oslo</option>
+              <option value="Europe/Stockholm">Europe/Stockholm</option>
+              <option value="Europe/Copenhagen">Europe/Copenhagen</option>
+            </select>
+          </div>
+
+          <div className="flex gap-4">
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={formData.is_active}
+                onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                className="rounded border-slate-300"
+              />
+              <span className="text-sm text-slate-700">Aktiv</span>
+            </label>
+
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={formData.is_headquarters}
+                onChange={(e) => setFormData({ ...formData, is_headquarters: e.target.checked })}
+                className="rounded border-slate-300"
+              />
+              <span className="text-sm text-slate-700">Hovedlokasjon</span>
+            </label>
+          </div>
+
+          <div className="flex gap-2 justify-end pt-4 border-t">
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded bg-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-300"
+            >
+              Avbryt
+            </button>
+            <button
+              type="submit"
+              disabled={saving}
+              className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+            >
+              {saving ? 'Lagrer...' : 'Lagre'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// Resource Form Modal Component
+function ResourceFormModal({
+  resource,
+  locationId,
+  locations,
+  isOpen,
+  onClose,
+  onSave,
+  saving,
+}: {
+  resource: Resource | null;
+  locationId: string | null;
+  locations: Location[];
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (data: Partial<Resource>) => void;
+  saving: boolean;
+}) {
+  const [formData, setFormData] = useState({
+    name: resource?.name || '',
+    description: resource?.description || '',
+    type: (resource?.type || 'bay') as ResourceType,
+    location_id: resource?.location_id || locationId || '',
+    max_concurrent_bookings: resource?.max_concurrent_bookings || 1,
+    is_active: resource?.is_active ?? true,
+    color: resource?.color || '#3B82F6',
+  });
+
+  if (!isOpen) return null;
+
+  const resourceTypes: { value: ResourceType; label: string }[] = [
+    { value: 'bay', label: 'Verkstedbukk' },
+    { value: 'lift', label: 'Løftebukk' },
+    { value: 'room', label: 'Rom' },
+    { value: 'equipment', label: 'Utstyr' },
+    { value: 'other', label: 'Annet' },
+  ];
+
+  return (
+    <div className="fixed inset-0 z-30 flex items-center justify-center bg-black/40 px-4">
+      <div className="w-full max-w-lg max-h-[90vh] overflow-auto rounded-xl border border-slate-200 bg-white p-6 shadow-lg">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-semibold">
+            {resource ? 'Rediger ressurs' : 'Ny ressurs'}
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-slate-400 hover:text-slate-600"
+          >
+            ✕
+          </button>
+        </div>
+
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          onSave(formData);
+        }} className="space-y-4">
+          <div>
+            <label className="block text-xs font-medium text-slate-700 mb-1">
+              Navn *
+            </label>
+            <input
+              type="text"
+              required
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-slate-700 mb-1">
+              Beskrivelse
+            </label>
+            <textarea
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+              rows={2}
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-slate-700 mb-1">
+              Type *
+            </label>
+            <select
+              required
+              value={formData.type}
+              onChange={(e) => setFormData({ ...formData, type: e.target.value as ResourceType })}
+              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+            >
+              {resourceTypes.map(rt => (
+                <option key={rt.value} value={rt.value}>{rt.label}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-slate-700 mb-1">
+              Lokasjon *
+            </label>
+            <select
+              required
+              value={formData.location_id}
+              onChange={(e) => setFormData({ ...formData, location_id: e.target.value })}
+              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+            >
+              <option value="">Velg lokasjon</option>
+              {locations.map(loc => (
+                <option key={loc.id} value={loc.id}>{loc.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-slate-700 mb-1">
+              Maks samtidige bookinger
+            </label>
+            <input
+              type="number"
+              min="1"
+              value={formData.max_concurrent_bookings}
+              onChange={(e) => setFormData({ ...formData, max_concurrent_bookings: parseInt(e.target.value) })}
+              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-slate-700 mb-1">
+              Farge (for kalendervisning)
+            </label>
+            <input
+              type="color"
+              value={formData.color}
+              onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+              className="w-full h-10 rounded-md border border-slate-300"
+            />
+          </div>
+
+          <div>
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={formData.is_active}
+                onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                className="rounded border-slate-300"
+              />
+              <span className="text-sm text-slate-700">Aktiv</span>
+            </label>
+          </div>
+
+          <div className="flex gap-2 justify-end pt-4 border-t">
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded bg-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-300"
+            >
+              Avbryt
+            </button>
+            <button
+              type="submit"
+              disabled={saving}
+              className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+            >
+              {saving ? 'Lagrer...' : 'Lagre'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 export default function BookingPageClient() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -210,6 +625,10 @@ export default function BookingPageClient() {
   
   const [locations] = useState<Location[]>(MOCK_LOCATIONS);
   const [resources] = useState<Resource[]>(MOCK_RESOURCES);
+  // Module 18: Locations and Resources
+  const [locations, setLocations] = useState<Location[]>([]);
+  const [resources, setResources] = useState<Resource[]>([]);
+  const [locationsLoading, setLocationsLoading] = useState(false);
 
   const [selectedStatus, setSelectedStatus] = useState<BookingStatus | "all">(
     "all",
@@ -233,6 +652,25 @@ export default function BookingPageClient() {
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [editingBooking, setEditingBooking] = useState<Booking | null>(null);
   
+  
+  // Location/Resource edit modals
+  const [showEditLocationModal, setShowEditLocationModal] = useState(false);
+  const [showNewLocationModal, setShowNewLocationModal] = useState(false);
+  const [showEditResourceModal, setShowEditResourceModal] = useState(false);
+  const [showNewResourceModal, setShowNewResourceModal] = useState(false);
+  const [editingLocation, setEditingLocation] = useState<Location | null>(null);
+  const [editingResource, setEditingResource] = useState<Resource | null>(null);
+  const [selectedLocationForResource, setSelectedLocationForResource] = useState<string | null>(null);
+  const [savingLocation, setSavingLocation] = useState(false);
+  const [savingResource, setSavingResource] = useState(false);
+
+  // Ny booking-modal state
+  const [showNewModal, setShowNewModal] = useState(false);
+  const [newForm, setNewForm] = useState<NewBookingForm>(EMPTY_NEW_BOOKING);
+  const [savingNew, setSavingNew] = useState(false);
+  const [newError, setNewError] = useState<string | null>(null);
+
+  // Status-oppdatering på valgt booking
   const [updatingStatus, setUpdatingStatus] = useState(false);
   
   const filteredResources = useMemo(() => {
@@ -264,6 +702,206 @@ export default function BookingPageClient() {
 
     load();
   }, []);
+
+  // Load locations and resources
+  useEffect(() => {
+    async function loadLocationsAndResources() {
+      setLocationsLoading(true);
+      try {
+        const [locationsRes, resourcesRes] = await Promise.all([
+          fetch('/api/locations'),
+          fetch('/api/resources')
+        ]);
+
+        if (locationsRes.ok) {
+          const locData = await locationsRes.json();
+          setLocations(locData.locations || []);
+        }
+
+        if (resourcesRes.ok) {
+          const resData = await resourcesRes.json();
+          setResources(resData.resources || []);
+        }
+      } catch (err) {
+        console.error("[BookingPageClient] load locations/resources error", err);
+      } finally {
+        setLocationsLoading(false);
+      }
+    }
+
+    loadLocationsAndResources();
+  }, []);
+
+  // Refresh locations and resources
+  async function handleRefreshLocations() {
+    setLocationsLoading(true);
+    try {
+      const [locationsRes, resourcesRes] = await Promise.all([
+        fetch('/api/locations'),
+        fetch('/api/resources')
+      ]);
+
+      if (locationsRes.ok) {
+        const locData = await locationsRes.json();
+        setLocations(locData.locations || []);
+      }
+
+      if (resourcesRes.ok) {
+        const resData = await resourcesRes.json();
+        setResources(resData.resources || []);
+      }
+    } catch (err) {
+      console.error("[BookingPageClient] refresh locations/resources error", err);
+    } finally {
+      setLocationsLoading(false);
+    }
+  }
+
+  // Delete location handler
+  async function handleDeleteLocation(locationId: string) {
+    if (!confirm('Er du sikker på at du vil slette denne lokasjonen?')) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/locations/${locationId}`, {
+        method: 'DELETE',
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || 'Kunne ikke slette lokasjon');
+        return;
+      }
+
+      // Refresh locations list
+      await handleRefreshLocations();
+    } catch (err) {
+      console.error('Delete location error:', err);
+      alert('Feil ved sletting av lokasjon');
+    }
+  }
+
+  // Delete resource handler
+  async function handleDeleteResource(resourceId: string) {
+    if (!confirm('Er du sikker på at du vil slette denne ressursen?')) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/resources/${resourceId}`, {
+        method: 'DELETE',
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || 'Kunne ikke slette ressurs');
+        return;
+      }
+
+      // Refresh resources list
+      await handleRefreshLocations();
+    } catch (err) {
+      console.error('Delete resource error:', err);
+      alert('Feil ved sletting av ressurs');
+    }
+  }
+
+  // Open edit location modal
+  function handleEditLocation(location: Location) {
+    setEditingLocation(location);
+    setShowEditLocationModal(true);
+  }
+
+  // Open new location modal
+  function handleOpenNewLocation() {
+    setShowNewLocationModal(true);
+  }
+
+  // Open edit resource modal
+  function handleEditResource(resource: Resource) {
+    setEditingResource(resource);
+    setShowEditResourceModal(true);
+  }
+
+  // Open new resource modal
+  function handleOpenNewResource(locationId: string) {
+    setSelectedLocationForResource(locationId);
+    setShowNewResourceModal(true);
+  }
+
+  // Save location (create or update)
+  async function handleSaveLocation(locationData: Partial<Location>) {
+    setSavingLocation(true);
+    try {
+      const isEditing = !!editingLocation;
+      const url = isEditing ? `/api/locations/${editingLocation.id}` : '/api/locations';
+      const method = isEditing ? 'PATCH' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(locationData),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || 'Kunne ikke lagre lokasjon');
+        return;
+      }
+
+      // Close modal and refresh
+      setShowEditLocationModal(false);
+      setShowNewLocationModal(false);
+      setEditingLocation(null);
+      await handleRefreshLocations();
+    } catch (err) {
+      console.error('Save location error:', err);
+      alert('Feil ved lagring av lokasjon');
+    } finally {
+      setSavingLocation(false);
+    }
+  }
+
+  // Save resource (create or update)
+  async function handleSaveResource(resourceData: Partial<Resource>) {
+    setSavingResource(true);
+    try {
+      const isEditing = !!editingResource;
+      const url = isEditing ? `/api/resources/${editingResource.id}` : '/api/resources';
+      const method = isEditing ? 'PATCH' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(resourceData),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || 'Kunne ikke lagre ressurs');
+        return;
+      }
+
+      // Close modal and refresh
+      setShowEditResourceModal(false);
+      setShowNewResourceModal(false);
+      setEditingResource(null);
+      setSelectedLocationForResource(null);
+      await handleRefreshLocations();
+    } catch (err) {
+      console.error('Save resource error:', err);
+      alert('Feil ved lagring av ressurs');
+    } finally {
+      setSavingResource(false);
+    }
+  }
+
+
 
   // Enkel “refresh” som kun henter bookinger på nytt
   async function handleRefreshBookings() {
@@ -1040,6 +1678,7 @@ export default function BookingPageClient() {
                 <h3 className="font-medium text-slate-800">Lokasjoner</h3>
                 <button
                   type="button"
+                  onClick={handleOpenNewLocation}
                   className="rounded bg-slate-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-800"
                 >
                   + Ny lokasjon
@@ -1056,7 +1695,7 @@ export default function BookingPageClient() {
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="font-medium">{loc.name}</span>
-                          {loc.is_primary && (
+                          {loc.is_headquarters && (
                             <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-700">
                               ⭐ Hovedlokasjon
                             </span>
@@ -1077,8 +1716,18 @@ export default function BookingPageClient() {
                         )}
                       </div>
                       <div className="flex gap-2">
-                        <button className="text-xs text-slate-500 hover:text-slate-700">Rediger</button>
-                        <button className="text-xs text-red-500 hover:text-red-700">Slett</button>
+                        <button 
+                          onClick={() => handleEditLocation(loc)} 
+                          className="text-xs text-slate-500 hover:text-slate-700"
+                        >
+                          Rediger
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteLocation(loc.id)} 
+                          className="text-xs text-red-500 hover:text-red-700"
+                        >
+                          Slett
+                        </button>
                       </div>
                     </div>
                     
@@ -1089,7 +1738,7 @@ export default function BookingPageClient() {
                         {resources.filter(r => r.location_id === loc.id).map(res => (
                           <div 
                             key={res.id}
-                            className="inline-flex items-center gap-1.5 rounded-full border px-2 py-1 text-[10px]"
+                            className="inline-flex items-center gap-1.5 rounded-full border px-2 py-1 text-[10px] group relative"
                             style={{ borderColor: res.color || '#CBD5E1', backgroundColor: `${res.color}15` || '#F8FAFC' }}
                           >
                             <span 
@@ -1098,9 +1747,26 @@ export default function BookingPageClient() {
                             />
                             <span>{res.name}</span>
                             <span className="text-slate-400">({RESOURCE_TYPE_LABELS[res.type]})</span>
+                            <button
+                              onClick={() => handleEditResource(res)}
+                              className="ml-1 text-blue-500 hover:text-blue-700 opacity-0 group-hover:opacity-100 transition-opacity"
+                              title="Rediger ressurs"
+                            >
+                              ✎
+                            </button>
+                            <button
+                              onClick={() => handleDeleteResource(res.id)}
+                              className="ml-0.5 text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity"
+                              title="Slett ressurs"
+                            >
+                              ×
+                            </button>
                           </div>
                         ))}
-                        <button className="inline-flex items-center rounded-full border border-dashed border-slate-300 px-2 py-1 text-[10px] text-slate-500 hover:border-slate-400 hover:text-slate-600">
+                        <button 
+                          onClick={() => handleOpenNewResource(loc.id)}
+                          className="inline-flex items-center rounded-full border border-dashed border-slate-300 px-2 py-1 text-[10px] text-slate-500 hover:border-slate-400 hover:text-slate-600"
+                        >
                           + Legg til ressurs
                         </button>
                       </div>
@@ -1130,6 +1796,39 @@ export default function BookingPageClient() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* MODAL: Edit/New Location */}
+      {(showEditLocationModal || showNewLocationModal) && (
+        <LocationFormModal
+          location={editingLocation}
+          isOpen={showEditLocationModal || showNewLocationModal}
+          onClose={() => {
+            setShowEditLocationModal(false);
+            setShowNewLocationModal(false);
+            setEditingLocation(null);
+          }}
+          onSave={handleSaveLocation}
+          saving={savingLocation}
+        />
+      )}
+
+      {/* MODAL: Edit/New Resource */}
+      {(showEditResourceModal || showNewResourceModal) && (
+        <ResourceFormModal
+          resource={editingResource}
+          locationId={selectedLocationForResource}
+          locations={locations}
+          isOpen={showEditResourceModal || showNewResourceModal}
+          onClose={() => {
+            setShowEditResourceModal(false);
+            setShowNewResourceModal(false);
+            setEditingResource(null);
+            setSelectedLocationForResource(null);
+          }}
+          onSave={handleSaveResource}
+          saving={savingResource}
+        />
       )}
     </div>
   );

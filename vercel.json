@@ -23,4 +23,5 @@
       "maxDuration": 30
     }
   }
+  "outputDirectory": ".next"
 }

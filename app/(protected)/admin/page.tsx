@@ -1,13 +1,7 @@
 // app/(protected)/admin/page.tsx
-import type { Metadata } from "next";
-import AdminPageClient from "./AdminPageClient";
-
-export const metadata: Metadata = {
-  title: "LYXso – Adminpanel",
-  description:
-    "Adminpanel for LYXso – styr planer og organisasjoner.",
-};
+import { redirect } from "next/navigation";
 
 export default function AdminPage() {
-  return <AdminPageClient />;
+  // Redirect to dashboard
+  redirect("/admin/dashboard");
 }

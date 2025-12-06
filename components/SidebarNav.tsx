@@ -17,205 +17,276 @@ type NavItem = {
   adminOnly?: boolean;
   /** Badge text to show (e.g., "Ny") */
   badge?: string;
+  /** Icon emoji */
+  icon?: string;
 };
 
 type NavSection = {
   title: string;
+  icon?: string;
   items: NavItem[];
+  /** If true, this section can be collapsed/expanded */
+  collapsible?: boolean;
 };
 
 const sections: NavSection[] = [
+  // OVERSIKT
   {
-    title: "Drift",
+    title: "Oversikt",
+    icon: "📊",
     items: [
       {
         label: "Dashboard",
         href: "/kontrollpanel",
-        description: "Oversikt over kunder, bookinger og kapasitet.",
+        icon: "🏠",
       },
+    ],
+  },
+  
+  // DRIFT (mest brukt)
+  {
+    title: "Drift",
+    icon: "⚙️",
+    collapsible: true,
+    items: [
       {
         label: "Bookinger",
         href: "/booking",
-        description: "Kalender og timebok for hele bedriften.",
+        icon: "📅",
         requiresModule: "booking",
       },
       {
-        label: "Kunder & CRM",
+        label: "Kunder",
         href: "/kunder",
-        description: "Kundekort, historikk, kjøretøy og eiendeler.",
+        icon: "👥",
         requiresModule: "crm",
+      },
+      {
+        label: "Ansatte",
+        href: "/ansatte",
+        icon: "👤",
+        requiresModule: "employees",
       },
       {
         label: "Tjenester",
         href: "/tjenester",
-        description: "Hva dere tilbyr – priser, varighet og mer.",
+        icon: "🛠️",
       },
       {
         label: "Produkter",
         href: "/produkter",
-        description: "Produkter brukt i tjenester og salg.",
+        icon: "📦",
         requiresModule: "products",
       },
       {
         label: "Dekkhotell",
         href: "/dekkhotell",
-        description: "Oversikt over felg- og dekksett.",
+        icon: "🚗",
         requiresModule: "dekkhotell",
       },
       {
         label: "Coating PRO",
         href: "/coating",
-        description: "Coatingjobber og 5-års garantiløp.",
+        icon: "✨",
         requiresModule: "coating",
-      },
-      {
-        label: "Ansatte",
-        href: "/ansatte",
-        description: "Rettigheter, kapasitet og roller.",
-        requiresModule: "employees",
       },
     ],
   },
+
+  // AI ASSISTENT (samlet alle AI-funksjoner)
   {
-    title: "AI & markedsføring",
+    title: "AI Assistent",
+    icon: "🤖",
+    collapsible: true,
     items: [
       {
-        label: "Markedsføring",
-        href: "/markedsforing",
-        description: "Kampanjer, poster og kanalstatistikk.",
-        requiresModule: "markedsforing",
-      },
-      {
-        label: "AI Marketing",
+        label: "Marketing AI",
         href: "/ai/marketing",
-        description: "Kampanjeidéer, annonsetekster og målgruppeanalyse.",
+        icon: "📣",
         badge: "AI",
       },
       {
-        label: "AI Innhold",
+        label: "Innhold AI",
         href: "/ai/content",
-        description: "Lag landingssider, blogginnhold og SMS-meldinger.",
+        icon: "✍️",
         badge: "AI",
       },
       {
-        label: "AI CRM",
+        label: "CRM AI",
         href: "/ai/crm",
-        description: "Kundeinnsikt, segmentering og personalisering.",
+        icon: "🎯",
         badge: "AI",
       },
       {
-        label: "AI Booking",
+        label: "Booking AI",
         href: "/ai/booking",
-        description: "Smarte bookingforslag og tidsluke-optimalisering.",
+        icon: "📆",
         badge: "AI",
       },
       {
-        label: "AI Kapasitet",
+        label: "Kapasitet AI",
         href: "/ai/capacity",
-        description: "Analyser kapasitet og ressursbruk.",
+        icon: "📊",
         badge: "AI",
       },
       {
-        label: "AI Regnskap",
+        label: "Regnskap AI",
         href: "/ai/accounting",
-        description: "Forklaring av rapporter og økonomisk innsikt.",
+        icon: "💰",
         badge: "AI",
       },
       {
-        label: "LYXba – Booking Agent",
+        label: "Booking Agent",
         href: "/ai-agent",
-        description: "AI som ringer, sender SMS og booker automagisk.",
+        icon: "🤖",
         requiresModule: "ai_agent",
+        badge: "LYXba",
       },
+    ],
+  },
+
+  // MARKEDSFØRING
+  {
+    title: "Markedsføring",
+    icon: "📣",
+    collapsible: true,
+    items: [
       {
-        label: "Landingsside",
-        href: "/landingsside",
-        description: "Bygg partnerens egen nettside for bookinger.",
-        requiresModule: "landing_page",
-      },
-      {
-        label: "Nettbutikk",
-        href: "/nettbutikk",
-        description: "Selg produkter via landingssiden din.",
-        requiresModule: "webshop",
-        badge: "Ny",
+        label: "Kampanjer",
+        href: "/markedsforing",
+        icon: "📢",
+        requiresModule: "markedsforing",
       },
       {
         label: "Leads",
         href: "/leads",
-        description: "Alle henvendelser fra skjema, AI og kampanjer.",
+        icon: "🎯",
         requiresModule: "leads",
       },
       {
-        label: "Partnere",
-        href: "/partnere",
-        description: "Brukt av admin – oversikt over alle partnere.",
-        adminOnly: true,
+        label: "Landingsside",
+        href: "/landingsside",
+        icon: "🌐",
+        requiresModule: "landing_page",
       },
       {
-        label: "CEO Dashboard",
-        href: "/ceo",
-        description: "Aggregert oversikt over alle orgs og lokasjoner.",
-        adminOnly: true,
+        label: "Nettbutikk Admin",
+        href: "/nettbutikk",
+        icon: "🛒",
+        requiresModule: "webshop",
+        badge: "Admin",
+      },
+      {
+        label: "Se Webshop",
+        href: "/shop",
+        icon: "🛍️",
+        badge: "Offentlig",
       },
     ],
   },
+
+  // ØKONOMI
   {
     title: "Økonomi",
+    icon: "💰",
+    collapsible: true,
     items: [
       {
-        label: "Regnskap & betaling",
+        label: "Regnskap",
         href: "/regnskap",
-        description: "Kobling mot terminal, Fiken m.m.",
+        icon: "📊",
         requiresModule: "regnskap",
       },
       {
-        label: "Betaling",
+        label: "Betalinger",
         href: "/betaling",
-        description: "Status på betalinger og transaksjoner.",
+        icon: "💳",
         requiresModule: "kortterminal",
       },
     ],
   },
+
+  // INNSTILLINGER
   {
-    title: "System",
+    title: "Innstillinger",
+    icon: "⚙️",
+    collapsible: true,
     items: [
       {
-        label: "Abonnement & plan",
-        href: "/plan",
-        description:
-          "Se hvilken LYXso-plan dere bruker og hvilke moduler som er åpne.",
+        label: "Organisasjon",
+        href: "/org-settings",
+        icon: "🏢",
       },
       {
-        label: "Addons",
-        href: "/addons",
-        description: "Tilleggstjenester og pakker.",
+        label: "Plan & Addons",
+        href: "/plan",
+        icon: "📋",
+      },
+      {
+        label: "API-nøkler",
+        href: "/api-nokler",
+        icon: "🔐",
+        badge: "Ny",
+      },
+      {
+        label: "Notifikasjoner",
+        href: "/notifikasjoner",
+        icon: "🔔",
+        badge: "Ny",
+      },
+      {
+        label: "Support",
+        href: "/support",
+        icon: "💬",
+        badge: "Ny",
       },
       {
         label: "Integrasjoner",
         href: "/integrasjoner",
-        description: "Regnskap, betaling, SMS og e-post integrasjoner.",
+        icon: "🔌",
       },
       {
         label: "Automatisering",
         href: "/automatisering",
-        description: "Påminnelser, workflows og automatiske triggere.",
+        icon: "⚡",
         requiresModule: "automatisering",
       },
       {
         label: "Dataimport",
         href: "/data-import",
-        description: "Importer kunder, biler, dekk og historikk.",
+        icon: "📥",
       },
       {
-        label: "Innstillinger",
-        href: "/org-settings",
-        description: "Moduler, tjenestetype og bedriftsinnstillinger.",
-      },
-      {
-        label: "Hjelp & support",
+        label: "Hjelp",
         href: "/hjelp",
-        description: "Dokumentasjon, FAQ og kontakt.",
+        icon: "❓",
+      },
+    ],
+  },
+
+  // ADMIN (kun for admins)
+  {
+    title: "Admin",
+    icon: "👑",
+    collapsible: true,
+    items: [
+      {
+        label: "Partnere",
+        href: "/partnere",
+        icon: "🤝",
+        adminOnly: true,
+      },
+      {
+        label: "CEO Dashboard",
+        href: "/ceo",
+        icon: "📈",
+        adminOnly: true,
+      },
+      {
+        label: "Partnerforespørsler",
+        href: "/partnerforesporsler",
+        icon: "📨",
+        adminOnly: true,
       },
     ],
   },
@@ -234,6 +305,7 @@ export default function SidebarNav() {
   const router = useRouter();
   const { isModuleEnabled, loading: planLoading, org } = useOrgPlan();
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
 
   // Hent brukerens e-post for å sjekke om det er LYX-testkonto
   useEffect(() => {
@@ -253,6 +325,18 @@ export default function SidebarNav() {
     } finally {
       router.push("/login");
     }
+  };
+
+  const toggleSection = (sectionTitle: string) => {
+    setCollapsedSections(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(sectionTitle)) {
+        newSet.delete(sectionTitle);
+      } else {
+        newSet.add(sectionTitle);
+      }
+      return newSet;
+    });
   };
 
   // Filter nav items based on enabled modules and webshop settings
@@ -304,50 +388,69 @@ export default function SidebarNav() {
       </div>
 
       {/* Selve menyen */}
-      <div className="flex-1 space-y-5 overflow-y-auto pr-1">
-        {filteredSections.map((section) => (
-          <div key={section.title} className="space-y-2">
-            <p className="px-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-shellTextMuted">
-              {section.title}
-            </p>
-            <ul className="space-y-1">
-              {section.items.map((item) => {
-                const active = isActive(pathname, item.href);
-                const baseClasses =
-                  "block rounded-md px-2.5 py-1.5 transition-colors";
-                const activeClasses =
-                  "bg-primary text-white shadow-sm";
-                const inactiveClasses =
-                  "text-shellTextMuted hover:bg-shellBorder/70 hover:text-shellText";
+      <div className="flex-1 space-y-2 overflow-y-auto pr-1">
+        {filteredSections.map((section) => {
+          const isCollapsed = collapsedSections.has(section.title);
+          const isCollapsible = section.collapsible ?? false;
+          
+          return (
+            <div key={section.title} className="space-y-1">
+              {/* Section header */}
+              <button
+                onClick={() => isCollapsible && toggleSection(section.title)}
+                className={`flex w-full items-center justify-between px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-shellTextMuted ${
+                  isCollapsible ? "hover:text-shellText cursor-pointer" : ""
+                }`}
+              >
+                <span className="flex items-center gap-1.5">
+                  {section.icon && <span className="text-xs">{section.icon}</span>}
+                  {section.title}
+                </span>
+                {isCollapsible && (
+                  <span className="text-xs transition-transform" style={{ 
+                    transform: isCollapsed ? "rotate(-90deg)" : "rotate(0deg)" 
+                  }}>
+                    ▼
+                  </span>
+                )}
+              </button>
+              
+              {/* Items */}
+              {!isCollapsed && (
+                <ul className="space-y-0.5">
+                  {section.items.map((item) => {
+                    const active = isActive(pathname, item.href);
+                    const baseClasses =
+                      "flex items-center gap-2 rounded-md px-2.5 py-1.5 transition-colors";
+                    const activeClasses =
+                      "bg-primary text-white shadow-sm";
+                    const inactiveClasses =
+                      "text-shellTextMuted hover:bg-shellBorder/70 hover:text-shellText";
 
-                return (
-                  <li key={item.href}>
-                    <Link
-                      href={item.href}
-                      className={`${baseClasses} ${
-                        active ? activeClasses : inactiveClasses
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-medium">{item.label}</span>
-                        {item.badge && (
-                          <span className="rounded-full bg-blue-600 px-1.5 py-0.5 text-[9px] font-semibold text-white">
-                            {item.badge}
-                          </span>
-                        )}
-                      </div>
-                      {item.description && (
-                        <div className="text-[10px] text-shellTextMuted">
-                          {item.description}
-                        </div>
-                      )}
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        ))}
+                    return (
+                      <li key={item.href}>
+                        <Link
+                          href={item.href}
+                          className={`${baseClasses} ${
+                            active ? activeClasses : inactiveClasses
+                          }`}
+                        >
+                          {item.icon && <span className="text-sm">{item.icon}</span>}
+                          <span className="flex-1 text-xs font-medium">{item.label}</span>
+                          {item.badge && (
+                            <span className="rounded-full bg-blue-600 px-1.5 py-0.5 text-[9px] font-semibold text-white">
+                              {item.badge}
+                            </span>
+                          )}
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* Bunn: logg ut */}

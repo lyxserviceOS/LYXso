@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { getApiBaseUrl } from "@/lib/apiConfig";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
+const API_BASE_URL = getApiBaseUrl();
 const ORG_ID = process.env.NEXT_PUBLIC_ORG_ID;
 
 if (!ORG_ID) {
@@ -12,132 +12,198 @@ if (!ORG_ID) {
   );
 }
 
-function getPublicBookingUrl() {
-  if (!ORG_ID) {
-    throw new Error(
-      "[PublicBookingPageClient] NEXT_PUBLIC_ORG_ID er ikke satt."
-    );
-  }
-  return `${API_BASE_URL}/api/public/orgs/${ORG_ID}/bookings`;
-}
+type Service = {
+  id: string;
+  name: string;
+  description: string | null;
+  duration_minutes: number;
+  price: number | null;
+  currency: string | null;
+};
+
+type OrgInfo = {
+  id: string;
+  name: string;
+  slug: string;
+  logo_url: string | null;
+  booking_settings: {
+    allow_auto_booking?: boolean;
+    show_available_slots?: boolean;
+    booking_slot_duration_minutes?: number;
+    min_booking_lead_hours?: number;
+    max_booking_lead_days?: number;
+  } | null;
+};
+
+type AvailableSlot = {
+  start: string; // ISO string
+  end: string; // ISO string
+  available: boolean;
+  time: string; // HH:MM display format
+};
 
 type PublicBookingForm = {
   customerName: string;
   customerEmail: string;
   customerPhone: string;
+  serviceId: string;
   serviceName: string;
-  startLocal: string; // datetime-local
-  endLocal: string; // datetime-local
+  startTime: string; // ISO string
+  endTime: string; // ISO string
   notes: string;
 };
-
-type AvailableSlot = {
-  date: string;
-  start: string;
-  end: string;
-  available: boolean;
-};
-
-// Mock booking settings (in production, fetch from API)
-const MOCK_BOOKING_SETTINGS = {
-  allow_auto_booking: true, // Partner has enabled auto-booking
-  show_available_slots: true,
-  booking_slot_duration_minutes: 60,
-};
-
-// Generate mock available slots for the next 7 days
-function generateMockSlots(): AvailableSlot[] {
-  const slots: AvailableSlot[] = [];
-  const now = new Date();
-  
-  for (let day = 1; day <= 7; day++) {
-    const date = new Date(now);
-    date.setDate(date.getDate() + day);
-    const dateStr = date.toISOString().split('T')[0];
-    
-    // Skip weekends
-    if (date.getDay() === 0 || date.getDay() === 6) continue;
-    
-    // Generate slots from 9:00 to 16:00
-    const hours = [9, 10, 11, 12, 13, 14, 15, 16];
-    hours.forEach(hour => {
-      slots.push({
-        date: dateStr,
-        start: `${hour.toString().padStart(2, '0')}:00`,
-        end: `${(hour + 1).toString().padStart(2, '0')}:00`,
-        available: Math.random() > 0.3, // 70% availability
-      });
-    });
-  }
-  
-  return slots;
-}
 
 const EMPTY_FORM: PublicBookingForm = {
   customerName: "",
   customerEmail: "",
   customerPhone: "",
+  serviceId: "",
   serviceName: "",
-  startLocal: "",
-  endLocal: "",
+  startTime: "",
+  endTime: "",
   notes: "",
 };
 
 export default function PublicBookingPageClient() {
+  // Org & Services
+  const [orgInfo, setOrgInfo] = useState<OrgInfo | null>(null);
+  const [services, setServices] = useState<Service[]>([]);
+  const [loadingOrg, setLoadingOrg] = useState(true);
+  const [loadingServices, setLoadingServices] = useState(false);
+  
+  // Booking form
   const [form, setForm] = useState<PublicBookingForm>(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   
-  // Slot selection state
-  const [bookingMode, setBookingMode] = useState<"slots" | "manual">(
-    MOCK_BOOKING_SETTINGS.show_available_slots ? "slots" : "manual"
-  );
-  const [availableSlots, setAvailableSlots] = useState<AvailableSlot[]>([]);
-  const [selectedSlot, setSelectedSlot] = useState<AvailableSlot | null>(null);
+  // Slot selection
+  const [bookingMode, setBookingMode] = useState<"slots" | "manual">("slots");
   const [selectedDate, setSelectedDate] = useState<string>("");
-  
-  // Load available slots
-  useEffect(() => {
-    if (MOCK_BOOKING_SETTINGS.show_available_slots) {
-      setAvailableSlots(generateMockSlots());
-    }
-  }, []);
-  
-  // Get unique dates from available slots
-  const availableDates = [...new Set(availableSlots.map(s => s.date))];
-  
-  // Get slots for selected date
-  const slotsForSelectedDate = availableSlots.filter(s => s.date === selectedDate);
+  const [availableSlots, setAvailableSlots] = useState<AvailableSlot[]>([]);
+  const [loadingSlots, setLoadingSlots] = useState(false);
+  const [selectedSlot, setSelectedSlot] = useState<AvailableSlot | null>(null);
 
-  function handleChange<K extends keyof PublicBookingForm>(
-    key: K,
-    value: PublicBookingForm[K]
-  ) {
-    setForm((prev) => ({ ...prev, [key]: value }));
+  // Load org info and services on mount
+  useEffect(() => {
+    if (!ORG_ID) return;
+    loadOrgInfo();
+    loadServices();
+  }, []);
+
+  // Load slots when date or service changes
+  useEffect(() => {
+    if (selectedDate && form.serviceId && bookingMode === "slots") {
+      loadAvailableSlots();
+    }
+  }, [selectedDate, form.serviceId, bookingMode]);
+
+  async function loadOrgInfo() {
+    setLoadingOrg(true);
+    setError(null);
+    
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/orgs/${ORG_ID}/settings`);
+      if (!res.ok) throw new Error(`Failed to load org info: ${res.status}`);
+      
+      const data = await res.json();
+      const org = data.org as OrgInfo;
+      
+      setOrgInfo(org);
+      
+      // Set booking mode based on org settings
+      if (org.booking_settings?.show_available_slots !== false) {
+        setBookingMode("slots");
+      } else {
+        setBookingMode("manual");
+      }
+    } catch (err) {
+      console.error("[PublicBooking] Error loading org info:", err);
+      setError("Kunne ikke laste organisasjonsinformasjon");
+    } finally {
+      setLoadingOrg(false);
+    }
+  }
+
+  async function loadServices() {
+    if (!ORG_ID) return;
+    
+    setLoadingServices(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/orgs/${ORG_ID}/services`);
+      if (!res.ok) throw new Error(`Failed to load services: ${res.status}`);
+      
+      const data = await res.json();
+      setServices(data.services || []);
+    } catch (err) {
+      console.error("[PublicBooking] Error loading services:", err);
+    } finally {
+      setLoadingServices(false);
+    }
+  }
+
+  async function loadAvailableSlots() {
+    if (!ORG_ID || !selectedDate) return;
+    
+    setLoadingSlots(true);
+    setError(null);
+    
+    try {
+      const selectedService = services.find(s => s.id === form.serviceId);
+      const duration = selectedService?.duration_minutes || 60;
+      
+      const params = new URLSearchParams({
+        date: selectedDate,
+        duration_minutes: duration.toString(),
+      });
+      
+      if (form.serviceId) {
+        params.append('service_id', form.serviceId);
+      }
+      
+      const res = await fetch(
+        `${API_BASE_URL}/api/public/orgs/${ORG_ID}/availability?${params}`
+      );
+      
+      if (!res.ok) {
+        throw new Error(`Failed to load availability: ${res.status}`);
+      }
+      
+      const data = await res.json();
+      setAvailableSlots(data.slots || []);
+    } catch (err) {
+      console.error("[PublicBooking] Error loading slots:", err);
+      setError("Kunne ikke laste ledige tider");
+      setAvailableSlots([]);
+    } finally {
+      setLoadingSlots(false);
+    }
+  }
+
+  function handleSelectService(serviceId: string) {
+    const service = services.find(s => s.id === serviceId);
+    if (!service) return;
+    
+    setForm(prev => ({
+      ...prev,
+      serviceId: service.id,
+      serviceName: service.name,
+    }));
+    
+    // Reset slot selection when service changes
+    setSelectedSlot(null);
+    setAvailableSlots([]);
   }
   
   function handleSelectSlot(slot: AvailableSlot) {
     if (!slot.available) return;
     
     setSelectedSlot(slot);
-    
-    // Convert to datetime-local format for form
-    const startDateTime = `${slot.date}T${slot.start}`;
-    const endDateTime = `${slot.date}T${slot.end}`;
-    
     setForm(prev => ({
       ...prev,
-      startLocal: startDateTime,
-      endLocal: endDateTime,
+      startTime: slot.start,
+      endTime: slot.end,
     }));
-  }
-
-  function toIso(localValue: string): string | null {
-    if (!localValue) return null;
-    const d = new Date(localValue);
-    if (Number.isNaN(d.getTime())) return null;
-    return d.toISOString();
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -153,209 +219,368 @@ export default function PublicBookingPageClient() {
     const trimmedName = form.customerName.trim();
     const trimmedEmail = form.customerEmail.trim();
     const trimmedPhone = form.customerPhone.trim();
-    const trimmedService = form.serviceName.trim();
 
     if (!trimmedName) {
       setError("Navn må fylles ut.");
       return;
     }
-    if (!trimmedEmail && !trimmedPhone) {
-      setError("Minst én av e-post eller telefon må fylles ut.");
+    if (!trimmedEmail) {
+      setError("E-post må fylles ut.");
       return;
     }
-    if (!trimmedService) {
-      setError("Tjeneste må fylles ut.");
+    if (!form.serviceId) {
+      setError("Tjeneste må velges.");
       return;
     }
-
-    const startIso = toIso(form.startLocal);
-    const endIso = toIso(form.endLocal);
-
-    if (!startIso || !endIso) {
-      setError("Start- og sluttid må fylles ut.");
+    if (!form.startTime) {
+      setError("Tidspunkt må velges.");
       return;
     }
 
     setSubmitting(true);
     try {
-      const url = getPublicBookingUrl();
+      const selectedService = services.find(s => s.id === form.serviceId);
+      const duration = selectedService?.duration_minutes || 60;
 
       const payload = {
-        startTime: startIso,
-        endTime: endIso,
-        customerName: trimmedName,
-        customerEmail: trimmedEmail || null,
-        customerPhone: trimmedPhone || null,
-        serviceName: trimmedService,
+        service_id: form.serviceId,
+        starts_at: form.startTime,
+        duration_minutes: duration,
+        customer_name: trimmedName,
+        customer_email: trimmedEmail,
+        customer_phone: trimmedPhone || null,
         notes: form.notes.trim() || null,
+        recaptcha_token: "dummy_token_for_dev", // TODO: Implement real reCAPTCHA
       };
 
-      const res = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      const res = await fetch(
+        `${API_BASE_URL}/api/public/orgs/${ORG_ID}/bookings`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
 
       if (!res.ok) {
-        console.error(
-          "[PublicBookingPageClient] create public booking error",
-          res.status,
-          await res.text()
-        );
-        setError(
-          "Kunne ikke sende inn forespørselen. Prøv igjen, eller ta kontakt på telefon."
-        );
+        const errData = await res.json();
+        setError(errData.details || errData.error || "Kunne ikke opprette booking");
         return;
       }
 
       setForm(EMPTY_FORM);
+      setSelectedSlot(null);
+      setSelectedDate("");
       setSuccessMessage(
-        "Takk! Forespørselen er sendt. Du får bekreftelse når vi har gått gjennom ønsket tidspunkt."
+        "Takk! Din booking er mottatt. Du vil få bekreftelse på e-post så snart den er behandlet."
       );
     } catch (err) {
-      console.error("[PublicBookingPageClient] submit error", err);
-      setError(
-        "Noe gikk galt under innsending. Prøv igjen senere eller kontakt oss direkte."
-      );
+      console.error("[PublicBooking] Submit error:", err);
+      setError("Noe gikk galt. Vennligst prøv igjen senere.");
     } finally {
       setSubmitting(false);
     }
   }
 
+  // Get available dates (next 14 days, excluding past dates)
+  const getAvailableDates = () => {
+    const dates = [];
+    const now = new Date();
+    const minBookingTime = orgInfo?.booking_settings?.min_booking_lead_hours || 2;
+    const maxBookingDays = orgInfo?.booking_settings?.max_booking_lead_days || 30;
+    
+    for (let i = 0; i < maxBookingDays; i++) {
+      const date = new Date(now);
+      date.setDate(date.getDate() + i);
+      
+      // Check if date is far enough in future
+      const minDate = new Date(now.getTime() + minBookingTime * 60 * 60 * 1000);
+      if (date >= minDate) {
+        dates.push(date.toISOString().split('T')[0]);
+      }
+    }
+    
+    return dates;
+  };
+
+  const availableDates = getAvailableDates();
+
+  if (loadingOrg) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent mx-auto" />
+          <p className="text-slate-600">Laster booking-system...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="mx-auto flex min-h-screen max-w-3xl flex-col px-4 py-10">
-      <header className="mb-8">
-        <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-          LYXso • Online booking
-        </p>
-        <h1 className="mt-2 text-2xl font-semibold text-slate-900">
-          Bestill time
+    <div className="mx-auto flex min-h-screen max-w-4xl flex-col px-4 py-10">
+      <header className="mb-8 text-center">
+        {orgInfo?.logo_url && (
+          <img 
+            src={orgInfo.logo_url} 
+            alt={orgInfo.name}
+            className="mx-auto mb-4 h-16 object-contain"
+          />
+        )}
+        <h1 className="text-3xl font-bold text-slate-900">
+          {orgInfo?.name || "Book time"}
         </h1>
-        <p className="mt-1 text-sm text-slate-600">
-          Fyll inn ønsket tidspunkt og kontaktinformasjon, så bekrefter vi
-          bookingen så fort som mulig.
+        <p className="mt-2 text-slate-600">
+          Velg tjeneste og ønsket tidspunkt
         </p>
       </header>
 
       <main className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        {error && (
-          <div className="mb-3 rounded border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-800">
-            {error}
+        {/* Success message */}
+      {successMessage && (
+        <div className="mb-8 rounded-lg border border-green-200 bg-green-50 p-4">
+          <div className="flex items-start gap-3">
+            <svg className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+              <p className="font-medium text-green-900">{successMessage}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Error message */}
+      {error && (
+        <div className="mb-8 rounded-lg border border-red-200 bg-red-50 p-4">
+          <div className="flex items-start gap-3">
+            <svg className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+              <p className="font-medium text-red-900">{error}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-8">
+        {/* Step 1: Select Service */}
+        <div className="rounded-lg border border-slate-200 bg-white p-6">
+          <h2 className="mb-4 text-lg font-semibold text-slate-900">
+            1. Velg tjeneste
+          </h2>
+          
+          {loadingServices ? (
+            <div className="py-8 text-center text-slate-500">
+              Laster tjenester...
+            </div>
+          ) : services.length === 0 ? (
+            <div className="py-8 text-center text-slate-500">
+              Ingen tjenester tilgjengelig for øyeblikket.
+            </div>
+          ) : (
+            <div className="grid gap-3 md:grid-cols-2">
+              {services.map((service) => (
+                <button
+                  key={service.id}
+                  type="button"
+                  onClick={() => handleSelectService(service.id)}
+                  className={`rounded-lg border-2 p-4 text-left transition-all ${
+                    form.serviceId === service.id
+                      ? "border-blue-600 bg-blue-50"
+                      : "border-slate-200 bg-white hover:border-slate-300"
+                  }`}
+                >
+                  <div className="font-medium text-slate-900">{service.name}</div>
+                  {service.description && (
+                    <div className="mt-1 text-sm text-slate-600">
+                      {service.description}
+                    </div>
+                  )}
+                  <div className="mt-2 flex items-center gap-4 text-xs text-slate-500">
+                    <span>⏱️ {service.duration_minutes} min</span>
+                    {service.price && (
+                      <span>
+                        💰 {service.price} {service.currency || "NOK"}
+                      </span>
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Step 2: Select Date & Time */}
+        {form.serviceId && bookingMode === "slots" && (
+          <div className="rounded-lg border border-slate-200 bg-white p-6">
+            <h2 className="mb-4 text-lg font-semibold text-slate-900">
+              2. Velg dato og tidspunkt
+            </h2>
+            
+            {/* Date selection */}
+            <div className="mb-6">
+              <label className="mb-2 block text-sm font-medium text-slate-700">
+                Velg dato
+              </label>
+              <select
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="w-full rounded-lg border border-slate-300 px-4 py-2"
+              >
+                <option value="">-- Velg dato --</option>
+                {availableDates.map((date) => (
+                  <option key={date} value={date}>
+                    {new Date(date).toLocaleDateString('nb-NO', {
+                      weekday: 'long',
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    })}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Time slots */}
+            {selectedDate && (
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  Ledige tider
+                </label>
+                
+                {loadingSlots ? (
+                  <div className="py-8 text-center text-slate-500">
+                    Laster ledige tider...
+                  </div>
+                ) : availableSlots.length === 0 ? (
+                  <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+                    Ingen ledige tider denne dagen. Prøv en annen dato.
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-3 gap-2 md:grid-cols-4 lg:grid-cols-6">
+                    {availableSlots.map((slot, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => handleSelectSlot(slot)}
+                        disabled={!slot.available}
+                        className={`rounded-lg border-2 px-3 py-2 text-sm font-medium transition-all ${
+                          selectedSlot?.start === slot.start
+                            ? "border-blue-600 bg-blue-600 text-white"
+                            : slot.available
+                            ? "border-slate-200 bg-white text-slate-700 hover:border-blue-300 hover:bg-blue-50"
+                            : "border-slate-100 bg-slate-50 text-slate-400 cursor-not-allowed line-through"
+                        }`}
+                      >
+                        {slot.time}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 
-        {successMessage && (
-          <div className="mb-3 rounded border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-800">
-            {successMessage}
+        {/* Step 3: Customer Information */}
+        {form.startTime && (
+          <div className="rounded-lg border border-slate-200 bg-white p-6">
+            <h2 className="mb-4 text-lg font-semibold text-slate-900">
+              3. Din informasjon
+            </h2>
+            
+            <div className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-slate-700">
+                    Navn *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    className="w-full rounded-lg border border-slate-300 px-4 py-2"
+                    value={form.customerName}
+                    onChange={(e) =>
+                      setForm((prev) => ({ ...prev, customerName: e.target.value }))
+                    }
+                    placeholder="Ditt fulle navn"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-slate-700">
+                    E-post *
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    className="w-full rounded-lg border border-slate-300 px-4 py-2"
+                    value={form.customerEmail}
+                    onChange={(e) =>
+                      setForm((prev) => ({ ...prev, customerEmail: e.target.value }))
+                    }
+                    placeholder="din@epost.no"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="mb-1 block text-sm font-medium text-slate-700">
+                  Telefon (valgfritt)
+                </label>
+                <input
+                  type="tel"
+                  className="w-full rounded-lg border border-slate-300 px-4 py-2"
+                  value={form.customerPhone}
+                  onChange={(e) =>
+                    setForm((prev) => ({ ...prev, customerPhone: e.target.value }))
+                  }
+                  placeholder="Ditt telefonnummer"
+                />
+              </div>
+
+              <div>
+                <label className="mb-1 block text-sm font-medium text-slate-700">
+                  Kommentar (valgfritt)
+                </label>
+                <textarea
+                  className="w-full rounded-lg border border-slate-300 px-4 py-2"
+                  rows={4}
+                  value={form.notes}
+                  onChange={(e) =>
+                    setForm((prev) => ({ ...prev, notes: e.target.value }))
+                  }
+                  placeholder="Ekstra informasjon, spesielle ønsker, etc."
+                />
+              </div>
+            </div>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4 text-sm">
-          <div className="grid gap-3 md:grid-cols-2">
-            <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600">
-                Navn
-              </label>
-              <input
-                type="text"
-                className="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
-                value={form.customerName}
-                onChange={(e) => handleChange("customerName", e.target.value)}
-                placeholder="F.eks. Ola Nordmann"
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600">
-                E-post
-              </label>
-              <input
-                type="email"
-                className="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
-                value={form.customerEmail}
-                onChange={(e) => handleChange("customerEmail", e.target.value)}
-                placeholder="kunde@epost.no"
-              />
-            </div>
-          </div>
-
-          <div className="grid gap-3 md:grid-cols-2">
-            <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600">
-                Telefon
-              </label>
-              <input
-                type="tel"
-                className="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
-                value={form.customerPhone}
-                onChange={(e) => handleChange("customerPhone", e.target.value)}
-                placeholder="Mobilnummer"
-              />
-              <p className="mt-1 text-[11px] text-slate-500">
-                Du kan fylle ut enten e-post, telefon – eller begge.
-              </p>
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600">
-                Ønsket tjeneste
-              </label>
-              <input
-                type="text"
-                className="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
-                value={form.serviceName}
-                onChange={(e) => handleChange("serviceName", e.target.value)}
-                placeholder="F.eks. Keramisk coating, polering, dekkhotell …"
-              />
-            </div>
-          </div>
-
-          <div className="grid gap-3 md:grid-cols-2">
-            <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600">
-                Ønsket starttid
-              </label>
-              <input
-                type="datetime-local"
-                className="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
-                value={form.startLocal}
-                onChange={(e) => handleChange("startLocal", e.target.value)}
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600">
-                Ønsket sluttid
-              </label>
-              <input
-                type="datetime-local"
-                className="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
-                value={form.endLocal}
-                onChange={(e) => handleChange("endLocal", e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="mb-1 block text-xs font-medium text-slate-600">
-              Kommentar (valgfritt)
-            </label>
-            <textarea
-              className="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
-              rows={3}
-              value={form.notes}
-              onChange={(e) => handleChange("notes", e.target.value)}
-              placeholder="Skriv gjerne inn registreringsnummer, spesielle ønsker eller annen info."
-            />
-          </div>
-
-          <div className="mt-4 flex items-center justify-end">
+        {/* Submit */}
+        {form.startTime && (
+          <div className="flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                setForm(EMPTY_FORM);
+                setSelectedSlot(null);
+                setSelectedDate("");
+              }}
+              className="rounded-lg border border-slate-300 px-6 py-2.5 font-medium text-slate-700 hover:bg-slate-50"
+            >
+              Avbryt
+            </button>
             <button
               type="submit"
               disabled={submitting}
-              className="rounded-full bg-slate-900 px-5 py-2 text-xs font-medium text-slate-50 hover:bg-slate-800 disabled:opacity-60"
+              className="rounded-lg bg-blue-600 px-6 py-2.5 font-medium text-white hover:bg-blue-700 disabled:bg-slate-400 disabled:cursor-not-allowed"
             >
-              {submitting ? "Sender …" : "Send forespørsel"}
+              {submitting ? "Sender..." : "Bekreft booking"}
             </button>
           </div>
-        </form>
+        )}
+      </form>
       </main>
 
       <footer className="mt-6 text-center text-[11px] text-slate-400">

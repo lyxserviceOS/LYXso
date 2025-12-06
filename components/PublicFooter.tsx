@@ -44,7 +44,7 @@ export default function PublicFooter() {
                 </Link>
               </li>
               <li>
-                <Link href="/#priser" className="hover:text-slate-200 transition-colors">
+                <Link href="/priser" className="hover:text-slate-200 transition-colors">
                   Priser
                 </Link>
               </li>
@@ -61,8 +61,8 @@ export default function PublicFooter() {
                 </Link>
               </li>
               <li>
-                <Link href="/bli-partner" className="hover:text-slate-200 transition-colors">
-                  Bli partner
+                <Link href="/register" className="hover:text-slate-200 transition-colors">
+                  Kom i gang
                 </Link>
               </li>
               <li>
@@ -73,24 +73,29 @@ export default function PublicFooter() {
             </ul>
           </div>
 
-          {/* Legal (kommer senere) */}
+          {/* Legal */}
           <div>
-            <h3 className="text-sm font-semibold text-slate-200 mb-4">Juridisk</h3>
+            <h3 className="text-sm font-semibold text-slate-200 mb-4">Juridisk & Personvern</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/personvern" className="hover:text-slate-200 transition-colors text-slate-500">
-                  Personvern (kommer)
+                <Link href="/personvern" className="hover:text-slate-200 transition-colors flex items-center gap-2">
+                  <span className="text-green-500">✓</span> Personvernerklæring
                 </Link>
               </li>
               <li>
-                <Link href="/bruksvilkar" className="hover:text-slate-200 transition-colors text-slate-500">
-                  Bruksvilkår (kommer)
+                <Link href="/bruksvilkar" className="hover:text-slate-200 transition-colors flex items-center gap-2">
+                  <span className="text-green-500">✓</span> Bruksvilkår
                 </Link>
               </li>
               <li>
-                <Link href="/cookies" className="hover:text-slate-200 transition-colors text-slate-500">
-                  Cookies (kommer)
+                <Link href="/cookies" className="hover:text-slate-200 transition-colors flex items-center gap-2">
+                  <span className="text-green-500">✓</span> Cookie-policy
                 </Link>
+              </li>
+              <li className="pt-2 border-t border-slate-800">
+                <span className="text-xs text-slate-500 flex items-center gap-1">
+                  🔒 GDPR-compliant
+                </span>
               </li>
             </ul>
           </div>

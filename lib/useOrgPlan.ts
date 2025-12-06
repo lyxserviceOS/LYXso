@@ -8,15 +8,19 @@ import {
   planFeatureFlags,
   type PlanFeatureKey,
 } from "./orgPlan";
+import { getApiBaseUrl } from "./apiConfig";
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:4000";
+const API_BASE = getApiBaseUrl();
 
 type PlanFeatures = {
   basicBooking: boolean;
   ads: boolean;
   aiMarketing: boolean;
   lyxVision: boolean;
+  aiTyreAnalysis: boolean;
+  aiCoatingCertificate: boolean;
+  aiLeadAgent: boolean;
+  autoPublishing: boolean;
 };
 
 type OrgPlanHookState = {
@@ -26,6 +30,12 @@ type OrgPlanHookState = {
   features: PlanFeatures;
   orgName: string | null;
   isActive: boolean | null;
+  org: {
+    id: string | null;
+    name: string | null;
+    plan: OrgPlan;
+    is_active: boolean | null;
+  } | null;
 };
 
 export function useOrgPlan(): OrgPlanHookState {
@@ -37,6 +47,7 @@ export function useOrgPlan(): OrgPlanHookState {
     features: planFeatureFlags["trial"],
     orgName: null,
     isActive: null,
+    org: null,
   });
 
   useEffect(() => {
@@ -90,6 +101,12 @@ export function useOrgPlan(): OrgPlanHookState {
           features: planFeatureFlags[plan],
           orgName,
           isActive,
+          org: {
+            id: orgId,
+            name: orgName,
+            plan,
+            is_active: isActive,
+          },
         });
       } catch (err: any) {
         if (cancelled) return;

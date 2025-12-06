@@ -1,0 +1,131 @@
+// app/api/support/tickets/[id]/route.ts
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+// GET - Get single ticket with replies
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { id } = params;
+
+    // Get ticket
+    const { data: ticket, error: ticketError } = await supabase
+      .from("support_tickets")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (ticketError || !ticket) {
+      return NextResponse.json(
+        { error: "Ticket ikke funnet" },
+        { status: 404 }
+      );
+    }
+
+    // Get replies
+    const { data: replies, error: repliesError } = await supabase
+      .from("support_replies")
+      .select("*")
+      .eq("ticket_id", id)
+      .order("created_at", { ascending: true });
+
+    if (repliesError) {
+      console.error("Error fetching replies:", repliesError);
+    }
+
+    return NextResponse.json({
+      ticket,
+      replies: replies || [],
+    });
+  } catch (error) {
+    console.error("Error in ticket GET:", error);
+    return NextResponse.json(
+      { error: "En feil oppstod" },
+      { status: 500 }
+    );
+  }
+}
+
+// PATCH - Update ticket
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { id } = params;
+    const body = await request.json();
+    const { status, priority, assigned_to, internal_notes } = body;
+
+    const updates: any = {};
+    if (status) updates.status = status;
+    if (priority) updates.priority = priority;
+    if (assigned_to !== undefined) updates.assigned_to = assigned_to;
+    if (internal_notes !== undefined) updates.internal_notes = internal_notes;
+
+    // If closing, set resolved_at
+    if (status === "closed" || status === "resolved") {
+      updates.resolved_at = new Date().toISOString();
+    }
+
+    const { data: ticket, error } = await supabase
+      .from("support_tickets")
+      .update(updates)
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error updating ticket:", error);
+      return NextResponse.json(
+        { error: "Kunne ikke oppdatere ticket" },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ ticket });
+  } catch (error) {
+    console.error("Error in ticket PATCH:", error);
+    return NextResponse.json(
+      { error: "En feil oppstod" },
+      { status: 500 }
+    );
+  }
+}
+
+// DELETE - Delete ticket (soft delete)
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { id } = params;
+
+    const { error } = await supabase
+      .from("support_tickets")
+      .update({ status: "deleted", deleted_at: new Date().toISOString() })
+      .eq("id", id);
+
+    if (error) {
+      console.error("Error deleting ticket:", error);
+      return NextResponse.json(
+        { error: "Kunne ikke slette ticket" },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Error in ticket DELETE:", error);
+    return NextResponse.json(
+      { error: "En feil oppstod" },
+      { status: 500 }
+    );
+  }
+}

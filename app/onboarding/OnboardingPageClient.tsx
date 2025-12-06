@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import type { Industry, ModuleCode } from "@/types/industry";
 import { INDUSTRIES, ORG_MODULES, getRecommendedModules, DEFAULT_MODULES } from "@/types/industry";
+import { getApiBaseUrl } from "@/lib/apiConfig";
 
 // Dynamic import MapSelector to avoid SSR issues with Leaflet
 const MapSelector = dynamic(() => import("@/components/onboarding/MapSelector"), {
@@ -14,6 +15,7 @@ const MapSelector = dynamic(() => import("@/components/onboarding/MapSelector"),
 });
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
+const API_BASE = getApiBaseUrl();
 const ORG_ID = process.env.NEXT_PUBLIC_ORG_ID;
 
 type Step = 1 | 2 | 3 | 4;
