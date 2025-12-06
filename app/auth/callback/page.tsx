@@ -61,7 +61,7 @@ function CallbackContent() {
       if (hasOrg) {
         // User has org, redirect to dashboard
         setStatus("Velkommen tilbake! Sender deg til dashboard...");
-        setTimeout(() => router.push("/kontrollpanel"), 800);
+        setTimeout(() => router.push("/min-side"), 800);
         return;
       }
 
@@ -107,10 +107,10 @@ function CallbackContent() {
             return;
           }
 
-          // Redirect to onboarding wizard with orgId
-          setStatus("Sender deg til onboarding...");
+          // Redirect directly to dashboard for new users
+          setStatus("Velkommen! Sender deg til dashboard...");
           setTimeout(() => {
-            router.push(`/register?step=2.1&orgId=${orgId}`);
+            router.push("/min-side");
           }, 800);
         } catch (orgErr) {
           console.error("Feil ved kall til create-org-from-signup:", orgErr);

@@ -56,7 +56,7 @@ export default function MarketingPage() {
             </div>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2 mt-4">
+          <div className="grid gap-4 md:grid-cols-3 mt-4">
             <Link
               href="/markedsforing/ai"
               className="block p-4 bg-white rounded-xl border border-purple-200 hover:border-purple-400 hover:shadow-md transition-all group"
@@ -84,6 +84,24 @@ export default function MarketingPage() {
               </h3>
               <p className="text-sm text-[#475569] mb-3">
                 Generer overbevisende annonsetekster for Facebook, Google og mer
+              </p>
+              <span className="inline-flex items-center text-sm font-medium text-purple-600 group-hover:gap-2 transition-all">
+                Åpne verktøy
+                <svg className="w-4 h-4 ml-1 group-hover:ml-2 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </span>
+            </Link>
+
+            <Link
+              href="/markedsforing/autopublish"
+              className="block p-4 bg-white rounded-xl border border-purple-200 hover:border-purple-400 hover:shadow-md transition-all group"
+            >
+              <h3 className="text-base font-semibold text-[#0F172A] mb-2 group-hover:text-purple-600">
+                📅 Auto-publisering
+              </h3>
+              <p className="text-sm text-[#475569] mb-3">
+                Automatisk publisering til sosiale medier med AI-generert innhold
               </p>
               <span className="inline-flex items-center text-sm font-medium text-purple-600 group-hover:gap-2 transition-all">
                 Åpne verktøy
