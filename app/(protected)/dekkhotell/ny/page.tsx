@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Upload, Camera, Loader2, CheckCircle, AlertCircle, ArrowRight } from "lucide-react";
+import { showToast } from "@/lib/toast";
 
 // Step 1: Upload photos for AI analysis
 // Step 2: AI analyzes and shows results
@@ -63,7 +64,7 @@ export default function NyttDekkhotellPage() {
   // Step 1 → AI + Customer: Analyze with AI immediately after photo upload
   const handleAnalyzeWithAI = async () => {
     if (photos.length === 0) {
-      alert("Last opp minst 1 bilde");
+      showToast.warning("Last opp minst 1 bilde");
       return;
     }
 
@@ -85,6 +86,12 @@ export default function NyttDekkhotellPage() {
       if (!res.ok) throw new Error("AI-analyse feilet");
 
       const result = await res.json();
+      
+      // Validate AI result structure
+      if (!result || typeof result !== 'object') {
+        throw new Error("Ugyldig AI-respons");
+      }
+      
       setAiResults(result);
       
       // ✅ IMMEDIATELY PRE-FILL tyre details from AI results
@@ -101,10 +108,14 @@ export default function NyttDekkhotellPage() {
       
       // ✅ SKIP step 2, go directly to customer + details (step 3)
       setCurrentStep(3);
-      alert("✅ AI-analyse fullført! Detaljer er forhåndsutfylt - fyll inn manglende info.");
+      showToast.success("AI-analyse fullført!", {
+        description: "Detaljer er forhåndsutfylt - fyll inn manglende info."
+      });
     } catch (error) {
       console.error(error);
-      alert("Kunne ikke analysere bilder. Fortsett manuelt.");
+      showToast.error("Kunne ikke analysere bilder", {
+        description: "Fortsett manuelt eller prøv igjen."
+      });
       // Allow continuing without AI
       setCurrentStep(3);
     } finally {
@@ -194,7 +205,7 @@ export default function NyttDekkhotellPage() {
   // Step 3 → 4: Continue to storage
   const handleContinueToStorage = () => {
     if (!selectedCustomer && !showNewCustomerForm) {
-      alert("Velg eller opprett en kunde");
+      showToast.warning("Velg eller opprett en kunde");
       return;
     }
     setCurrentStep(4);
@@ -223,11 +234,15 @@ export default function NyttDekkhotellPage() {
 
       if (!res.ok) throw new Error("Kunne ikke lagre dekksett");
 
-      alert("Dekksett lagret!");
+      showToast.success("Dekksett lagret!", {
+        description: "Du blir videresendt til oversikten."
+      });
       router.push("/dekkhotell");
     } catch (error) {
       console.error(error);
-      alert("Feil ved lagring. Prøv igjen.");
+      showToast.error("Feil ved lagring", {
+        description: "Prøv igjen eller kontakt support."
+      });
     }
   };
 

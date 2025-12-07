@@ -7,6 +7,7 @@ import CustomerVehicleSearch from "@/components/dekkhotell/CustomerVehicleSearch
 import { getApiBaseUrl } from "@/lib/apiConfig";
 import { useOrgPlan } from "@/lib/useOrgPlan";
 import { useRouter } from "next/navigation";
+import { showToast } from "@/lib/toast";
 
 const API_BASE = getApiBaseUrl();
 const ORG_ID = process.env.NEXT_PUBLIC_ORG_ID;
@@ -88,8 +89,8 @@ export default function DekkhotellPageClient() {
       position: string;
       tread_depth_mm: number;
       condition: TyreCondition;
-      production_year: number;
-      production_week: number;
+      production_year: number | null;
+      production_week: number | null;
     }[];
     overall_condition: TyreCondition;
     overall_tread_depth_mm: number;
@@ -970,7 +971,7 @@ export default function DekkhotellPageClient() {
                   
                   // Validate that we have all 4 images
                   if (Object.keys(uploadedImages).length !== 4) {
-                    alert("Vennligst last opp bilder av alle fire dekk før analyse.");
+                    showToast.warning("Vennligst last opp bilder av alle fire dekk før analyse");
                     return;
                   }
                   
@@ -1015,14 +1016,32 @@ export default function DekkhotellPageClient() {
                     
                     const data = await res.json();
                     
-                    // Convert AI result to frontend format
+                    // Validate AI response structure
+                    if (!data || !data.result) {
+                      throw new Error("AI-respons mangler 'result' felt");
+                    }
+                    
+                    if (!Array.isArray(data.result.positions) || data.result.positions.length === 0) {
+                      throw new Error("AI-respons mangler gyldig 'positions' array");
+                    }
+                    
+                    // Validate all positions have required fields
+                    const invalidPositions = data.result.positions.filter((p: any) => 
+                      !p || typeof p.tread_depth_mm !== 'number'
+                    );
+                    
+                    if (invalidPositions.length > 0) {
+                      throw new Error("AI-respons inneholder ugyldige posisjonsdata");
+                    }
+                    
+                    // Convert AI result to frontend format with safe defaults
                     setAiAnalysisResult({
                       positions: data.result.positions.map((p: any) => ({
-                        position: p.position,
+                        position: p.position || "unknown",
                         tread_depth_mm: p.tread_depth_mm,
                         condition: p.wear_status === "ok" ? "good" : p.wear_status === "warn" ? "worn" : "replace",
-                        production_year: data.result.dot_year || 2022,
-                        production_week: 34
+                        production_year: data.result.dot_year || null,
+                        production_week: data.result.dot_week || null
                       })),
                       overall_condition: data.result.overall_recommendation === "ok" ? "good" : 
                                         data.result.overall_recommendation === "bør_byttes_snart" ? "worn" : "replace",
@@ -1036,7 +1055,9 @@ export default function DekkhotellPageClient() {
                     
                   } catch (err) {
                     console.error("AI-analyse feil:", err);
-                    alert("Kunne ikke kjøre AI-analyse. Prøv igjen senere.");
+                    showToast.error("Kunne ikke kjøre AI-analyse", {
+                      description: "Prøv igjen senere eller kontakt support."
+                    });
                   } finally {
                     setAnalyzing(false);
                   }
@@ -1117,7 +1138,9 @@ export default function DekkhotellPageClient() {
                       </p>
                       <p className="text-lg font-bold text-slate-900">{pos.tread_depth_mm} mm</p>
                       <p className="text-[10px] text-slate-500">
-                        Prod: {pos.production_week}/{pos.production_year}
+                        Prod: {pos.production_week && pos.production_year 
+                          ? `${pos.production_week}/${pos.production_year}` 
+                          : 'Ukjent'}
                       </p>
                     </div>
                   ))}
@@ -1125,6 +1148,7 @@ export default function DekkhotellPageClient() {
               </div>
               
               {/* Production info */}
+              {aiAnalysisResult.positions[0].production_year && aiAnalysisResult.positions[0].production_week && (
               <div className="border-t border-slate-100 pt-4">
                 <p className="text-xs font-medium text-slate-700 mb-2">Produksjonsinformasjon</p>
                 <div className="bg-slate-50 rounded-lg p-3 text-xs">
@@ -1136,6 +1160,7 @@ export default function DekkhotellPageClient() {
                   </p>
                 </div>
               </div>
+              )}
             </div>
             
             <div className="mt-6 flex gap-3">
@@ -1420,7 +1445,7 @@ export default function DekkhotellPageClient() {
                     type="button"
                     onClick={async () => {
                       if (Object.keys(uploadedImages).length !== 4) {
-                        alert("Vennligst last opp bilder av alle fire dekk.");
+                        showToast.warning("Vennligst last opp bilder av alle fire dekk");
                         return;
                       }
                       
@@ -1454,7 +1479,9 @@ export default function DekkhotellPageClient() {
                         
                       } catch (err) {
                         console.error("AI-analyse feil:", err);
-                        alert("Kunne ikke kjøre AI-analyse. Prøv igjen senere.");
+                        showToast.error("Kunne ikke kjøre AI-analyse", {
+                          description: "Prøv igjen senere eller kontakt support."
+                        });
                       } finally {
                         setAnalyzing(false);
                       }

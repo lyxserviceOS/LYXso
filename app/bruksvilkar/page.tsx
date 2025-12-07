@@ -100,7 +100,7 @@ export default function BruksvilkarPage() {
               <span className="hidden sm:inline">•</span>
               <span className="bg-slate-800/50 px-3 py-2 rounded-lg">Versjon 1.0.0</span>
               <span className="hidden sm:inline">•</span>
-              <span className="bg-slate-800/50 px-3 py-2 rounded-lg">LYXso AS - Org.nr: 999999999</span>
+              <span className="bg-slate-800/50 px-3 py-2 rounded-lg">LYXso AS</span>
             </div>
             
             {/* Quick Links */}
@@ -208,7 +208,7 @@ export default function BruksvilkarPage() {
                   {[
                     {
                       term: '"LYXso", "vi", "oss", "vår", "Leverandør"',
-                      definition: 'LYXso AS, organisasjonsnummer 999999999, hjemmehørende i Norge, inkludert alle datterselskaper, tilknyttede selskaper, direktører, ansatte, styremedlemmer, agenter, konsulenter, underleverandører og representanter.'
+                      definition: 'LYXso AS, hjemmehørende i Norge, inkludert alle datterselskaper, tilknyttede selskaper, direktører, ansatte, styremedlemmer, agenter, konsulenter, underleverandører og representanter.'
                     },
                     {
                       term: '"Tjenesten", "Plattformen", "LYXso-plattformen"',

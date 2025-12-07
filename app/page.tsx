@@ -1289,14 +1289,29 @@ export default async function HomePage() {
             </p>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-3 lg:grid-cols-5 max-w-6xl mx-auto pt-4">
+          <div className="grid gap-6 md:grid-cols-3 lg:grid-cols-6 max-w-7xl mx-auto pt-4">
+            <div className="rounded-xl border-2 border-emerald-700/50 bg-emerald-950/20 p-6 space-y-4 hover:border-emerald-600/50 transition-all">
+              <div className="flex items-center gap-2">
+                <h3 className="text-xl font-bold text-slate-50">Gratis</h3>
+                <span className="text-xs font-semibold text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded-full">Test</span>
+              </div>
+              <div>
+                <span className="text-4xl font-bold text-emerald-400">0</span>
+                <span className="text-slate-400"> kr</span>
+              </div>
+              <p className="text-sm text-slate-400">For å teste systemet</p>
+              <Link href="/priser" className="block w-full rounded-lg py-2 text-center font-semibold bg-emerald-600 text-white hover:bg-emerald-500 transition-colors">
+                Start gratis
+              </Link>
+            </div>
+
             <div className="rounded-xl border-2 border-slate-800 bg-slate-900/50 p-6 space-y-4 hover:border-blue-600/50 transition-all">
               <h3 className="text-xl font-bold text-slate-50">Lite</h3>
               <div>
                 <span className="text-4xl font-bold text-slate-50">599</span>
                 <span className="text-slate-400"> kr/mnd</span>
               </div>
-              <p className="text-sm text-slate-400">For små bilpleiere og mobile detailere</p>
+              <p className="text-sm text-slate-400">For små bilpleiere</p>
               <Link href="/priser" className="block w-full rounded-lg py-2 text-center font-semibold bg-slate-800 text-slate-100 hover:bg-slate-700 transition-colors">
                 Se detaljer
               </Link>
@@ -1313,7 +1328,7 @@ export default async function HomePage() {
                 <span className="text-4xl font-bold text-slate-50">1.499</span>
                 <span className="text-slate-400"> kr/mnd</span>
               </div>
-              <p className="text-sm text-slate-400">Standard for 80% av markedet</p>
+              <p className="text-sm text-slate-400">Standard (80% velger denne)</p>
               <Link href="/priser" className="block w-full rounded-lg py-2 text-center font-semibold bg-blue-600 text-white hover:bg-blue-500 transition-colors">
                 Se detaljer
               </Link>
@@ -1325,7 +1340,7 @@ export default async function HomePage() {
                 <span className="text-4xl font-bold text-slate-50">2.490</span>
                 <span className="text-slate-400"> kr/mnd</span>
               </div>
-              <p className="text-sm text-slate-400">For profesjonelle verksteder</p>
+              <p className="text-sm text-slate-400">Med varelager</p>
               <Link href="/priser" className="block w-full rounded-lg py-2 text-center font-semibold bg-slate-800 text-slate-100 hover:bg-slate-700 transition-colors">
                 Se detaljer
               </Link>
@@ -1337,7 +1352,7 @@ export default async function HomePage() {
                 <span className="text-4xl font-bold text-slate-50">2.990</span>
                 <span className="text-slate-400"> kr/mnd</span>
               </div>
-              <p className="text-sm text-slate-400">Ultimate AI-systemet</p>
+              <p className="text-sm text-slate-400">Full AI-automatisering</p>
               <Link href="/priser" className="block w-full rounded-lg py-2 text-center font-semibold bg-slate-800 text-slate-100 hover:bg-slate-700 transition-colors">
                 Se detaljer
               </Link>
@@ -1349,7 +1364,7 @@ export default async function HomePage() {
                 <span className="text-2xl font-bold text-slate-50">Fra 4.990</span>
                 <span className="text-slate-400 block text-sm"> kr/mnd</span>
               </div>
-              <p className="text-sm text-slate-400">For kjeder og store verksteder</p>
+              <p className="text-sm text-slate-400">For kjeder</p>
               <Link href="/priser" className="block w-full rounded-lg py-2 text-center font-semibold bg-slate-800 text-slate-100 hover:bg-slate-700 transition-colors">
                 Se detaljer
               </Link>

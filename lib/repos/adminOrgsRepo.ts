@@ -25,19 +25,34 @@ const API_BASE_URL = getApiBaseUrl();
  */
 async function parseJsonResponse<T>(res: Response, context: string): Promise<T> {
   let json: any = null;
+  let jsonParseError: Error | null = null;
 
   try {
     json = await res.json();
-  } catch {
-    // Ignorer JSON-feil – vi håndterer under.
+  } catch (err) {
+    jsonParseError = err instanceof Error ? err : new Error(String(err));
   }
 
   if (!res.ok) {
+    // If response is not OK, try to extract error message
     const message =
       (json && (json.error || json.message || json.details)) ||
       `Uventet feil i ${context} (status ${res.status})`;
 
     throw new Error(message);
+  }
+
+  // If response was OK but JSON parsing failed, throw explicit error
+  if (!json && jsonParseError) {
+    const text = await res.text().catch(() => "");
+    throw new Error(
+      `${context}: Kunne ikke parse JSON-respons. ${jsonParseError.message}. Body: ${text.substring(0, 200)}`
+    );
+  }
+
+  // If response was OK but json is still null (empty response)
+  if (!json) {
+    throw new Error(`${context}: Tom respons fra server`);
   }
 
   return json as T;

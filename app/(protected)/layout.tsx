@@ -9,6 +9,7 @@ import AIAssistant from "@/components/AIAssistant";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { supabase } from "@/lib/supabaseClient";
 import { OrgPlanProvider, useOrgPlan } from "@/components/OrgPlanContext";
+import { useAutoLogout } from "@/hooks/useAutoLogout";
 
 export default function ProtectedLayout({
   children,
@@ -25,6 +26,9 @@ export default function ProtectedLayout({
 function ProtectedShell({ children }: { children: ReactNode }) {
   const router = useRouter();
   const { org, plan, loading: planLoading, error: planError } = useOrgPlan();
+
+  // Auto-logout etter 30 minutter med innaktivitet (varsel etter 25 min)
+  useAutoLogout(30, 5);
 
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [authError, setAuthError] = useState<string | null>(null);

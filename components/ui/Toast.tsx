@@ -46,8 +46,7 @@ function ToastItem({
 
   return (
     <div
-      className={\pointer-events-auto animate-in slide-in-from-right duration-300 
-        border rounded-lg p-4 shadow-lg \\}
+      className="pointer-events-auto animate-in slide-in-from-right duration-300 border rounded-lg p-4 shadow-lg"
     >
       <div className="flex items-start gap-3">
         <span className="text-xl">{icons[toast.type]}</span>

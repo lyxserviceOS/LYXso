@@ -12,8 +12,20 @@ import { getApiBaseUrl } from "@/lib/apiConfig";
 
 const API_BASE_URL = getApiBaseUrl();
 
-// Standard orgId (LYX Bil) – kan overstyres via NEXT_PUBLIC_ORG_ID.
-const DEFAULT_ORG_ID = "ae407558-7f44-40cb-8fe9-1d023212b926";
+/**
+ * ⚠️ IMPORTANT: Organization ID Configuration
+ * 
+ * This repo uses NEXT_PUBLIC_ORG_ID from environment variables.
+ * The DEFAULT_ORG_ID below is a fallback for development/testing only.
+ * 
+ * Production deployments MUST set NEXT_PUBLIC_ORG_ID in their environment.
+ * Without it, the app will use the default org (LYX Bil test org).
+ * 
+ * To set for your organization:
+ * 1. Add NEXT_PUBLIC_ORG_ID=your-org-id-here to .env.local
+ * 2. Restart your dev server
+ */
+const DEFAULT_ORG_ID = "ae407558-7f44-40cb-8fe9-1d023212b926"; // LYX Bil (test org)
 const ORG_ID = process.env.NEXT_PUBLIC_ORG_ID ?? DEFAULT_ORG_ID;
 
 if (!ORG_ID) {

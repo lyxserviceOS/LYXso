@@ -6,8 +6,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { 
-  Home, Info, CreditCard, ShoppingBag, 
-  PlayCircle, Mail, ShoppingCart, Menu, X 
+  Home, Info, CreditCard, 
+  PlayCircle, Mail, Menu, X 
 } from 'lucide-react';
 
 export default function PublicHeader() {
@@ -16,7 +16,6 @@ export default function PublicHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [cartCount, setCartCount] = useState(0);
 
   // Sjekk om bruker er innlogget
   useEffect(() => {
@@ -36,23 +35,6 @@ export default function PublicHeader() {
 
     return () => {
       authListener.subscription.unsubscribe();
-    };
-  }, []);
-
-  // Oppdater handlekurv-teller
-  useEffect(() => {
-    const updateCartCount = () => {
-      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-      setCartCount(cart.reduce((sum: number, item: any) => sum + (item.quantity || 1), 0));
-    };
-    
-    updateCartCount();
-    window.addEventListener('storage', updateCartCount);
-    window.addEventListener('cartUpdated', updateCartCount);
-    
-    return () => {
-      window.removeEventListener('storage', updateCartCount);
-      window.removeEventListener('cartUpdated', updateCartCount);
     };
   }, []);
 
@@ -149,20 +131,6 @@ export default function PublicHeader() {
             );
           })}
 
-          {/* Handlekurv */}
-          <Link 
-            href="/shop/cart" 
-            className="relative p-2 hover:bg-slate-800 rounded-lg transition-colors"
-            aria-label="Handlekurv"
-          >
-            <ShoppingCart className="h-5 w-5" />
-            {cartCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                {cartCount}
-              </span>
-            )}
-          </Link>
-
           {isLoggedIn ? (
             <div className="flex items-center gap-3">
               <Link
@@ -231,21 +199,6 @@ export default function PublicHeader() {
                 </Link>
               );
             })}
-
-            {/* Mobile Cart Link */}
-            <Link
-              href="/shop/cart"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-3 text-sm text-slate-200 hover:text-white transition-colors py-2"
-            >
-              <ShoppingCart className="h-5 w-5" />
-              Handlekurv
-              {cartCount > 0 && (
-                <span className="ml-auto bg-red-600 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center">
-                  {cartCount}
-                </span>
-              )}
-            </Link>
 
             {isLoggedIn ? (
               <div className="flex flex-col gap-2 mt-2 pt-3 border-t border-slate-800">
