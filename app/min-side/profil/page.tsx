@@ -35,8 +35,6 @@ export default async function ProfilePage() {
 
   if (!customer) {
     return (
-      <div className="card">
-        <p className="text-slate-600">Kunne ikke laste profil</p>
       <div className="space-y-8">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 mb-2">Profil</h1>
@@ -53,7 +51,6 @@ export default async function ProfilePage() {
       <div>
         <h1 className="text-2xl font-bold text-slate-900 mb-2">Min profil</h1>
         <p className="text-slate-600">
-          Administrer din personlige informasjon
           Administrer dine kontaktopplysninger
         </p>
       </div>

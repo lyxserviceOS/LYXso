@@ -17,7 +17,7 @@ type CartItem = {
 
 export default function HandlekurvClient() {
   const router = useRouter();
-  const [cart Items, setCartItems] = useState<CartItem[]>([]);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [updatingItem, setUpdatingItem] = useState<string | null>(null);
 

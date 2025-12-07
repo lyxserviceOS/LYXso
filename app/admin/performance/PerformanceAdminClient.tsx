@@ -65,8 +65,8 @@ export function PerformanceAdminClient() {
   };
 
   const clearCache = async (cacheType: string) => {
-    if (!confirm(Are you sure you want to clear  cache?)) return;
-    alert(${cacheType} cache cleared successfully);
+    if (!confirm(`Are you sure you want to clear ${cacheType} cache?`)) return;
+    alert(`${cacheType} cache cleared successfully`);
   };
 
   const toggleConfig = (key: keyof OptimizationConfig) => {
@@ -74,6 +74,43 @@ export function PerformanceAdminClient() {
   };
 
   const runOptimizationTask = async (task: string) => {
-    if (!confirm(Run ? This may take several minutes.)) return;
-    alert(Started ...);
+    if (!confirm(`Run ${task}? This may take several minutes.`)) return;
+    alert(`Started ${task}...`);
   };
+
+  if (loading) {
+    return <div className="p-8">Loading performance data...</div>;
+  }
+
+  return (
+    <div className="p-8">
+      <h1 className="text-2xl font-bold mb-4">Performance Dashboard</h1>
+      
+      <div className="space-y-4">
+        <div className="bg-white p-6 rounded-lg shadow">
+          <h2 className="text-lg font-semibold mb-2">Metrics</h2>
+          {metrics && (
+            <div className="space-y-2">
+              <p>API Response Times: p50={metrics.api_response_times.p50}ms, p95={metrics.api_response_times.p95}ms</p>
+              <p>Database Queries: {metrics.database_queries.total} total, {metrics.database_queries.slow_queries} slow</p>
+              <p>Bundle Size: {metrics.frontend_metrics.bundle_size}</p>
+            </div>
+          )}
+        </div>
+
+        <div className="bg-white p-6 rounded-lg shadow">
+          <h2 className="text-lg font-semibold mb-2">Cache Stats</h2>
+          {cacheStats && (
+            <div className="space-y-2">
+              <p>Cache Size: {cacheStats.ai_cache_size}</p>
+              <p>Hits: {cacheStats.ai_cache_hits}, Misses: {cacheStats.ai_cache_misses}</p>
+              <button onClick={() => clearCache("AI")} className="mt-2 px-4 py-2 bg-red-600 text-white rounded">
+                Clear Cache
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

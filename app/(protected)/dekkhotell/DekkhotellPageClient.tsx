@@ -1210,24 +1210,15 @@ export default function DekkhotellPageClient() {
             {!aiAnalysisResult ? (
               // STEG 1: AI-analyse først
               <div className="space-y-4">
-                <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                  <p className="text-sm font-medium text-purple-900 mb-2">
-                    📷 Start med AI-analyse
-                  </p>
-                  <p className="text-xs text-purple-800">
-                    Ta bilder av alle fire dekk, så fyller AI inn mønsterdybde, tilstand og produksjonsår automatisk.
-                    Du kan justere informasjonen etterpå.
-                  </p>
-            <div className="space-y-4">
-              {/* AI Analysis Button - FIRST */}
-              {canUseAI ? (
-                <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-4">
-                  <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0 text-2xl">🤖</div>
-                    <div className="flex-1">
-                      <h3 className="text-sm font-semibold text-slate-900 mb-1">
-                        AI-analyse (Anbefalt)
-                      </h3>
+                {/* AI Analysis Button - FIRST */}
+                {canUseAI ? (
+                  <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="flex-shrink-0 text-2xl">🤖</div>
+                      <div className="flex-1">
+                        <h3 className="text-sm font-semibold text-slate-900 mb-1">
+                          AI-analyse (Anbefalt)
+                        </h3>
                       <p className="text-xs text-slate-600 mb-3">
                         Ta eller last opp bilder av alle fire dekk for automatisk utfylling av dimensjon, 
                         mønsterdybde, tilstand og produksjonsår.
@@ -1407,8 +1398,9 @@ export default function DekkhotellPageClient() {
                     />
                   </div>
                 </div>
+              </div>
                 
-                <div className="flex gap-3">
+              <div className="flex gap-3">
                   <button
                     type="button"
                     onClick={() => {
@@ -1643,8 +1635,8 @@ export default function DekkhotellPageClient() {
                   {saving ? "Lagrer..." : "Lagre dekksett"}
                 </button>
               </div>
-              </div>
-            )}
+            </div>
+          )}
           </div>
         </div>
       )}

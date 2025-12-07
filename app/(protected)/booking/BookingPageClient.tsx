@@ -625,8 +625,6 @@ export default function BookingPageClient() {
   const [customers, setCustomers] = useState<BookingCustomerSummary[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   
-  const [locations] = useState<Location[]>(MOCK_LOCATIONS);
-  const [resources] = useState<Resource[]>(MOCK_RESOURCES);
   // Module 18: Locations and Resources
   const [locations, setLocations] = useState<Location[]>([]);
   const [resources, setResources] = useState<Resource[]>([]);

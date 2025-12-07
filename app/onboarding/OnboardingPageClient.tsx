@@ -14,7 +14,6 @@ const MapSelector = dynamic(() => import("@/components/onboarding/MapSelector"),
   loading: () => <div className="h-96 bg-slate-800 rounded-lg animate-pulse" />
 });
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
 const API_BASE = getApiBaseUrl();
 const ORG_ID = process.env.NEXT_PUBLIC_ORG_ID;
 

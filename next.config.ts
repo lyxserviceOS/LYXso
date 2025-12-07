@@ -72,9 +72,6 @@ const nextConfig: NextConfig = {
   // Strict mode for better optimization
   reactStrictMode: true,
 
-  // SWC minification (faster than Terser)
-  swcMinify: true,
-
   // Redirects for webshop consistency
   async redirects() {
     return [

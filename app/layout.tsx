@@ -7,7 +7,6 @@ import PublicFooter from "@/components/PublicFooter";
 import CookieConsentBanner from "@/components/CookieConsentBanner";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
 import { ToastProvider } from "@/lib/toast";
 import AnalyticsTracking from "@/components/Analytics";

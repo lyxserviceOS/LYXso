@@ -13,7 +13,6 @@ import { Step2_3_OpeningHoursAndCapacity } from "@/components/register/Step2_3_O
 import { Step2_4_AISuggestions } from "@/components/register/Step2_4_AISuggestions";
 import Step3_AddressAndMap from "@/components/register/Step3_AddressAndMap";
 import type { OnboardingStepData, OnboardingInput } from "@/types/ai-onboarding";
-import { Suspense } from "react";
 import { getApiBaseUrl } from "@/lib/apiConfig";
 
 const API_BASE_URL = getApiBaseUrl();
@@ -870,4 +869,5 @@ function RegisterPage() {
       </div>
     </div>
   );
+}
 }

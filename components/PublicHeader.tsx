@@ -60,7 +60,36 @@ export default function PublicHeader() {
   if (
     pathname?.startsWith("/login") ||
     pathname?.startsWith("/register") ||
-    pathname?.startsWith("/onboarding")
+    pathname?.startsWith("/onboarding") ||
+    pathname?.startsWith("/kontrollpanel") ||
+    pathname?.startsWith("/booking") ||
+    pathname?.startsWith("/kunder") ||
+    pathname?.startsWith("/ansatte") ||
+    pathname?.startsWith("/tjenester") ||
+    pathname?.startsWith("/produkter") ||
+    pathname?.startsWith("/dekkhotell") ||
+    pathname?.startsWith("/coating") ||
+    pathname?.startsWith("/ai") ||
+    pathname?.startsWith("/ai-agent") ||
+    pathname?.startsWith("/markedsforing") ||
+    pathname?.startsWith("/leads") ||
+    pathname?.startsWith("/landingsside") ||
+    pathname?.startsWith("/nettbutikk") ||
+    pathname?.startsWith("/regnskap") ||
+    pathname?.startsWith("/betaling") ||
+    pathname?.startsWith("/org-settings") ||
+    pathname?.startsWith("/plan") ||
+    pathname?.startsWith("/api-nokler") ||
+    pathname?.startsWith("/notifikasjoner") ||
+    pathname?.startsWith("/support") ||
+    pathname?.startsWith("/integrasjoner") ||
+    pathname?.startsWith("/automatisering") ||
+    pathname?.startsWith("/data-import") ||
+    pathname?.startsWith("/hjelp") ||
+    pathname?.startsWith("/partnere") ||
+    pathname?.startsWith("/ceo") ||
+    pathname?.startsWith("/partnerforesporsler") ||
+    pathname?.startsWith("/admin")
   ) {
     return null;
   }
@@ -82,7 +111,6 @@ export default function PublicHeader() {
     { href: "/", label: "Hjem", icon: Home },
     { href: "/om-lyxso", label: "Om oss", icon: Info },
     { href: "/priser", label: "Priser", icon: CreditCard },
-    { href: "/shop", label: "Butikk", icon: ShoppingBag },
     { href: "/demo", label: "Demo", icon: PlayCircle },
     { href: "/kontakt", label: "Kontakt", icon: Mail },
   ];

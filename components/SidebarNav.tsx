@@ -271,32 +271,10 @@ const sections: NavSection[] = [
     ],
   },
 
-  // ADMIN (kun for admins)
-  {
-    title: "Admin",
-    icon: "👑",
-    collapsible: true,
-    items: [
-      {
-        label: "Partnere",
-        href: "/partnere",
-        icon: "🤝",
-        adminOnly: true,
-      },
-      {
-        label: "CEO Dashboard",
-        href: "/ceo",
-        icon: "📈",
-        adminOnly: true,
-      },
-      {
-        label: "Partnerforespørsler",
-        href: "/partnerforesporsler",
-        icon: "📨",
-        adminOnly: true,
-      },
-    ],
-  },
+  // ADMIN (kun for admins) - FJERNET FRA SIDEBAR
+  // Admin skal IKKE vises i partner-sidebar
+  // Admins bruker /admin direkte med egen layout
+
 ];
 
 function isActive(pathname: string, href: string) {

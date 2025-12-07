@@ -10,10 +10,10 @@ const supabase = createClient(
 // POST - Add reply to ticket
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: ticketId } = params;
+    const { id: ticketId } = await params;
     const body = await request.json();
     const { message, user_id, is_admin, user_name, user_email } = body;
 
