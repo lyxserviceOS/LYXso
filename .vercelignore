@@ -5,6 +5,5 @@ node_modules
 *.log
 *.md
 !README.md
-repos
 test-*.ts
 quick-fix.ps1
