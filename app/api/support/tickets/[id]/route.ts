@@ -10,10 +10,10 @@ const supabase = createClient(
 // GET - Get single ticket with replies
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params;
+    const { id } = params;
 
     // Get ticket
     const { data: ticket, error: ticketError } = await supabase
@@ -63,7 +63,7 @@ export async function PATCH(
     const body = await request.json();
     const { status, priority, assigned_to, internal_notes } = body;
 
-    const updates: any = {};
+    const updates: Record<string, any> = {};
     if (status) updates.status = status;
     if (priority) updates.priority = priority;
     if (assigned_to !== undefined) updates.assigned_to = assigned_to;
@@ -109,7 +109,10 @@ export async function DELETE(
 
     const { error } = await supabase
       .from("support_tickets")
-      .update({ status: "deleted", deleted_at: new Date().toISOString() })
+      .update({
+        status: "deleted",
+        deleted_at: new Date().toISOString(),
+      })
       .eq("id", id);
 
     if (error) {
