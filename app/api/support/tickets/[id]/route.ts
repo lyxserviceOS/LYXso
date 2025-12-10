@@ -7,13 +7,19 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+// Hjelpefunksjon for å hente id uansett om params er Promise eller vanlig objekt
+async function getIdFromContext(context: any): Promise<string> {
+  const params = await context?.params;
+  if (!params || !params.id) {
+    throw new Error("Mangler ticket-id i route params");
+  }
+  return params.id as string;
+}
+
 // GET - Get single ticket with replies
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, context: any) {
   try {
-    const { id } = params;
+    const id = await getIdFromContext(context);
 
     // Get ticket
     const { data: ticket, error: ticketError } = await supabase
@@ -54,12 +60,9 @@ export async function GET(
 }
 
 // PATCH - Update ticket
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(request: NextRequest, context: any) {
   try {
-    const { id } = params;
+    const id = await getIdFromContext(context);
     const body = await request.json();
     const { status, priority, assigned_to, internal_notes } = body;
 
@@ -69,7 +72,7 @@ export async function PATCH(
     if (assigned_to !== undefined) updates.assigned_to = assigned_to;
     if (internal_notes !== undefined) updates.internal_notes = internal_notes;
 
-    // If closing, set resolved_at
+    // Hvis vi lukker saken, sett resolved_at
     if (status === "closed" || status === "resolved") {
       updates.resolved_at = new Date().toISOString();
     }
@@ -100,12 +103,9 @@ export async function PATCH(
 }
 
 // DELETE - Delete ticket (soft delete)
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest, context: any) {
   try {
-    const { id } = params;
+    const id = await getIdFromContext(context);
 
     const { error } = await supabase
       .from("support_tickets")
