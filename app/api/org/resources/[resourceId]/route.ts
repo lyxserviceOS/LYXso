@@ -2,16 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4200';
 
-export async function PUT(request: NextRequest, context: any) {
+/* MIGRATED for Next.js 15 */
+export async function PUT(
+  request: NextRequest,
+  context: { params: Promise<{ resourceId: string }> }
+) {
   try {
-    const params = await context?.params;
-    if (!params || !params.resourceId) {
-      return NextResponse.json(
-        { error: "Missing resourceId in route params" },
-        { status: 400 }
-      );
-    }
-    const { resourceId } = params as { resourceId: string };
+    const { resourceId } = await context.params;
     // TODO: Get orgId from session/auth
     const orgId = request.headers.get('x-org-id') || 'temp-org-id';
     const body = await request.json();
@@ -43,16 +40,13 @@ export async function PUT(request: NextRequest, context: any) {
   }
 }
 
-export async function DELETE(request: NextRequest, context: any) {
+/* MIGRATED for Next.js 15 */
+export async function DELETE(
+  request: NextRequest,
+  context: { params: Promise<{ resourceId: string }> }
+) {
   try {
-    const params = await context?.params;
-    if (!params || !params.resourceId) {
-      return NextResponse.json(
-        { error: "Missing resourceId in route params" },
-        { status: 400 }
-      );
-    }
-    const { resourceId } = params as { resourceId: string };
+    const { resourceId } = await context.params;
     // TODO: Get orgId from session/auth
     const orgId = request.headers.get('x-org-id') || 'temp-org-id';
 

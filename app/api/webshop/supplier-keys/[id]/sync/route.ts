@@ -3,16 +3,13 @@ import { createClient } from "@/lib/supabase/server";
 import { SupplierSyncService } from "@/lib/services/supplier-sync-service";
 
 // POST /api/webshop/supplier-keys/[id]/sync - Trigger manual sync
-export async function POST(request: NextRequest, context: any) {
+/* MIGRATED for Next.js 15 */
+export async function POST(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
-    const params = await context?.params;
-    if (!params || !params.id) {
-      return NextResponse.json(
-        { error: "Missing id in route params" },
-        { status: 400 }
-      );
-    }
-    const { id: supplierKeyId } = params as { id: string };
+    const { id: supplierKeyId } = await context.params;
     const supabase = await createClient();
 
     const {

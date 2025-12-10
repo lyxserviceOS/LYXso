@@ -6,17 +6,14 @@ const API_BASE_URL = getApiBaseUrl();
 /**
  * POST /api/org/team/invitations/[invitationId]?action=resend
  * Send invitasjon på nytt
+ * MIGRATED for Next.js 15
  */
-export async function POST(request: NextRequest, context: any) {
+export async function POST(
+  request: NextRequest,
+  context: { params: Promise<{ invitationId: string }> }
+) {
   try {
-    const params = await context?.params;
-    if (!params || !params.invitationId) {
-      return NextResponse.json(
-        { error: "Missing invitationId in route params" },
-        { status: 400 }
-      );
-    }
-    const { invitationId } = params as { invitationId: string };
+    const { invitationId } = await context.params;
     const searchParams = request.nextUrl.searchParams;
     const orgId = searchParams.get("orgId");
     const action = searchParams.get("action");
@@ -61,17 +58,14 @@ export async function POST(request: NextRequest, context: any) {
 /**
  * DELETE /api/org/team/invitations/[invitationId]
  * Kanseller invitasjon
+ * MIGRATED for Next.js 15
  */
-export async function DELETE(request: NextRequest, context: any) {
+export async function DELETE(
+  request: NextRequest,
+  context: { params: Promise<{ invitationId: string }> }
+) {
   try {
-    const params = await context?.params;
-    if (!params || !params.invitationId) {
-      return NextResponse.json(
-        { error: "Missing invitationId in route params" },
-        { status: 400 }
-      );
-    }
-    const { invitationId } = params as { invitationId: string };
+    const { invitationId } = await context.params;
     const orgId = request.headers.get('x-org-id') || 'temp-org-id';
 
     const response = await fetch(

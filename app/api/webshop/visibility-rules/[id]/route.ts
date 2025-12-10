@@ -2,16 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
 // PATCH /api/webshop/visibility-rules/[id] - Update rule
-export async function PATCH(request: NextRequest, context: any) {
+/* MIGRATED for Next.js 15 */
+export async function PATCH(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
-    const params = await context?.params;
-    if (!params || !params.id) {
-      return NextResponse.json(
-        { error: "Missing id in route params" },
-        { status: 400 }
-      );
-    }
-    const { id: ruleId } = params as { id: string };
+    const { id: ruleId } = await context.params;
     const supabase = await createClient();
 
     const {
@@ -83,16 +80,13 @@ export async function PATCH(request: NextRequest, context: any) {
 }
 
 // DELETE /api/webshop/visibility-rules/[id] - Delete rule
-export async function DELETE(request: NextRequest, context: any) {
+/* MIGRATED for Next.js 15 */
+export async function DELETE(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
-    const params = await context?.params;
-    if (!params || !params.id) {
-      return NextResponse.json(
-        { error: "Missing id in route params" },
-        { status: 400 }
-      );
-    }
-    const { id: ruleId } = params as { id: string };
+    const { id: ruleId } = await context.params;
     const supabase = await createClient();
 
     const {

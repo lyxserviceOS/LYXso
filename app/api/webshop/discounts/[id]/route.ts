@@ -4,17 +4,14 @@ import { createClient } from "@/lib/supabase/server";
 /**
  * PATCH /api/webshop/discounts/[id]
  * Update discount code
+ * MIGRATED for Next.js 15
  */
-export async function PATCH(request: NextRequest, context: any) {
+export async function PATCH(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
-    const params = await context?.params;
-    if (!params || !params.id) {
-      return NextResponse.json(
-        { error: "Missing id in route params" },
-        { status: 400 }
-      );
-    }
-    const { id } = params as { id: string };
+    const { id } = await context.params;
     const supabase = await createClient();
 
     // Check auth
@@ -52,17 +49,14 @@ export async function PATCH(request: NextRequest, context: any) {
 /**
  * DELETE /api/webshop/discounts/[id]
  * Delete discount code
+ * MIGRATED for Next.js 15
  */
-export async function DELETE(request: NextRequest, context: any) {
+export async function DELETE(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
-    const params = await context?.params;
-    if (!params || !params.id) {
-      return NextResponse.json(
-        { error: "Missing id in route params" },
-        { status: 400 }
-      );
-    }
-    const { id } = params as { id: string };
+    const { id } = await context.params;
     const supabase = await createClient();
 
     // Check auth

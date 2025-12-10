@@ -4,16 +4,13 @@ import { cookies } from 'next/headers';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
-export async function PATCH(request: NextRequest, context: any) {
+/* MIGRATED for Next.js 15 */
+export async function PATCH(
+  request: NextRequest,
+  context: { params: Promise<{ bookingId: string }> }
+) {
   try {
-    const params = await context?.params;
-    if (!params || !params.bookingId) {
-      return NextResponse.json(
-        { error: "Missing bookingId in route params" },
-        { status: 400 }
-      );
-    }
-    const { bookingId } = params as { bookingId: string };
+    const { bookingId } = await context.params;
     const cookieStore = await cookies();
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
