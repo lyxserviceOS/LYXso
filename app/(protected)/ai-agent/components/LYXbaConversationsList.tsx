@@ -29,7 +29,7 @@ interface Conversation {
   contactEmail?: string;
   channel: 'sms' | 'email' | 'chat' | 'phone' | 'landing_page';
   status: 'active' | 'completed' | 'handed_off';
-  outcome: 'booked' | 'inquiry' | 'support' | null;
+  outcome: 'booked' | 'inquiry' | 'support' | 'handed_off' | null;
   serviceInterest?: string;
   lastMessage: string;
   lastMessageAt: string;

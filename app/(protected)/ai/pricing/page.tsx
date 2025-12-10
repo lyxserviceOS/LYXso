@@ -2,7 +2,7 @@
 
 import { useOrgPlan } from '@/components/OrgPlanContext';
 import { AIModuleLayout } from '@/components/ai/AIModuleLayout';
-import { DollarSign } from 'lucide-react';
+import { DollarSign, Percent, Users, TrendingUp } from 'lucide-react';
 
 export default function AIPricingPage() {
   const { org } = useOrgPlan();
@@ -19,12 +19,36 @@ export default function AIPricingPage() {
       module="pricing"
       title="AI Prissetting"
       description="AI-drevet dynamisk prissetting og konkurranseanalyse"
-      icon={DollarSign}
+      icon={<DollarSign className="w-5 h-5" />}
       stats={[
-        { label: 'Margin', value: '68%', icon: Percent, color: 'text-green-600', subtitle: 'Gjennomsnitt' },
-        { label: 'Konkurrenter', value: '24', icon: Users, color: 'text-blue-600', subtitle: 'Overvåket' },
-        { label: 'Prisjusteringer', value: '156', icon: TrendingUp, color: 'text-purple-600', subtitle: 'Automatiske' },
-        { label: 'Revenue', value: '+12%', icon: DollarSign, color: 'text-emerald-600', subtitle: 'Økning' }
+        {
+          label: 'Margin',
+          value: '68%',
+          icon: <Percent className="w-4 h-4" />,
+          color: 'text-green-600',
+          subtitle: 'Gjennomsnitt',
+        },
+        {
+          label: 'Konkurrenter',
+          value: '24',
+          icon: <Users className="w-4 h-4" />,
+          color: 'text-blue-600',
+          subtitle: 'Overvåket',
+        },
+        {
+          label: 'Prisjusteringer',
+          value: '156',
+          icon: <TrendingUp className="w-4 h-4" />,
+          color: 'text-purple-600',
+          subtitle: 'Automatiske',
+        },
+        {
+          label: 'Revenue',
+          value: '+12%',
+          icon: <DollarSign className="w-4 h-4" />,
+          color: 'text-emerald-600',
+          subtitle: 'Økning',
+        },
       ]}
       chatContext="pricing"
       chatWelcomeMessage="Hei! Jeg er din AI pricing-assistent."

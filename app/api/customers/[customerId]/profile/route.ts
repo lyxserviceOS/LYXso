@@ -4,12 +4,16 @@ import { cookies } from 'next/headers';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<{ customerId: string }> }
-) {
+export async function PATCH(request: NextRequest, context: any) {
   try {
-    const { customerId } = await params;
+    const params = await context?.params;
+    if (!params || !params.customerId) {
+      return NextResponse.json(
+        { error: "Missing customerId in route params" },
+        { status: 400 }
+      );
+    }
+    const { customerId } = params as { customerId: string };
     const cookieStore = await cookies();
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,

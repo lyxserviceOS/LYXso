@@ -29,6 +29,7 @@ export interface Location {
   // Settings
   is_active: boolean;
   is_headquarters: boolean;
+  is_primary?: boolean;
   timezone: string;
   currency?: string;
   language?: string;

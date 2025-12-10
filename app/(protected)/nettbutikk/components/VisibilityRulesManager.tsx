@@ -10,7 +10,7 @@ import VisibilityRuleForm from "./VisibilityRuleForm";
 interface VisibilityRule {
   id: string;
   name: string;
-  rule_type: string;
+  rule_type: "customer_type" | "location" | "plan" | "custom";
   conditions: any;
   product_filters: any;
   is_active: boolean;

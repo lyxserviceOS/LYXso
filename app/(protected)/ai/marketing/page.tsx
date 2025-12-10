@@ -170,33 +170,33 @@ export default function AIMarketingPage() {
       module="marketing"
       title="AI Marketing Assistent"
       description="AI-drevet kampanjegenerering og markedsføringsoptimalisering"
-      icon={Megaphone}
+      icon={<Megaphone className="w-5 h-5" />}
       stats={[
         {
           label: 'Aktive kampanjer',
           value: '8',
-          icon: Target,
+          icon: <Target className="w-4 h-4" />,
           color: 'text-pink-600',
           subtitle: 'Kjører nå',
         },
         {
           label: 'Rekkevidde',
           value: '2.4k',
-          icon: Users,
+          icon: <Users className="w-4 h-4" />,
           color: 'text-purple-600',
           subtitle: 'Denne måneden',
         },
         {
           label: 'Konvertering',
           value: '4.2%',
-          icon: TrendingUp,
+          icon: <TrendingUp className="w-4 h-4" />,
           color: 'text-green-600',
           subtitle: 'ROI: 320%',
         },
         {
           label: 'AI-generert',
           value: '142',
-          icon: Sparkles,
+          icon: <Sparkles className="w-4 h-4" />,
           color: 'text-orange-600',
           subtitle: 'Kampanjer',
         },

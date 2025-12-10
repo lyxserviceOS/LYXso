@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import PublicBookingWizard from './PublicBookingWizard';
 
 type PageProps = {
-  params: Promise<{ slug: string }>;
+  params: { slug: string };
 };
 
 async function getOrgInfo(slug: string) {
@@ -26,7 +26,7 @@ async function getOrgInfo(slug: string) {
 }
 
 export async function generateMetadata({ params }: PageProps) {
-  const { slug } = await params;
+  const { slug } = params;
   const org = await getOrgInfo(slug);
 
   if (!org) {
@@ -48,7 +48,7 @@ export async function generateMetadata({ params }: PageProps) {
 }
 
 export default async function PublicBookingPage({ params }: PageProps) {
-  const { slug } = await params;
+  const { slug } = params;
   const org = await getOrgInfo(slug);
 
   if (!org) {

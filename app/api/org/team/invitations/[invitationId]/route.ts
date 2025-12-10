@@ -7,12 +7,16 @@ const API_BASE_URL = getApiBaseUrl();
  * POST /api/org/team/invitations/[invitationId]?action=resend
  * Send invitasjon på nytt
  */
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ invitationId: string }> }
-) {
+export async function POST(request: NextRequest, context: any) {
   try {
-    const { invitationId } = await params;
+    const params = await context?.params;
+    if (!params || !params.invitationId) {
+      return NextResponse.json(
+        { error: "Missing invitationId in route params" },
+        { status: 400 }
+      );
+    }
+    const { invitationId } = params as { invitationId: string };
     const searchParams = request.nextUrl.searchParams;
     const orgId = searchParams.get("orgId");
     const action = searchParams.get("action");
@@ -58,16 +62,20 @@ export async function POST(
  * DELETE /api/org/team/invitations/[invitationId]
  * Kanseller invitasjon
  */
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ invitationId: string }> }
-) {
+export async function DELETE(request: NextRequest, context: any) {
   try {
-    const { invitationId } = await params;
+    const params = await context?.params;
+    if (!params || !params.invitationId) {
+      return NextResponse.json(
+        { error: "Missing invitationId in route params" },
+        { status: 400 }
+      );
+    }
+    const { invitationId } = params as { invitationId: string };
     const orgId = request.headers.get('x-org-id') || 'temp-org-id';
 
     const response = await fetch(
-      `${API_URL}/api/orgs/${orgId}/team/invitations/${invitationId}`,
+      `${API_BASE_URL}/api/orgs/${orgId}/team/invitations/${invitationId}`,
       {
         method: 'DELETE',
         headers: {

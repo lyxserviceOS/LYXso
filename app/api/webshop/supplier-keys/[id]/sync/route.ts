@@ -3,14 +3,23 @@ import { createClient } from "@/lib/supabase/server";
 import { SupplierSyncService } from "@/lib/services/supplier-sync-service";
 
 // POST /api/webshop/supplier-keys/[id]/sync - Trigger manual sync
-export async function POST(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function POST(request: NextRequest, context: any) {
   try {
+    const params = await context?.params;
+    if (!params || !params.id) {
+      return NextResponse.json(
+        { error: "Missing id in route params" },
+        { status: 400 }
+      );
+    }
+    const { id: supplierKeyId } = params as { id: string };
     const supabase = await createClient();
-    
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
     if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -26,8 +35,6 @@ export async function POST(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const supplierKeyId = params.id;
-
     // Verify supplier key belongs to user's org
     const { data: supplierKey, error: keyError } = await supabase
       .from("webshop_supplier_keys")
@@ -36,7 +43,10 @@ export async function POST(
       .single();
 
     if (keyError || !supplierKey) {
-      return NextResponse.json({ error: "Supplier key not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Supplier key not found" },
+        { status: 404 }
+      );
     }
 
     if (supplierKey.org_id !== profile.org_id) {
@@ -48,25 +58,31 @@ export async function POST(
     const result = await SupplierSyncService.syncSupplier(supplierKeyId);
 
     if (result.success) {
-      return NextResponse.json({
-        success: true,
-        result: {
-          productsFound: result.productsFound,
-          productsImported: result.productsImported,
-          productsFailed: result.productsFailed,
-          errors: result.errors,
+      return NextResponse.json(
+        {
+          success: true,
+          result: {
+            productsFound: result.productsFound,
+            productsImported: result.productsImported,
+            productsFailed: result.productsFailed,
+            errors: result.errors,
+          },
         },
-      }, { status: 200 });
+        { status: 200 }
+      );
     } else {
-      return NextResponse.json({
-        success: false,
-        result: {
-          productsFound: result.productsFound,
-          productsImported: result.productsImported,
-          productsFailed: result.productsFailed,
-          errors: result.errors,
+      return NextResponse.json(
+        {
+          success: false,
+          result: {
+            productsFound: result.productsFound,
+            productsImported: result.productsImported,
+            productsFailed: result.productsFailed,
+            errors: result.errors,
+          },
         },
-      }, { status: 400 });
+        { status: 400 }
+      );
     }
   } catch (error: any) {
     console.error("POST /api/webshop/supplier-keys/[id]/sync error:", error);

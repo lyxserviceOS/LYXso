@@ -140,33 +140,33 @@ export default function AIAccountingPage() {
       module="accounting"
       title="AI Regnskap Assistent"
       description="AI-drevet finansiell analyse og økonomisk innsikt"
-      icon={Calculator}
+      icon={<Calculator className="w-5 h-5" />}
       stats={[
         {
           label: 'Omsetning',
           value: '485k',
-          icon: DollarSign,
+          icon: <DollarSign className="w-5 h-5" />,
           color: 'text-emerald-600',
           subtitle: 'Denne måneden',
         },
         {
           label: 'Margin',
           value: '68%',
-          icon: TrendingUp,
+          icon: <TrendingUp className="w-5 h-5" />,
           color: 'text-green-600',
           subtitle: 'Dekningsgrad',
         },
         {
           label: 'Kostnader',
           value: '155k',
-          icon: PieChart,
+          icon: <PieChart className="w-5 h-5" />,
           color: 'text-blue-600',
           subtitle: 'Driftskostnader',
         },
         {
           label: 'Innsikt',
           value: '87',
-          icon: Sparkles,
+          icon: <Sparkles className="w-5 h-5" />,
           color: 'text-teal-600',
           subtitle: 'AI-analyser',
         },

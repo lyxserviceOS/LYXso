@@ -18,7 +18,7 @@ import { TagSection, GDPRSection } from "./ClientSections";
 import type { CustomerContext } from "@/repos/aiAssistantRepo";
 
 type PageProps = {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 };
 
 function toNoDate(dateStr: string | null | undefined): string {
@@ -56,7 +56,7 @@ function sortBookingsByStartDesc(bookings: Booking[]): Booking[] {
 }
 
 export default async function CustomerDetailPage({ params }: PageProps) {
-  const { id: customerId } = await params;
+  const { id: customerId } = params;
 
   try {
     // Hent ALL kundedata parallelt for rask lasting

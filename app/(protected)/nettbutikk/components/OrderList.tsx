@@ -63,7 +63,7 @@ export default function OrderList() {
       
       // Update selected order if it's open
       if (selectedOrder?.id === orderId) {
-        setSelectedOrder({ ...selectedOrder, status: newStatus });
+        setSelectedOrder({ ...selectedOrder, status: newStatus as WebshopOrder['status'] });
       }
     } catch (error) {
       console.error("Update error:", error);

@@ -2,7 +2,7 @@
 
 import { useOrgPlan } from '@/components/OrgPlanContext';
 import { AIModuleLayout } from '@/components/ai/AIModuleLayout';
-import { Users } from 'lucide-react';
+import { Users, Star, Heart, TrendingUp } from 'lucide-react';
 
 export default function AICrmPage() {
   const { org } = useOrgPlan();
@@ -19,12 +19,36 @@ export default function AICrmPage() {
       module="crm"
       title="AI CRM Assistent"
       description="AI-drevet kundebehandling og relasjonsledelse"
-      icon={Users}
+      icon={<Users className="w-5 h-5" />}
       stats={[
-        { label: 'Kunder', value: '287', icon: Users, color: 'text-blue-600', subtitle: 'Aktive' },
-        { label: 'Lojalitet', value: '8.4', icon: Star, color: 'text-yellow-600', subtitle: 'Gj.snitt' },
-        { label: 'Engagement', value: '76%', icon: Heart, color: 'text-pink-600', subtitle: 'Respons' },
-        { label: 'Vekst', value: '+23%', icon: TrendingUp, color: 'text-green-600', subtitle: 'Retention' }
+        {
+          label: 'Kunder',
+          value: '287',
+          icon: <Users className="w-4 h-4" />,
+          color: 'text-blue-600',
+          subtitle: 'Aktive',
+        },
+        {
+          label: 'Lojalitet',
+          value: '8.4',
+          icon: <Star className="w-4 h-4" />,
+          color: 'text-yellow-600',
+          subtitle: 'Gj.snitt',
+        },
+        {
+          label: 'Engagement',
+          value: '76%',
+          icon: <Heart className="w-4 h-4" />,
+          color: 'text-pink-600',
+          subtitle: 'Respons',
+        },
+        {
+          label: 'Vekst',
+          value: '+23%',
+          icon: <TrendingUp className="w-4 h-4" />,
+          color: 'text-green-600',
+          subtitle: 'Retention',
+        },
       ]}
       chatContext="crm"
       chatWelcomeMessage="Hei! Jeg er din AI crm-assistent."

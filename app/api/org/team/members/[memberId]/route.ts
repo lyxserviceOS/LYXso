@@ -7,12 +7,16 @@ const API_BASE_URL = getApiBaseUrl();
  * PUT /api/org/team/members/[memberId]
  * Oppdater team member (rolle/permissions)
  */
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ memberId: string }> }
-) {
+export async function PUT(request: NextRequest, context: any) {
   try {
-    const { memberId } = await params;
+    const params = await context?.params;
+    if (!params || !params.memberId) {
+      return NextResponse.json(
+        { error: "Missing memberId in route params" },
+        { status: 400 }
+      );
+    }
+    const { memberId } = params as { memberId: string };
     const searchParams = request.nextUrl.searchParams;
     const orgId = searchParams.get("orgId");
     const body = await request.json();
@@ -55,12 +59,16 @@ export async function PUT(
  * DELETE /api/org/team/members/[memberId]
  * Fjern team member
  */
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ memberId: string }> }
-) {
+export async function DELETE(request: NextRequest, context: any) {
   try {
-    const { memberId } = await params;
+    const params = await context?.params;
+    if (!params || !params.memberId) {
+      return NextResponse.json(
+        { error: "Missing memberId in route params" },
+        { status: 400 }
+      );
+    }
+    const { memberId } = params as { memberId: string };
     const searchParams = request.nextUrl.searchParams;
     const orgId = searchParams.get("orgId");
 

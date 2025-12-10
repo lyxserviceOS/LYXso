@@ -115,33 +115,33 @@ export default function AIBookingPage() {
       module="booking"
       title="AI Booking Assistent"
       description="AI-drevet booking-optimalisering og automatisk tidsplanlegging"
-      icon={Calendar}
+      icon={<Calendar className="w-5 h-5" />}
       stats={[
         {
           label: 'I dag',
           value: '12',
-          icon: Calendar,
+          icon: <Calendar className="w-5 h-5" />,
           color: 'text-blue-600',
           subtitle: 'Bookinger',
         },
         {
           label: 'Kapasitet',
           value: '78%',
-          icon: Clock,
+          icon: <Clock className="w-5 h-5" />,
           color: 'text-green-600',
           subtitle: 'Utnyttelse',
         },
         {
           label: 'Aktive',
           value: '45',
-          icon: Users,
+          icon: <Users className="w-5 h-5" />,
           color: 'text-purple-600',
           subtitle: 'Kunder',
         },
         {
           label: 'Vekst',
           value: '+15%',
-          icon: TrendingUp,
+          icon: <TrendingUp className="w-5 h-5" />,
           color: 'text-orange-600',
           subtitle: 'Forrige uke',
         },

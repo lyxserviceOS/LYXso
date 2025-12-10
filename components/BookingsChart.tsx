@@ -15,6 +15,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { safePercent } from "@/lib/utils/recharts";
 
 interface BookingsData {
   by_status?: {
@@ -67,7 +68,7 @@ export default function BookingsChart({ data, type = "status" }: Props) {
             cy="50%"
             labelLine={false}
             label={({ name, percent }) =>
-              `${name}: ${(percent * 100).toFixed(0)}%`
+              `${name}: ${(safePercent(percent) * 100).toFixed(0)}%`
             }
             outerRadius={80}
             fill="#8884d8"

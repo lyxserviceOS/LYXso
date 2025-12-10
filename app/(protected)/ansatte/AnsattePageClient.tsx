@@ -267,6 +267,7 @@ export default function AnsattePageClient() {
 
   const activeCount = employees.filter(e => e.isActive).length;
   const inactiveCount = employees.filter(e => !e.isActive).length; // Alle inaktive (arkiverte)
+  const deletedCount = employees.filter(e => e.deletedAt).length;
 
   return (
     <div className="h-full w-full overflow-y-auto bg-slate-50 px-6 py-6">

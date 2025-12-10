@@ -17,17 +17,20 @@ interface Message {
 interface Conversation {
   id: string;
   customerName: string;
+  contactPhone?: string;
+  contactEmail?: string;
+  channel: 'sms' | 'email' | 'chat' | 'phone' | 'landing_page';
   status: 'active' | 'completed' | 'handed_off';
-  outcome: 'booked' | 'inquiry' | 'support' | null;
+  outcome: 'booked' | 'inquiry' | 'support' | 'handed_off' | null;
+  serviceInterest?: string;
+  lastMessage: string;
+  lastMessageAt: string;
   messages: Message[];
 }
 
 interface LYXbaTrainingPanelProps {
   conversation: Conversation;
-  onFeedbackSubmit: (conversationId: string, messageId: string, feedback: {
-    wasGood: boolean;
-    suggestedReply?: string;
-  }) => Promise<void>;
+  onFeedbackSubmit: (conversationId: string, messageId: string, feedback: any) => Promise<void>;
 }
 
 export function LYXbaTrainingPanel({ conversation, onFeedbackSubmit }: LYXbaTrainingPanelProps) {

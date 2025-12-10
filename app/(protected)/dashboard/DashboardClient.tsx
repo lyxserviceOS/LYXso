@@ -408,8 +408,12 @@ export function DashboardClient() {
                 title="AI Booking"
                 description="Optimaliser bookinger med AI"
                 icon={Calendar}
+                href="/ai/booking"
+                benefits={["Smart booking", "Automatisk planlegging", "Optimalisering"]}
+                isLocked={false}
+                gradientFrom="from-blue-500"
+                gradientTo="to-cyan-500"
                 stats={{ value: "12", label: "I dag" }}
-                gradient="from-blue-500 to-cyan-500"
               />
 
               <AIModuleCard
@@ -417,8 +421,12 @@ export function DashboardClient() {
                 title="AI Marketing"
                 description="Generer kampanjer automatisk"
                 icon={Megaphone}
+                href="/ai/marketing"
+                benefits={["Kampanjegenerering", "Automatisk posting", "Målgruppesegmentering"]}
+                isLocked={false}
+                gradientFrom="from-pink-500"
+                gradientTo="to-purple-500"
                 stats={{ value: "8", label: "Aktive" }}
-                gradient="from-pink-500 to-purple-500"
               />
 
               <AIModuleCard
@@ -426,8 +434,12 @@ export function DashboardClient() {
                 title="AI Regnskap"
                 description="Automatisk finansiell analyse"
                 icon={Calculator}
+                href="/ai/accounting"
+                benefits={["Automatisk kategorisering", "Finansiell analyse", "Rapportgenerering"]}
+                isLocked={false}
+                gradientFrom="from-emerald-500"
+                gradientTo="to-teal-500"
                 stats={{ value: "485k", label: "Omsetning" }}
-                gradient="from-emerald-500 to-teal-500"
               />
             </div>
           </div>

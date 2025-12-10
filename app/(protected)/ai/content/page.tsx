@@ -16,12 +16,36 @@ export default function AIContentPage() {
       module="content"
       title="AI Content Generator"
       description="AI-drevet innholdsproduksjon"
-      icon={FileText}
+      icon={<FileText className="w-5 h-5" />}
       stats={[
-        { label: 'Generert', value: '234', icon: FileText, color: 'text-blue-600', subtitle: 'Dokumenter' },
-        { label: 'Visninger', value: '18.5k', icon: Eye, color: 'text-purple-600', subtitle: 'Total reach' },
-        { label: 'Hastighet', value: '< 30s', icon: Zap, color: 'text-orange-600', subtitle: 'Generering' },
-        { label: 'Kvalitet', value: '94%', icon: Sparkles, color: 'text-green-600', subtitle: 'Godkjent' },
+        {
+          label: 'Generert',
+          value: '234',
+          icon: <FileText className="w-4 h-4" />,
+          color: 'text-blue-600',
+          subtitle: 'Dokumenter',
+        },
+        {
+          label: 'Visninger',
+          value: '18.5k',
+          icon: <Eye className="w-4 h-4" />,
+          color: 'text-purple-600',
+          subtitle: 'Total reach',
+        },
+        {
+          label: 'Hastighet',
+          value: '< 30s',
+          icon: <Zap className="w-4 h-4" />,
+          color: 'text-orange-600',
+          subtitle: 'Generering',
+        },
+        {
+          label: 'Kvalitet',
+          value: '94%',
+          icon: <Sparkles className="w-4 h-4" />,
+          color: 'text-green-600',
+          subtitle: 'Godkjent',
+        },
       ]}
       chatContext="content"
       chatWelcomeMessage="Hei! Jeg er din AI content-assistent."

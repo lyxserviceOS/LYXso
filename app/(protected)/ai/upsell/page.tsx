@@ -2,7 +2,7 @@
 
 import { useOrgPlan } from '@/components/OrgPlanContext';
 import { AIModuleLayout } from '@/components/ai/AIModuleLayout';
-import { TrendingUp } from 'lucide-react';
+import { TrendingUp, ShoppingCart, Percent, DollarSign } from 'lucide-react';
 
 export default function AIUpsellPage() {
   const { org } = useOrgPlan();
@@ -19,12 +19,36 @@ export default function AIUpsellPage() {
       module="upsell"
       title="AI Upsell Assistent"
       description="AI-drevet mersalg og produktanbefalinger"
-      icon={TrendingUp}
+      icon={<TrendingUp className="w-5 h-5" />}
       stats={[
-        { label: 'Upsells', value: '234', icon: ShoppingCart, color: 'text-indigo-600', subtitle: 'Denne måneden' },
-        { label: 'Rate', value: '42%', icon: Percent, color: 'text-green-600', subtitle: 'Accept' },
-        { label: 'Ekstra omsetning', value: '125k', icon: DollarSign, color: 'text-emerald-600', subtitle: 'Fra AI' },
-        { label: 'AOV', value: '+35%', icon: TrendingUp, color: 'text-purple-600', subtitle: 'Økning' }
+        {
+          label: 'Upsells',
+          value: '234',
+          icon: <ShoppingCart className="w-4 h-4" />,
+          color: 'text-indigo-600',
+          subtitle: 'Denne måneden',
+        },
+        {
+          label: 'Rate',
+          value: '42%',
+          icon: <Percent className="w-4 h-4" />,
+          color: 'text-green-600',
+          subtitle: 'Accept',
+        },
+        {
+          label: 'Ekstra omsetning',
+          value: '125k',
+          icon: <DollarSign className="w-4 h-4" />,
+          color: 'text-emerald-600',
+          subtitle: 'Fra AI',
+        },
+        {
+          label: 'AOV',
+          value: '+35%',
+          icon: <TrendingUp className="w-4 h-4" />,
+          color: 'text-purple-600',
+          subtitle: 'Økning',
+        },
       ]}
       chatContext="upsell"
       chatWelcomeMessage="Hei! Jeg er din AI upsell-assistent."

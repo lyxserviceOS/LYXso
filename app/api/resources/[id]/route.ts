@@ -4,12 +4,16 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 
-export async function PATCH(
-  request: Request,
-  props: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(request: Request, context: any) {
   try {
-    const params = await props.params;
+    const params = await context?.params;
+    if (!params || !params.id) {
+      return NextResponse.json(
+        { error: "Missing id in route params" },
+        { status: 400 }
+      );
+    }
+    const { id } = params as { id: string };
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
@@ -36,7 +40,7 @@ export async function PATCH(
     const { data: existing } = await supabase
       .from('resources')
       .select('id')
-      .eq('id', params.id)
+      .eq('id', id)
       .eq('org_id', profile.org_id)
       .single();
     
@@ -61,7 +65,7 @@ export async function PATCH(
     const { data: resource, error: updateError } = await supabase
       .from('resources')
       .update(body)
-      .eq('id', params.id)
+      .eq('id', id)
       .eq('org_id', profile.org_id)
       .select()
       .single();
@@ -78,12 +82,16 @@ export async function PATCH(
   }
 }
 
-export async function DELETE(
-  request: Request,
-  props: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(request: Request, context: any) {
   try {
-    const params = await props.params;
+    const params = await context?.params;
+    if (!params || !params.id) {
+      return NextResponse.json(
+        { error: "Missing id in route params" },
+        { status: 400 }
+      );
+    }
+    const { id } = params as { id: string };
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
@@ -108,7 +116,7 @@ export async function DELETE(
     const { data: existing } = await supabase
       .from('resources')
       .select('id')
-      .eq('id', params.id)
+      .eq('id', id)
       .eq('org_id', profile.org_id)
       .single();
     
@@ -119,7 +127,7 @@ export async function DELETE(
     const { error: deleteError } = await supabase
       .from('resources')
       .delete()
-      .eq('id', params.id)
+      .eq('id', id)
       .eq('org_id', profile.org_id);
 
     if (deleteError) {

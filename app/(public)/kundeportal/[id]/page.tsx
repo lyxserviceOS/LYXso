@@ -13,7 +13,7 @@ import {
 import type { Booking } from "@/types/booking";
 
 type PageProps = {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 };
 
 function toNoDate(dateStr: string | null | undefined): string {
@@ -77,7 +77,7 @@ async function loadCustomerData(customerId: string): Promise<CustomerPortalData 
 }
 
 export default async function CustomerPortalPage({ params }: PageProps) {
-  const { id: customerId } = await params;
+  const { id: customerId } = params;
   const data = await loadCustomerData(customerId);
 
   if (!data) {

@@ -5,11 +5,16 @@ import { createClient } from "@/lib/supabase/server";
  * PATCH /api/webshop/discounts/[id]
  * Update discount code
  */
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(request: NextRequest, context: any) {
   try {
+    const params = await context?.params;
+    if (!params || !params.id) {
+      return NextResponse.json(
+        { error: "Missing id in route params" },
+        { status: 400 }
+      );
+    }
+    const { id } = params as { id: string };
     const supabase = await createClient();
 
     // Check auth
@@ -22,7 +27,6 @@ export async function PATCH(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } = params;
     const body = await request.json();
 
     // Update discount
@@ -49,11 +53,16 @@ export async function PATCH(
  * DELETE /api/webshop/discounts/[id]
  * Delete discount code
  */
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest, context: any) {
   try {
+    const params = await context?.params;
+    if (!params || !params.id) {
+      return NextResponse.json(
+        { error: "Missing id in route params" },
+        { status: 400 }
+      );
+    }
+    const { id } = params as { id: string };
     const supabase = await createClient();
 
     // Check auth
@@ -65,8 +74,6 @@ export async function DELETE(
     if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-
-    const { id } = params;
 
     // Delete discount
     const { error } = await supabase

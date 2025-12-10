@@ -8,12 +8,16 @@ const supabase = createClient(
 );
 
 // POST - Add reply to ticket
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: NextRequest, context: any) {
   try {
-    const { id: ticketId } = await params;
+    const params = await context?.params;
+    if (!params || !params.id) {
+      return NextResponse.json(
+        { error: "Missing id in route params" },
+        { status: 400 }
+      );
+    }
+    const { id: ticketId } = params as { id: string };
     const body = await request.json();
     const { message, user_id, is_admin, user_name, user_email } = body;
 

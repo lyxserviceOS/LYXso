@@ -21,17 +21,17 @@ export type AIModule =
 interface StatCard {
   label: string;
   value: string | number;
-  icon: LucideIcon;
+  icon: ReactNode;
   color: string;
   subtitle?: string;
 }
 
 interface AIModuleLayoutProps {
-  module: AIModule;
+  module?: string;
   title: string;
   description: string;
-  icon: LucideIcon;
-  stats: StatCard[];
+  icon: ReactNode;
+  stats?: StatCard[];
   chatContext: string;
   chatWelcomeMessage: string;
   chatPlaceholder?: string;
@@ -62,8 +62,8 @@ export function AIModuleLayout({
   module,
   title,
   description,
-  icon: Icon,
-  stats,
+  icon,
+  stats = [],
   chatContext,
   chatWelcomeMessage,
   chatPlaceholder,
@@ -75,7 +75,9 @@ export function AIModuleLayout({
   gradientFrom,
   gradientTo,
 }: AIModuleLayoutProps) {
-  const colors = moduleColors[module];
+  const colors = module && moduleColors[module as AIModule] 
+    ? moduleColors[module as AIModule] 
+    : { from: 'from-blue-500', to: 'to-blue-500' };
   const gradient = `${gradientFrom || colors.from} ${gradientTo || colors.to}`;
 
   return (
@@ -84,7 +86,7 @@ export function AIModuleLayout({
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-2">
           <div className={`p-2 bg-gradient-to-br ${gradient} rounded-lg shadow-lg`}>
-            <Icon className="w-6 h-6 text-white" />
+            {icon}
           </div>
           <div>
             <h1 className="text-3xl font-bold text-gray-900">{title}</h1>
@@ -110,7 +112,7 @@ export function AIModuleLayout({
             <Card key={index} className="border-gray-200">
               <CardContent className="pt-6">
                 <div className="flex items-center gap-2 mb-2">
-                  <stat.icon className={`w-5 h-5 ${stat.color}`} />
+                  {stat.icon}
                   <span className="text-sm text-gray-600">{stat.label}</span>
                 </div>
                 <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
@@ -129,7 +131,7 @@ export function AIModuleLayout({
           {/* Left: AI Chat */}
           <div>
             <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <Icon className="w-5 h-5" />
+              {icon}
               Chat med AI
             </h2>
             {/* Placeholder for AIChatInterface - import if needed */}
@@ -156,7 +158,7 @@ export function AIModuleLayout({
               <Card className="border-gray-200">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Icon className={`w-5 h-5 ${stats[0]?.color || 'text-blue-600'}`} />
+                    {icon}
                     Hurtighandlinger
                   </CardTitle>
                   <CardDescription>

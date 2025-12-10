@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
 interface AIModuleCardProps {
+  module?: string;
   title: string;
   description: string;
   icon: LucideIcon;
@@ -15,9 +16,20 @@ interface AIModuleCardProps {
   requiredPlan?: 'professional' | 'enterprise';
   gradientFrom: string;
   gradientTo: string;
+  gradient?: string;
+  stats?: {
+    label: string;
+    value: string;
+    color?: string;
+  } | {
+    label: string;
+    value: string;
+    color?: string;
+  }[];
 }
 
 export function AIModuleCard({
+  module,
   title,
   description,
   icon: Icon,
@@ -27,6 +39,8 @@ export function AIModuleCard({
   requiredPlan,
   gradientFrom,
   gradientTo,
+  gradient,
+  stats,
 }: AIModuleCardProps) {
   return (
     <Card className={`relative overflow-hidden transition-all hover:shadow-lg ${isLocked ? 'opacity-75' : ''}`}>

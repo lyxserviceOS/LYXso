@@ -2,7 +2,7 @@
 
 import { useOrgPlan } from '@/components/OrgPlanContext';
 import { AIModuleLayout } from '@/components/ai/AIModuleLayout';
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle, Clock, CheckCircle, Star } from 'lucide-react';
 
 export default function AIChatPage() {
   const { org } = useOrgPlan();
@@ -19,12 +19,36 @@ export default function AIChatPage() {
       module="chat"
       title="AI Chat Support"
       description="AI-drevet kundeservice og live chat"
-      icon={MessageCircle}
+      icon={<MessageCircle className="w-5 h-5" />}
       stats={[
-        { label: 'Samtaler', value: '1.2k', icon: MessageCircle, color: 'text-cyan-600', subtitle: 'Denne måneden' },
-        { label: 'Responstid', value: '< 2s', icon: Clock, color: 'text-green-600', subtitle: 'Gjennomsnitt' },
-        { label: 'Løst av AI', value: '78%', icon: CheckCircle, color: 'text-blue-600', subtitle: 'Automatisk' },
-        { label: 'Fornøydhet', value: '4.8', icon: Star, color: 'text-yellow-600', subtitle: 'Rating' }
+        {
+          label: 'Samtaler',
+          value: '1.2k',
+          icon: <MessageCircle className="w-4 h-4" />,
+          color: 'text-cyan-600',
+          subtitle: 'Denne måneden',
+        },
+        {
+          label: 'Responstid',
+          value: '< 2s',
+          icon: <Clock className="w-4 h-4" />,
+          color: 'text-green-600',
+          subtitle: 'Gjennomsnitt',
+        },
+        {
+          label: 'Løst av AI',
+          value: '78%',
+          icon: <CheckCircle className="w-4 h-4" />,
+          color: 'text-blue-600',
+          subtitle: 'Automatisk',
+        },
+        {
+          label: 'Fornøydhet',
+          value: '4.8',
+          icon: <Star className="w-4 h-4" />,
+          color: 'text-yellow-600',
+          subtitle: 'Rating',
+        },
       ]}
       chatContext="chat"
       chatWelcomeMessage="Hei! Jeg er din AI chat-assistent."
