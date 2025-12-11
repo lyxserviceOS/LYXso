@@ -1,0 +1,17 @@
+[
+  "customers",
+  "bookings",
+  "services",
+  "employees",
+  "subscription_plans",
+  "payments",
+  "invoices",
+  "vehicles",
+  "tyre_sets",
+  "coating_jobs",
+  "products",
+  "addons_catalog",
+  "marketing_campaigns",
+  "leads",
+  "locations"
+]

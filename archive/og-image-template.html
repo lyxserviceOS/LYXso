@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LYXso OG Image Template - 1200x630</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #1e293b;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 40px;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+        
+        .og-image {
+            width: 1200px;
+            height: 630px;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+            border-radius: 8px;
+            padding: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 40px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        
+        .twitter-image {
+            width: 1200px;
+            height: 600px;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+            border-radius: 8px;
+            padding: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 30px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* Background pattern */
+        .og-image::before,
+        .twitter-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.15) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        
+        /* Grid pattern */
+        .og-image::after,
+        .twitter-image::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                linear-gradient(rgba(59, 130, 246, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(59, 130, 246, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+        }
+        
+        .content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .logo-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            font-weight: 900;
+            color: white;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+        }
+        
+        .logo-text {
+            font-size: 56px;
+            font-weight: 900;
+            color: white;
+            letter-spacing: -0.02em;
+        }
+        
+        h1 {
+            font-size: 96px;
+            font-weight: 900;
+            color: white;
+            line-height: 1;
+            letter-spacing: -0.03em;
+            margin-bottom: 20px;
+            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .twitter-image h1 {
+            font-size: 84px;
+        }
+        
+        .tagline {
+            font-size: 48px;
+            font-weight: 500;
+            color: #3b82f6;
+            line-height: 1.2;
+            margin-bottom: 30px;
+        }
+        
+        .twitter-image .tagline {
+            font-size: 42px;
+        }
+        
+        .features {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+        
+        .feature {
+            font-size: 28px;
+            font-weight: 400;
+            color: #94a3b8;
+            padding: 12px 24px;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .twitter-image .feature {
+            font-size: 24px;
+            padding: 10px 20px;
+        }
+        
+        .badge {
+            position: absolute;
+            top: 40px;
+            right: 40px;
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        .info {
+            margin-top: 40px;
+            padding: 20px;
+            background: #1e293b;
+            border-radius: 8px;
+            color: #94a3b8;
+            font-size: 14px;
+        }
+        
+        .info h3 {
+            color: white;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        .info p {
+            margin: 8px 0;
+        }
+        
+        .instructions {
+            background: #0f172a;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .instructions h2 {
+            color: #3b82f6;
+            margin-bottom: 16px;
+        }
+        
+        .instructions ol {
+            color: #cbd5e1;
+            margin-left: 20px;
+        }
+        
+        .instructions li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="instructions">
+            <h2>📸 How to Create Your Images:</h2>
+            <ol>
+                <li><strong>Open this page in Chrome or Firefox</strong></li>
+                <li><strong>Take screenshots:</strong>
+                    <ul style="margin-left: 20px; margin-top: 8px;">
+                        <li>Windows: Use Win + Shift + S (Snipping Tool)</li>
+                        <li>Mac: Use Cmd + Shift + 4</li>
+                        <li>Or use browser DevTools screenshot feature</li>
+                    </ul>
+                </li>
+                <li><strong>Crop exactly:</strong> First image = 1200x630px, Second image = 1200x600px</li>
+                <li><strong>Save as:</strong>
+                    <ul style="margin-left: 20px; margin-top: 8px;">
+                        <li>lyxso-app/public/og-image.png (first image)</li>
+                        <li>lyxso-app/public/twitter-image.png (second image)</li>
+                    </ul>
+                </li>
+            </ol>
+            <p style="color: #3b82f6; margin-top: 16px;"><strong>💡 Tip:</strong> Right-click each image → "Save image as..." may work in some browsers!</p>
+        </div>
+
+        <!-- OG Image Template (1200x630) -->
+        <div>
+            <div class="info">
+                <h3>🖼️ Open Graph Image (1200x630px)</h3>
+                <p>For Facebook, LinkedIn, and general social sharing</p>
+            </div>
+            <div class="og-image">
+                <div class="content">
+                    <div class="logo">
+                        <div class="logo-icon">L</div>
+                        <div class="logo-text">LYXso</div>
+                    </div>
+                    <div class="tagline">ServiceOS for bilbransjen</div>
+                    <div class="features">
+                        <div class="feature">📅 Booking</div>
+                        <div class="feature">🗓️ Kalender</div>
+                        <div class="feature">🤖 AI-oppfølging</div>
+                    </div>
+                </div>
+                <div class="badge">🇳🇴 Norsk system</div>
+            </div>
+        </div>
+
+        <!-- Twitter Image Template (1200x600) -->
+        <div>
+            <div class="info">
+                <h3>🐦 Twitter Card Image (1200x600px)</h3>
+                <p>For Twitter sharing</p>
+            </div>
+            <div class="twitter-image">
+                <div class="content">
+                    <div class="logo">
+                        <div class="logo-icon" style="width: 70px; height: 70px; font-size: 42px;">L</div>
+                        <div class="logo-text" style="font-size: 48px;">LYXso</div>
+                    </div>
+                    <div class="tagline">ServiceOS for bilbransjen</div>
+                    <div class="features">
+                        <div class="feature">📅 Booking</div>
+                        <div class="feature">🗓️ Kalender</div>
+                        <div class="feature">🤖 AI</div>
+                    </div>
+                </div>
+                <div class="badge" style="top: 30px; right: 30px; font-size: 16px;">🇳🇴 Norge</div>
+            </div>
+        </div>
+
+        <div class="info">
+            <h3>✅ After Creating Images:</h3>
+            <p>1. Verify dimensions are exact (1200x630 and 1200x600)</p>
+            <p>2. Save as PNG format</p>
+            <p>3. Place in lyxso-app/public/ folder</p>
+            <p>4. Test with Facebook Debugger: https://developers.facebook.com/tools/debug/</p>
+            <p>5. Test with Twitter Card Validator: https://cards-dev.twitter.com/validator</p>
+        </div>
+    </div>
+</body>
+</html>

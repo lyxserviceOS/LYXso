@@ -1,0 +1,40 @@
+
+FullName
+--------
+C:\Users\maser\OneDrive\Skrivebord\LYX selskaper\lyx-api\migrations\001_enable_rls.sql
+C:\Users\maser\OneDrive\Skrivebord\LYX selskaper\lyx-api\migrations\002_complete_rls_policies.sql
+C:\Users\maser\OneDrive\Skrivebord\LYX selskaper\lyx-api\migrations\003_tyre_hotel_ai_tables.sql
+C:\Users\maser\OneDrive\Skrivebord\LYX selskaper\lyx-api\migrations\004_tyre_images_storage.sql
+C:\Users\maser\OneDrive\Skrivebord\LYX selskaper\lyx-api\migrations\005_ai_marketing_tables.sql
+C:\Users\maser\OneDrive\Skrivebord\LYX selskaper\lyx-api\migrations\add_onboarding_and_ai_improvements.sql
+C:\Users\maser\OneDrive\Skrivebord\LYX selskaper\lyx-api\migrations\add_org_marketing_posts.sql
+C:\Users\maser\OneDrive\Skrivebord\LYX selskaper\lyx-api\migrations\add_org_settings_columns.sql
+C:\Users\maser\OneDrive\Skrivebord\LYX selskaper\lyx-api\migrations\add_public_booking_support.sql
+C:\Users\maser\OneDrive\Skrivebord\LYX selskaper\lyx-api\migrations\add_recurring_bookings.sql
+C:\Users\maser\OneDrive\Skrivebord\LYX selskaper\lyx-api\migrations\create_ai_learning_system.sql
+C:\Users\maser\OneDrive\Skrivebord\LYX selskaper\lyx-api\migrations\create_ai_voice_sessions_table.sql
+C:\Users\maser\OneDrive\Skrivebord\LYX selskaper\lyx-api\migrations\create_cloud_publishing.sql
+C:\Users\maser\OneDrive\Skrivebord\LYX selskaper\lyx-api\migrations\create_lyx_booking_agent_tables.sql
+C:\Users\maser\OneDrive\Skrivebord\LYX selskaper\lyx-api\migrations\create_social_automation_tables.sql
+C:\Users\maser\OneDrive\Skrivebord\LYX selskaper\lyx-api\migrations\social_automation.sql
+C:\Users\maser\OneDrive\Skrivebord\LYX selskaper\lyx-api\migrations\team_management.sql
+C:\Users\maser\OneDrive\Skrivebord\LYX selskaper\lyxso-app\supabase\migrations\001_enable_rls.sql
+C:\Users\maser\OneDrive\Skrivebord\LYX selskaper\lyxso-app\supabase\migrations\002_complete_rls_policies.sql
+C:\Users\maser\OneDrive\Skrivebord\LYX selskaper\lyxso-app\supabase\migrations\003_tyre_hotel_ai_tables.sql
+C:\Users\maser\OneDrive\Skrivebord\LYX selskaper\lyxso-app\supabase\migrations\004_tyre_images_storage.sql
+C:\Users\maser\OneDrive\Skrivebord\LYX selskaper\lyxso-app\supabase\migrations\005_ai_marketing_tables.sql
+C:\Users\maser\OneDrive\Skrivebord\LYX selskaper\lyxso-app\supabase\migrations\20251206103749_webshop_advanced.sql
+C:\Users\maser\OneDrive\Skrivebord\LYX selskaper\lyxso-app\supabase\migrations\20251206104000_webshop_base.sql
+C:\Users\maser\OneDrive\Skrivebord\LYX selskaper\lyxso-app\supabase\migrations\20251206104100_terms_acceptance.sql
+C:\Users\maser\OneDrive\Skrivebord\LYX selskaper\lyxso-app\supabase\migrations\add_onboarding_and_ai_improvements.sql
+C:\Users\maser\OneDrive\Skrivebord\LYX selskaper\lyxso-app\supabase\migrations\add_org_marketing_posts.sql
+C:\Users\maser\OneDrive\Skrivebord\LYX selskaper\lyxso-app\supabase\migrations\add_public_booking_support.sql
+C:\Users\maser\OneDrive\Skrivebord\LYX selskaper\lyxso-app\supabase\migrations\add_recurring_bookings.sql
+C:\Users\maser\OneDrive\Skrivebord\LYX selskaper\lyxso-app\supabase\migrations\create_ai_learning_system.sql
+C:\Users\maser\OneDrive\Skrivebord\LYX selskaper\lyxso-app\supabase\migrations\create_cloud_publishing.sql
+C:\Users\maser\OneDrive\Skrivebord\LYX selskaper\lyxso-app\supabase\migrations\create_lyx_booking_agent_tables.sql
+C:\Users\maser\OneDrive\Skrivebord\LYX selskaper\lyxso-app\supabase\migrations\create_social_automation_tables.sql
+C:\Users\maser\OneDrive\Skrivebord\LYX selskaper\lyxso-app\supabase\migrations\social_automation.sql
+C:\Users\maser\OneDrive\Skrivebord\LYX selskaper\lyxso-app\supabase\migrations\team_management.sql
+C:\Users\maser\OneDrive\Skrivebord\LYX selskaper\lyx-api\sql\marketing_campaigns.sql
+
