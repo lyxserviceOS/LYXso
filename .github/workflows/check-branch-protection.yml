@@ -1,0 +1,37 @@
+name: Check branch protection on main
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check branch protection
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const branch = context.ref.replace('refs/heads/', '');
+            if (branch !== 'main') {
+              return 'Not main';
+            }
+            try {
+              const protection = await github.repos.getBranchProtection({ owner, repo, branch });
+              core.info('Branch protection is enabled on main.');
+            } catch (err) {
+              core.warning('Branch protection is NOT enabled for main. Creating an issue to notify repository admins.');
+              await github.issues.create({
+                owner,
+                repo,
+                title: 'Branch protection missing for main',
+                body: 'Automated check detected that branch protection is not enabled on `main`. Please enable required status checks and other protections as recommended in CONTRIBUTING.md.',
+                labels: ['maintenance', 'repo-health'],
+              });
+            }

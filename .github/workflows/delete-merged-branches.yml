@@ -1,0 +1,19 @@
+name: Delete merged branches
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  delete:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete merged branches
+        uses: peter-evans/delete-merged-branch@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          keep-branches: 'main,develop'
+          dry-run: false
+          protect-branches: true
