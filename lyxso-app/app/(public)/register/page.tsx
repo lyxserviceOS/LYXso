@@ -81,7 +81,7 @@ export default function RegisterPageWrapper() {
     </Suspense>
   );
 
-}
+
 function RegisterPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
