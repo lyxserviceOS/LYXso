@@ -851,6 +851,7 @@ function RegisterPage() {
       </div>
     </div>
   );
+}
 
 export default function RegisterPageWrapper() {
   return (
