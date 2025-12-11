@@ -90,19 +90,7 @@ function RegisterPage() {
   const [orgId, setOrgId] = useState<string | null>(null);
   const [companyName, setCompanyName] = useState<string>("");
   const [lastOnboardingInput, setLastOnboardingInput] = useState<OnboardingInput | null>(null);
-  }
 
-  export default function RegisterPageWrapper() {
-    return (
-      <Suspense fallback={
-        <div className="min-h-screen bg-slate-950 text-slate-50 flex items-center justify-center">
-          <p className="text-sm text-slate-400">Laster...</p>
-        </div>
-      }>
-        <RegisterPage />
-      </Suspense>
-    );
-  }
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
   
   // Slug validation
@@ -864,4 +852,14 @@ function RegisterPage() {
     </div>
   );
 
-export default RegisterPage;
+export default function RegisterPageWrapper() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-950 text-slate-50 flex items-center justify-center">
+        <p className="text-sm text-slate-400">Laster...</p>
+      </div>
+    }>
+      <RegisterPage />
+    </Suspense>
+  );
+}
