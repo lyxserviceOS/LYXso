@@ -105,7 +105,7 @@ export default function AdminOrgDetailClient({ orgId }: { orgId: string }) {
 
       if (!res.ok) throw new Error("Kunne ikke oppdatere organisasjon");
 
-      const data = await orgRes.json();
+      const data = await res.json();
       setOrg(data.org);
       setEditing(false);
       alert("Organisasjon oppdatert! ✓");

@@ -18,6 +18,7 @@ import React from 'react';
 interface SkeletonProps {
   className?: string;
   animate?: boolean;
+  style?: React.CSSProperties;
 }
 
 // Base skeleton component
@@ -34,9 +35,12 @@ export function Skeleton({ className = '', animate = true }: SkeletonProps) {
 }
 
 // Shimmer effect skeleton (premium feel)
-export function ShimmerSkeleton({ className = '' }: SkeletonProps) {
+export function ShimmerSkeleton({ className = '', style }: SkeletonProps) {
   return (
-    <div className={`relative overflow-hidden bg-slate-800 rounded ${className}`}>
+    <div 
+      className={`relative overflow-hidden bg-slate-800 rounded ${className}`}
+      style={style}
+    >
       <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-slate-700/50 to-transparent" />
     </div>
   );

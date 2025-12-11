@@ -48,7 +48,6 @@ const routeLabels: Record<string, string> = {
   // AI
   ai: "AI Assistent",
   marketing: "Marketing AI",
-  booking: "Booking AI",
   crm: "CRM AI",
   accounting: "Regnskap AI",
   capacity: "Kapasitet AI",
