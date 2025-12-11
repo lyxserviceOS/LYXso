@@ -867,7 +867,6 @@ function RegisterPage() {
           </div>
         )}
       </div>
-    </div>
+	</div>
   );
-}
 }
