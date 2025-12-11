@@ -301,7 +301,7 @@ export async function getVisibleProductsForUser(
       return [];
     }
 
-    let allProducts = ownProducts || [];
+    let allProducts: Array<{ [key: string]: any; product_source: 'own' | 'partner' }> = ownProducts || [];
 
     // Fetch partner products if enabled
     if (
