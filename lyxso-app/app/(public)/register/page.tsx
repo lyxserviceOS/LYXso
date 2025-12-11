@@ -80,6 +80,7 @@ export default function RegisterPageWrapper() {
       <RegisterPage />
     </Suspense>
   );
+
 }
 function RegisterPage() {
   const router = useRouter();
