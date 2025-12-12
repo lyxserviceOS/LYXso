@@ -301,7 +301,7 @@ export async function getVisibleProductsForUser(
       return [];
     }
 
-    let allProducts = ownProducts || [];
+    let allProducts = Array.isArray(ownProducts) ? ownProducts : [];
 
     // Fetch partner products if enabled
     if (
@@ -330,7 +330,10 @@ export async function getVisibleProductsForUser(
       const { data: partnerProducts, error: partnerError } = await partnerQuery;
 
       if (!partnerError && partnerProducts) {
-        allProducts = [...allProducts, ...partnerProducts];
+        allProducts = [
+          ...allProducts,
+          ...(Array.isArray(partnerProducts) ? partnerProducts : [])
+        ];
       }
     }
 
