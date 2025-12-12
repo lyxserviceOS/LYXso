@@ -20,8 +20,11 @@
     // VIKTIG: dette gjør at "@/*" peker på rot-mappa
     "baseUrl": ".",
     "paths": {
+      "@/components/*": [
+        "src/components/*"
+      ],
       "@/*": [
-        "./*"
+        "src/*"
       ]
     },
     "plugins": [
