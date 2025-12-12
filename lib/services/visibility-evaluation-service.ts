@@ -277,7 +277,7 @@ export async function getVisibleProductsForUser(
     // Build base query for own products
     let ownProductsQuery = supabase
       .from("webshop_products")
-      .select("*, 'own' as product_source")
+      .select("*, product_source:product_source")
       .eq("org_id", userContext.org_id)
       .eq("is_active", options.is_active !== false);
 
@@ -310,7 +310,7 @@ export async function getVisibleProductsForUser(
     ) {
       let partnerQuery = supabase
         .from("webshop_partner_products")
-        .select("*, 'partner' as product_source")
+        .select("*, product_source:product_source")
         .eq("org_id", userContext.org_id)
         .eq("is_active", true);
 

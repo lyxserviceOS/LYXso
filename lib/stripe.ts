@@ -27,15 +27,17 @@ export const getStripe = () => {
  */
 export async function redirectToCheckout(sessionId: string) {
   const stripe = await getStripe();
-  
   if (!stripe) {
     throw new Error('Stripe er ikke konfigurert');
   }
-
-  const { error } = await stripe.redirectToCheckout({ sessionId });
-  
-  if (error) {
-    throw error;
+  // TypeScript fix: check if redirectToCheckout exists
+  if (typeof (stripe as any).redirectToCheckout === 'function') {
+    const { error } = await (stripe as any).redirectToCheckout({ sessionId });
+    if (error) {
+      throw error;
+    }
+  } else {
+    throw new Error('stripe.redirectToCheckout is not available on this Stripe instance');
   }
 }
 
