@@ -9,7 +9,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Repo root is one level up from ai-self-heal by default
-const repoRoot = process.env.REPO_ROOT || path.resolve(__dirname, "..", "..");
+const repoRoot = process.env.REPO_ROOT || path.resolve(__dirname, "..");
 
 function runCommand(cmd, args, options = {}) {
   return new Promise((resolve) => {

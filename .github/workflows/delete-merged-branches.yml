@@ -11,6 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Delete merged branches
-        uses: SvanBoxel/delete-merged-branch@main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: peter-evans/delete-merged-branch@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          keep-branches: 'main,develop'
+          dry-run: false
+          protect-branches: true
