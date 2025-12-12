@@ -1,0 +1,14 @@
+{
+  "name": "ai-self-heal",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "description": "AI-powered self-healing build helper for Vercel / GitHub Actions",
+  "main": "index.mjs",
+  "scripts": {
+    "start": "node index.mjs"
+  },
+  "dependencies": {
+    "openai": "^4.0.0"
+  }
+}

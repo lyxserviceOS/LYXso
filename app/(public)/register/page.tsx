@@ -852,7 +852,6 @@ function RegisterPage() {
     </div>
   );
 }
-
 export default function RegisterPageWrapper() {
   return (
     <Suspense fallback={
