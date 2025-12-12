@@ -1,4 +1,7 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @import "./legal-styles.css";
 
 /* LYXso Design System */
@@ -158,7 +161,7 @@ body {
 }
 
 .animation-delay-400 {
-  animation-delay: 0.4s;
+  animation-delay-0.4s;
   animation-fill-mode: backwards;
 }
 
