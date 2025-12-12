@@ -191,7 +191,7 @@ export default function AbonnementPage() {
                     </h3>
                     <p className="text-yellow-800 mb-3">
                       Du har {trialDaysLeft} {trialDaysLeft === 1 ? 'dag' : 'dager'} igjen av prøveperioden. 
-                      Oppgrader til en betalt plan for å fortsette etter {formatDate(subscription.trial_ends_at)}.
+                      Oppgrader til en betalt plan for å fortsette etter {subscription.trial_ends_at ? formatDate(subscription.trial_ends_at) : ''}.
                     </p>
                     <Link href="/abonnement/planer">
                       <Button variant="outline" size="sm">
