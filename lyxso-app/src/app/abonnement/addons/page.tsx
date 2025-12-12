@@ -139,7 +139,7 @@ export default function AddonsPage() {
   }
 
   function getCategoryBadge(category: string) {
-    const categoryConfig = {
+    const categoryConfig: Record<string, { label: string; variant: string }> = {
       storage: { label: 'Lagring', variant: 'default' },
       users: { label: 'Brukere', variant: 'secondary' },
       features: { label: 'Funksjoner', variant: 'default' },
@@ -148,7 +148,7 @@ export default function AddonsPage() {
       other: { label: 'Annet', variant: 'secondary' }
     };
 
-    const config = categoryConfig[category] || categoryConfig.other;
+    const config = categoryConfig[category as keyof typeof categoryConfig] || categoryConfig.other;
     return <Badge variant={config.variant}>{config.label}</Badge>;
   }
 
