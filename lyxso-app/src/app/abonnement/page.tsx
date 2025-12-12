@@ -43,7 +43,20 @@ export default function AbonnementPage() {
   }
 
   const [subscription, setSubscription] = useState<Subscription | null>(null);
-  const [usage, setUsage] = useState(null);
+  interface UsageMetric {
+    current: number;
+    limit: number | null;
+    percentage: number;
+  }
+
+  interface Usage {
+    users: UsageMetric;
+    customers: UsageMetric;
+    locations: UsageMetric;
+    ai_requests: UsageMetric;
+  }
+
+  const [usage, setUsage] = useState<Usage | null>(null);
   const [orgId, setOrgId] = useState<string | null>(null);
 
   useEffect(() => {
