@@ -76,7 +76,7 @@ export default function AbonnementPage() {
   type SubscriptionStatus = 'trial' | 'active' | 'past_due' | 'cancelled' | 'paused';
   const statusConfig: Record<SubscriptionStatus, { label: string; variant: string; icon: typeof Clock }> = {
     trial: { label: 'Prøveperiode', variant: 'default', icon: Clock },
-    active: { label: 'Aktiv', variant: 'success', icon: CheckCircle2 },
+    active: { label: 'Aktiv', variant: 'default', icon: CheckCircle2 },
     past_due: { label: 'Forfalt', variant: 'destructive', icon: AlertCircle },
     cancelled: { label: 'Kansellert', variant: 'secondary', icon: AlertCircle },
     paused: { label: 'Pauset', variant: 'secondary', icon: AlertCircle }
