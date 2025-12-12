@@ -101,9 +101,7 @@ function RegisterPage() {
   const [orgId, setOrgId] = useState<string | null>(null);
   const [companyName, setCompanyName] = useState<string>("");
   const [lastOnboardingInput, setLastOnboardingInput] = useState<OnboardingInput | null>(null);
-  
-  // reCAPTCHA
-  const { recaptchaRef, verify, reset: resetRecaptcha } = useReCaptcha();
+
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
   
   // Slug validation
@@ -456,8 +454,6 @@ function RegisterPage() {
     setStep1Loading(true);
     setStep1Error(null);
 
-  async function handleSkipAISuggestions() {
-    // Clear persisted data on skip
     try {
       // Save location data to backend
       const response = await fetch(
@@ -493,16 +489,14 @@ function RegisterPage() {
         console.error("Failed to clear persisted data:", err);
       }
 
-      // Redirect to email confirmation
-      router.push("/register/confirm-email");
+      // Log user in and redirect to dashboard
+      await loginAndRedirect();
     } catch (error) {
       console.error("Error completing registration:", error);
       setStep1Error("Noe gikk galt. Vennligst prøv igjen.");
     } finally {
       setStep1Loading(false);
     }
-    // Log user in and redirect to dashboard
-    await loginAndRedirect();
   }
 
   // Login and redirect to dashboard
@@ -867,5 +861,16 @@ function RegisterPage() {
         )}
       </div>
     </div>
+  );
+
+export default function RegisterPageWrapper() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-950 text-slate-50 flex items-center justify-center">
+        <p className="text-sm text-slate-400">Laster...</p>
+      </div>
+    }>
+      <RegisterPage />
+    </Suspense>
   );
 }

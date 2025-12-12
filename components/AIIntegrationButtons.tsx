@@ -16,7 +16,7 @@ type AIModule = {
 
 type AIIntegrationButtonProps = {
   module: AIModule;
-  context?: "booking" | "marketing" | "crm" | "accounting" | "capacity";
+  context?: "booking" | "marketing" | "crm" | "accounting" | "capacity" | "all";
   onActivate?: () => void;
 };
 

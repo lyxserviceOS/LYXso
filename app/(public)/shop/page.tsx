@@ -72,9 +72,9 @@ export default function ShopPage() {
       setProducts(data.products || []);
       
       // Extract unique categories, suppliers, and tags
-      const uniqueCategories = [...new Set(data.products.map((p: Product) => p.category))];
-      const uniqueSuppliers = [...new Set(data.products.map((p: Product) => p.supplier))];
-      const uniqueTags = [...new Set(data.products.flatMap((p: Product) => p.tags))];
+      const uniqueCategories = [...new Set(data.products.map((p: Product) => p.category))] as string[];
+      const uniqueSuppliers = [...new Set(data.products.map((p: Product) => p.supplier))] as string[];
+      const uniqueTags = [...new Set(data.products.flatMap((p: Product) => p.tags))] as string[];
       
       setCategories(uniqueCategories);
       setSuppliers(uniqueSuppliers);

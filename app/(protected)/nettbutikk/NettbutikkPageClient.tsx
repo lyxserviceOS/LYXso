@@ -200,7 +200,7 @@ export default function NettbutikkPageClient() {
       {activeTab === "ordrer" && <OrderList />}
 
       {/* Innstillinger Tab */}
-      {activeTab === "innstillinger" && <VisibilityRulesManager />}
+        {/* Removed the legacy settings block */}
 
       {/* Avansert Tab */}
       {activeTab === "avansert" && (
