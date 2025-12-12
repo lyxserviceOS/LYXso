@@ -175,7 +175,11 @@ export const showToast = {
   },
 
   custom: (message: React.ReactNode, options?: Parameters<typeof toast>[1]) => {
-    return toast(message, {
+    if (message === undefined || message === null) {
+      throw new Error('Toast message cannot be undefined or null');
+    }
+    // Just use message as string | React.ReactElement
+    return toast(message as string | React.ReactElement, {
       style: {
         background: '#0f172a',
         color: '#f1f5f9',
