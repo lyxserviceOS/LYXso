@@ -23,8 +23,18 @@ import Link from 'next/link';
 
 export default function AbonnementPage() {
   const [loading, setLoading] = useState(true);
+
+  interface Plan {
+    name: string;
+    description: string;
+    color: string;
+    price_monthly: number;
+    features: string[];
+    // Add other properties if used elsewhere in the file
+  }
+
   interface Subscription {
-    plan: string;
+    plan: Plan;
     trial_ends_at: string | null;
     status: string;
     billing_period: string;
