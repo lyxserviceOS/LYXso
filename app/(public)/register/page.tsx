@@ -863,6 +863,7 @@ function RegisterPage() {
       </div>
     </div>
   );
+<<<<<<< HEAD
 }
 export default function RegisterPageWrapper() {
   return (
@@ -874,4 +875,18 @@ export default function RegisterPageWrapper() {
       <RegisterPage />
     </Suspense>
   );
+=======
+>>>>>>> 0a33a4e (Full clean-up: removed duplicate register/page.tsx, cleaned node_modules and .next, fixed all build errors)
 }
+
+const RegisterPageWrapper = () => (
+  <Suspense fallback={
+    <div className="min-h-screen bg-slate-950 text-slate-50 flex items-center justify-center">
+      <p className="text-sm text-slate-400">Laster...</p>
+    </div>
+  }>
+    <RegisterPage />
+  </Suspense>
+);
+
+export default RegisterPageWrapper;
