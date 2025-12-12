@@ -277,7 +277,7 @@ export async function getVisibleProductsForUser(
     // Build base query for own products
     let ownProductsQuery = supabase
       .from("webshop_products")
-      .select("*, product_source:product_source")
+      .select("*, 'own' as product_source")
       .eq("org_id", userContext.org_id)
       .eq("is_active", options.is_active !== false);
 
@@ -301,7 +301,7 @@ export async function getVisibleProductsForUser(
       return [];
     }
 
-    let allProducts = Array.isArray(ownProducts) ? ownProducts : [];
+    let allProducts = ownProducts || [];
 
     // Fetch partner products if enabled
     if (
@@ -310,7 +310,7 @@ export async function getVisibleProductsForUser(
     ) {
       let partnerQuery = supabase
         .from("webshop_partner_products")
-        .select("*, product_source:product_source")
+        .select("*, 'partner' as product_source")
         .eq("org_id", userContext.org_id)
         .eq("is_active", true);
 
@@ -330,10 +330,7 @@ export async function getVisibleProductsForUser(
       const { data: partnerProducts, error: partnerError } = await partnerQuery;
 
       if (!partnerError && partnerProducts) {
-        allProducts = [
-          ...allProducts,
-          ...(Array.isArray(partnerProducts) ? partnerProducts : [])
-        ];
+        allProducts = [...allProducts, ...partnerProducts];
       }
     }
 

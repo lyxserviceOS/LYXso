@@ -1,9 +1,6 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* Midlertidig slått av fordi Tailwind v4 krangler med @apply der */
-/* @import "./legal-styles.css"; */
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+@import "./legal-styles.css";
 
 /* LYXso Design System */
 :root {
@@ -127,7 +124,7 @@ body {
   }
   to {
     opacity: 1;
-  transform: translateX(0);
+    transform: translateX(0);
   }
 }
 

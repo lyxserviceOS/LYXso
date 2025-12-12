@@ -70,6 +70,18 @@ const initialAddressData: AddressData = {
   markerMatchesAddress: false,
 };
 
+export default function RegisterPageWrapper() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-950 text-slate-50 flex items-center justify-center">
+        <p className="text-sm text-slate-400">Laster...</p>
+      </div>
+    }>
+      <RegisterPage />
+    </Suspense>
+  );
+}
+
 function RegisterPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -90,9 +102,10 @@ function RegisterPage() {
   const [orgId, setOrgId] = useState<string | null>(null);
   const [companyName, setCompanyName] = useState<string>("");
   const [lastOnboardingInput, setLastOnboardingInput] = useState<OnboardingInput | null>(null);
-
+  
+  // reCAPTCHA
+  const { recaptchaRef, verify, reset: resetRecaptcha } = useReCaptcha();
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
-  const { recaptchaRef, verify, reset } = useReCaptcha();
   
   // Slug validation
   const [slugError, setSlugError] = useState<string>("");
@@ -195,7 +208,7 @@ function RegisterPage() {
       const captchaValid = await verify(recaptchaToken);
       if (!captchaValid) {
         setStep1Error("reCAPTCHA-verifisering feilet. Vennligst prøv igjen.");
-        reset();
+        resetRecaptcha();
         setRecaptchaToken(null);
         setStep1Loading(false);
         return;
@@ -853,15 +866,3 @@ function RegisterPage() {
     </div>
   );
 }
-
-const RegisterPageWrapper = () => (
-  <Suspense fallback={
-    <div className="min-h-screen bg-slate-950 text-slate-50 flex items-center justify-center">
-      <p className="text-sm text-slate-400">Laster...</p>
-    </div>
-  }>
-    <RegisterPage />
-  </Suspense>
-);
-
-export default RegisterPageWrapper;

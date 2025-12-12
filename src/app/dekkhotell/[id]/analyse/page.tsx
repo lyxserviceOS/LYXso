@@ -16,8 +16,7 @@ import {
   Clock,
   Loader2,
   X,
-  Eye,
-  Calendar
+  Eye
 } from 'lucide-react';
 
 export default function TyreAnalysisPage() {
