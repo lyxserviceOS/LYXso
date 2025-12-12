@@ -23,7 +23,16 @@ import Link from 'next/link';
 
 export default function AbonnementPage() {
   const [loading, setLoading] = useState(true);
-  const [subscription, setSubscription] = useState(null);
+  interface Subscription {
+    plan: string;
+    trial_ends_at: string | null;
+    status: string;
+    billing_period: string;
+    current_period_end: string | null;
+    [key: string]: any; // Extend as needed
+  }
+
+  const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [usage, setUsage] = useState(null);
   const [orgId, setOrgId] = useState<string | null>(null);
 
