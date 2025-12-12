@@ -1,0 +1,9 @@
+.env*
+.git
+node_modules
+.next
+*.log
+*.md
+!README.md
+test-*.ts
+quick-fix.ps1

@@ -1,0 +1,428 @@
+'use client';
+
+import type { Metadata } from 'next';
+import { useState } from 'react';
+import { ChevronDown, ChevronUp, FileText, Shield, AlertTriangle } from 'lucide-react';
+
+export default function BruksvilkarPage() {
+  const [expandedSections, setExpandedSections] = useState<{ [key: string]: boolean }>({});
+
+  const toggleSection = (section: string) => {
+    setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
+  };
+
+  return (
+    <main className="bg-slate-950 text-slate-100 min-h-screen">
+      {/* Hero Section */}
+      <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border-b border-slate-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+          <div className="text-center max-w-3xl mx-auto">
+            <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-blue-600/20 rounded-full mb-6">
+              <FileText className="w-8 h-8 sm:w-10 sm:h-10 text-blue-400" />
+            </div>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6">
+              Bruksvilkår for LYXso
+            </h1>
+            <p className="text-base sm:text-lg text-slate-300 mb-6">
+              Juridiske vilkår og betingelser for bruk av LYXso-plattformen
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-sm text-slate-400">
+              <span>Sist oppdatert: {new Date().toLocaleDateString('nb-NO')}</span>
+              <span className="hidden sm:inline">•</span>
+              <span>LYXso AS - Org.nr: [ORG_NR]</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Important Notice */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div className="bg-amber-900/20 border border-amber-700/50 rounded-lg p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-shrink-0">
+              <AlertTriangle className="w-6 h-6 sm:w-8 sm:h-8 text-amber-400" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg sm:text-xl font-semibold text-amber-100 mb-2">
+                Viktig juridisk informasjon
+              </h3>
+              <p className="text-sm sm:text-base text-amber-200/90 leading-relaxed">
+                Ved å registrere deg, få tilgang til, eller bruke LYXso-plattformen aksepterer du å være
+                juridisk bundet av disse bruksvilkårene i sin helhet. Vennligst les nøye. Hvis du ikke
+                aksepterer disse vilkårene, har du ikke lov til å bruke tjenesten. Tjenesten leveres 
+                "SOM DEN ER" uten garantier av noen art.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 sm:pb-24">
+        <div className="lg:grid lg:grid-cols-4 lg:gap-8">
+          {/* Table of Contents - Desktop Sticky Sidebar */}
+          <aside className="hidden lg:block lg:col-span-1">
+            <div className="sticky top-8 space-y-2">
+              <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4">
+                Innhold
+              </h2>
+              <nav className="space-y-1">
+                {[
+                  '1. Definisjoner',
+                  '2. Aksept av vilkår',
+                  '3. Registrering og konto',
+                  '4. Abonnement og betaling',
+                  '5. Bruk av tjenesten',
+                  '6. Kundedata og eierskap',
+                  '7. ANSVARSBEGRENSNING',
+                  '8. GARANTIFRASKRIVELSE',
+                  '9. HOLD HARMLESS',
+                  '10. Force Majeure',
+                  '11. Datatap og backup',
+                  '12. Oppetid og tilgjengelighet',
+                  '13. Sikkerhet',
+                  '14. Tredjepartstjenester',
+                  '15. Immaterielle rettigheter',
+                  '16. Compliance og lovlighet',
+                  '17. Oppsigelse',
+                  '18. Endringer i vilkår',
+                  '19. Tvisteløsning',
+                  '20. Kontaktinformasjon'
+                ].map((item, idx) => (
+                  <a
+                    key={idx}
+                    href={`#section-${idx + 1}`}
+                    className="block text-sm text-slate-400 hover:text-slate-200 py-1 transition-colors"
+                  >
+                    {item}
+                  </a>
+                ))}
+              </nav>
+            </div>
+          </aside>
+
+          {/* Main Content Area */}
+          <div className="lg:col-span-3">
+            <div className="bg-slate-900/50 border border-slate-800 rounded-lg p-4 sm:p-6 lg:p-8 space-y-8 sm:space-y-12">
+              
+              {/* Section 1 */}
+              <section id="section-1">
+            <h2 className="text-xl sm:text-2xl font-semibold text-slate-100 mb-4 sm:mb-6 flex items-center gap-3">
+              <span className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-blue-600/20 rounded-lg flex items-center justify-center text-blue-400 text-sm sm:text-base font-bold">
+                1
+              </span>
+              Definisjoner
+            </h2>
+            <div className="space-y-3 sm:space-y-4 text-sm sm:text-base">
+              <div className="bg-slate-800/50 p-3 sm:p-4 rounded-lg">
+                <p className="font-semibold text-slate-200 mb-2">"LYXso", "vi", "oss", "vår", "Leverandør":</p>
+                <p className="text-slate-300">
+                  LYXso AS, organisasjonsnummer [ORG_NR], hjemmehørende i Norge, samt alle datterselskaper,
+                  tilknyttede selskaper, direktører, ansatte, agenter, underleverandører og representanter.
+                </p>
+              </div>
+              
+              <div className="bg-slate-800/50 p-3 sm:p-4 rounded-lg">
+                <p className="font-semibold text-slate-200 mb-2">"Tjenesten", "Plattformen", "LYXso-plattformen":</p>
+                <p className="text-slate-300">
+                  Alle software-as-a-service (SaaS) produkter, tjenester, funksjoner, moduler, applikasjoner,
+                  API-er, integrasjoner, dokumentasjon, support og tilhørende tjenester levert av LYXso AS,
+                  inkludert men ikke begrenset til: booking-system, kundeadministrasjon, fakturering, rapportering,
+                  AI-assistanse, og alle fremtidige funksjoner.
+                </p>
+              </div>
+
+              <div className="bg-slate-800/50 p-3 sm:p-4 rounded-lg">
+                <p className="font-semibold text-slate-200 mb-2">"Kunde", "du", "din", "Abonnent":</p>
+                <p className="text-slate-300">
+                  Den juridiske enheten (bedrift, organisasjon) eller fysiske personen som registrerer seg,
+                  inngår avtale om eller bruker Tjenesten. Ved bedriftsbruk aksepterer du at du har fullmakt
+                  til å binde bedriften til disse vilkårene.
+                </p>
+              </div>
+
+              <div className="bg-slate-800/50 p-3 sm:p-4 rounded-lg">
+                <p className="font-semibold text-slate-200 mb-2">"Sluttbruker", "Bruker":</p>
+                <p className="text-slate-300">
+                  Kundens ansatte, kontraktører eller andre personer som Kunden gir tilgang til Tjenesten.
+                  Kunden er fullt ansvarlig for alle Sluttbrukeres handlinger.
+                </p>
+              </div>
+
+              <div className="bg-slate-800/50 p-3 sm:p-4 rounded-lg">
+                <p className="font-semibold text-slate-200 mb-2">"Kundedata", "Ditt innhold":</p>
+                <p className="text-slate-300">
+                  All data, informasjon, filer, dokumenter, bilder, personopplysninger og annet innhold som
+                  du eller dine Sluttbrukere laster opp, registrerer, genererer eller på annen måte gjør
+                  tilgjengelig via Tjenesten. Du er fullt ansvarlig for Kundedata, inkludert lovlighet,
+                  kvalitet og nøyaktighet.
+                </p>
+              </div>
+
+              <div className="bg-slate-800/50 p-3 sm:p-4 rounded-lg">
+                <p className="font-semibold text-slate-200 mb-2">"Dokumentasjon":</p>
+                <p className="text-slate-300">
+                  All brukerdokumentasjon, guider, manualer, API-dokumentasjon og annet materiale som gjøres
+                  tilgjengelig av LYXso for å beskrive eller forklare Tjenesten.
+                </p>
+              </div>
+
+              <div className="bg-slate-800/50 p-3 sm:p-4 rounded-lg">
+                <p className="font-semibold text-slate-200 mb-2">"Abonnementsperiode":</p>
+                <p className="text-slate-300">
+                  Den perioden du har betalt for, typisk månedlig eller årlig, hvor du har rett til å bruke
+                  Tjenesten under disse vilkårene.
+                </p>
+              </div>
+
+              <div className="bg-slate-800/50 p-3 sm:p-4 rounded-lg">
+                <p className="font-semibold text-slate-200 mb-2">"Tredjepartstjenester":</p>
+                <p className="text-slate-300">
+                  Eksterne tjenester, produkter, API-er eller integrasjoner fra tredjeparter som LYXso kan
+                  integrere med eller tilby tilgang til, inkludert men ikke begrenset til: betalingsleverandører,
+                  e-posttjenester, regnskapssystemer, SMS-leverandører.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-semibold text-slate-100 mb-4">1. Definisjoner</h2>
+            <ul className="list-disc pl-6 space-y-2">
+              <li><strong>"LYXso"</strong> eller <strong>"vi"</strong>: LYXso AS, organisasjonsnummer [ORG_NR]</li>
+              <li><strong>"Tjenesten"</strong>: LYXso-plattformen inkludert alle moduler, funksjoner og integrasjoner</li>
+              <li><strong>"Kunde"</strong> eller <strong>"du"</strong>: Bedriften eller personen som registrerer seg og bruker Tjenesten</li>
+              <li><strong>"Sluttbruker"</strong>: Dine ansatte eller personer du gir tilgang til Tjenesten</li>
+              <li><strong>"Kundedata"</strong>: All informasjon du laster opp, registrerer eller genererer i Tjenesten</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-semibold text-slate-100 mb-4">2. Aksept av vilkår</h2>
+            <p className="mb-4">
+              Ved å bruke LYXso aksepterer du:
+            </p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li>Å følge disse bruksvilkårene</li>
+              <li>Vår <a href="/personvern" className="text-blue-400 hover:underline">personvernerklæring</a></li>
+              <li>Vår <a href="/cookies" className="text-blue-400 hover:underline">cookie-policy</a></li>
+              <li>At du er myndig (minimum 18 år) og har rett til å inngå bindende avtaler</li>
+              <li>At du representerer en bedrift med lovlig rett til å drive virksomhet</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-semibold text-slate-100 mb-4">3. Registrering og konto</h2>
+            
+            <h3 className="text-xl font-semibold text-slate-200 mb-3 mt-6">3.1 Kontoopprettelse</h3>
+            <p className="mb-4">
+              For å bruke LYXso må du opprette en konto. Du garanterer at:
+            </p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li>All informasjon du oppgir er korrekt og oppdatert</li>
+              <li>Du vil holde informasjonen oppdatert</li>
+              <li>Du er autorisert til å representere bedriften du registrerer</li>
+            </ul>
+
+            <h3 className="text-xl font-semibold text-slate-200 mb-3 mt-6">3.2 Kontosikkerhet</h3>
+            <p className="mb-4">Du er ansvarlig for:</p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li>Å holde påloggingsinformasjonen konfidensiell</li>
+              <li>All aktivitet som skjer under din konto</li>
+              <li>Å varsle oss umiddelbart ved mistenkt uautorisert bruk</li>
+              <li>Å bruke sterke passord og aktivere to-faktor-autentisering når tilgjengelig</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-semibold text-slate-100 mb-4">4. Abonnement og betaling</h2>
+            
+            <h3 className="text-xl font-semibold text-slate-200 mb-3 mt-6">4.1 Abonnementsplaner</h3>
+            <p className="mb-4">
+              LYXso tilbyr ulike abonnementsplaner (Start, Pro, Max) med forskjellige funksjoner og priser.
+              Aktuelle priser finnes på vår nettside.
+            </p>
+
+            <h3 className="text-xl font-semibold text-slate-200 mb-3 mt-6">4.2 Betaling</h3>
+            <ul className="list-disc pl-6 space-y-2">
+              <li>Betaling skjer månedlig eller årlig, avhengig av valgt plan</li>
+              <li>Alle priser er oppgitt eksklusiv MVA (25%)</li>
+              <li>Betaling trekkes automatisk på forfallsdato</li>
+              <li>Ved manglende betaling forbeholder vi oss retten til å suspendere tilgangen</li>
+            </ul>
+
+            <h3 className="text-xl font-semibold text-slate-200 mb-3 mt-6">4.3 Oppgradering og nedgradering</h3>
+            <p>
+              Du kan når som helst oppgradere eller nedgradere din plan. Endringer trer i kraft ved neste
+              faktureringsperiode. Ved oppgradering faktureres differansen umiddelbart.
+            </p>
+
+            <h3 className="text-xl font-semibold text-slate-200 mb-3 mt-6">4.4 Refusjon</h3>
+            <p>
+              Vi tilbyr 14 dagers tilfredsgaranti. Hvis du ikke er fornøyd, kan du be om full refusjon
+              innen 14 dager etter første betaling. Etter dette gis ingen refusjon for allerede betalte perioder.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-semibold text-slate-100 mb-4">5. Bruk av Tjenesten</h2>
+            
+            <h3 className="text-xl font-semibold text-slate-200 mb-3 mt-6">5.1 Tillatt bruk</h3>
+            <p className="mb-4">Du kan bruke LYXso til:</p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li>Administrere booking og kunder for din bedrift</li>
+              <li>Lagre kjøretøy- og behandlingsinformasjon</li>
+              <li>Markedsføre dine tjenester</li>
+              <li>Generere rapporter og analyser</li>
+            </ul>
+
+            <h3 className="text-xl font-semibold text-slate-200 mb-3 mt-6">5.2 Forbudt bruk</h3>
+            <p className="mb-4">Du forplikter deg til IKKE å:</p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li>Bruke Tjenesten til ulovlige formål</li>
+              <li>Forsøke å hacke, ødelegge eller forstyrre Tjenesten</li>
+              <li>Laste opp skadelig kode, virus eller malware</li>
+              <li>Kopiere, modifisere eller reverse-engineere Tjenesten</li>
+              <li>Videresende eller videreselge Tjenesten uten skriftlig tillatelse</li>
+              <li>Bruke Tjenesten på vegne av tredjeparter (med mindre avtalt)</li>
+              <li>Lagre personsensitive data uten lovlig grunnlag</li>
+              <li>Overbelaste systemet med automated requests eller scraping</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-semibold text-slate-100 mb-4">6. Kundedata og eierskap</h2>
+            
+            <h3 className="text-xl font-semibold text-slate-200 mb-3 mt-6">6.1 Ditt eierskap</h3>
+            <p>
+              Du beholder alle rettigheter til Kundedata du laster opp eller genererer i LYXso.
+              Vi hevder ingen eierskap eller rettigheter til ditt innhold.
+            </p>
+
+            <h3 className="text-xl font-semibold text-slate-200 mb-3 mt-6">6.2 Vårt eierskap</h3>
+            <p>
+              LYXso og all underliggende teknologi, design, kode og dokumentasjon eies av LYXso AS
+              og er beskyttet av opphavsrett og immaterielle rettigheter.
+            </p>
+
+            <h3 className="text-xl font-semibold text-slate-200 mb-3 mt-6">6.3 Lisens til oss</h3>
+            <p>
+              Ved å bruke Tjenesten gir du oss en begrenset lisens til å:
+            </p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li>Lagre og behandle Kundedata for å levere Tjenesten</li>
+              <li>Bruke anonymiserte og aggregerte data til forbedring av Tjenesten</li>
+              <li>Vise ditt firmanavn og logo som referansekunde (med ditt samtykke)</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-semibold text-slate-100 mb-4">7. Datatap og backup</h2>
+            <p className="mb-4">
+              Vi tar regelmessige sikkerhetskopier av alle data. Likevel:
+            </p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li>Vi anbefaler at du tar egne backups av kritiske data</li>
+              <li>Vi er ikke ansvarlige for datatap forårsaket av tredjepart, force majeure eller din egen bruk</li>
+              <li>Ved stenging av konto slettes data etter 30 dager</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-semibold text-slate-100 mb-4">8. Oppetid og tjenesteavbrudd</h2>
+            <p className="mb-4">
+              Vi streber etter høy oppetid (99%+), men kan ikke garantere at Tjenesten alltid er tilgjengelig.
+              Tjenesten kan være utilgjengelig på grunn av:
+            </p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li>Planlagt vedlikehold (varsles i forkant)</li>
+              <li>Akutte sikkerhetshendelser</li>
+              <li>Problemer hos underleverandører (Supabase, Vercel, etc.)</li>
+              <li>Force majeure (naturkatastrofer, krig, etc.)</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-semibold text-slate-100 mb-4">9. Ansvarsbegrensning</h2>
+            <p className="mb-4">
+              LYXso leveres "som den er" uten garantier. I den grad loven tillater:
+            </p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li>Vi er ikke ansvarlige for indirekte tap, tapte inntekter eller tapt data</li>
+              <li>Vårt totale ansvar er begrenset til beløpet du har betalt siste 12 måneder</li>
+              <li>Vi garanterer ikke at Tjenesten er feilfri eller oppfyller alle dine behov</li>
+            </ul>
+            <p className="mt-4">
+              <strong>Viktig:</strong> Denne ansvarsbegrensningen gjelder ikke ved grove feil, forsett eller
+              brudd på obligatoriske lovkrav.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-semibold text-slate-100 mb-4">10. Oppsigelse</h2>
+            
+            <h3 className="text-xl font-semibold text-slate-200 mb-3 mt-6">10.1 Din oppsigelse</h3>
+            <p>
+              Du kan når som helst si opp abonnementet ditt. Oppsigelse skjer fra innstillinger i din
+              konto eller ved å kontakte support. Oppgjør forfaller for inneværende periode.
+            </p>
+
+            <h3 className="text-xl font-semibold text-slate-200 mb-3 mt-6">10.2 Vår oppsigelse</h3>
+            <p className="mb-4">
+              Vi kan suspendere eller avslutte din konto hvis:
+            </p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li>Du bryter disse vilkårene</li>
+              <li>Betaling ikke mottas innen 30 dager etter forfall</li>
+              <li>Vi må avslutte Tjenesten (minimum 90 dagers varsel)</li>
+              <li>Din bruk truer sikkerheten eller stabiliteten til Tjenesten</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-semibold text-slate-100 mb-4">11. Endringer i vilkårene</h2>
+            <p>
+              Vi kan oppdatere disse vilkårene fra tid til annen. Vesentlige endringer varsles via
+              e-post minimum 30 dager før de trer i kraft. Fortsatt bruk etter ikrafttredelse
+              innebærer aksept av nye vilkår.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-semibold text-slate-100 mb-4">12. Tredjeparts-tjenester</h2>
+            <p>
+              LYXso integrerer med tredjeparts-tjenester (betalingsleverandører, regnskapssystemer, etc.).
+              Din bruk av disse er underlagt deres egne vilkår. Vi er ikke ansvarlige for
+              tredjepartstjenester eller deres feil.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-semibold text-slate-100 mb-4">13. Lovvalg og tvisteløsning</h2>
+            <p className="mb-4">
+              Disse vilkårene er underlagt norsk lov. Eventuelle tvister skal løses ved norske domstoler,
+              med Oslo tingrett som verneting.
+            </p>
+            <p>
+              Vi oppfordrer til å kontakte oss først ved uenigheter, slik at vi kan forsøke å finne
+              en løsning i minnelighet.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-semibold text-slate-100 mb-4">14. Kontaktinformasjon</h2>
+            <p>
+              For spørsmål om disse bruksvilkårene, kontakt oss:
+            </p>
+            <p className="mt-4">
+              <strong>LYXso AS</strong><br />
+              Organisasjonsnummer: [ORG_NR]<br />
+              E-post: <a href="mailto:kontakt@lyxso.no" className="text-blue-400 hover:underline">kontakt@lyxso.no</a><br />
+              Adresse: [ADRESSE]
+            </p>
+          </section>
+        </div>
+      </div>
+    </main>
+  );
+}

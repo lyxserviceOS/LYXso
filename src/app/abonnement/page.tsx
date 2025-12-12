@@ -73,16 +73,25 @@ export default function AbonnementPage() {
     }
   }
 
-  function getStatusBadge(status: string) {
-    const statusConfig = {
-      trial: { label: 'Prøveperiode', variant: 'default', icon: Clock },
-      active: { label: 'Aktiv', variant: 'success', icon: CheckCircle2 },
-      past_due: { label: 'Forfalt', variant: 'destructive', icon: AlertCircle },
-      cancelled: { label: 'Kansellert', variant: 'secondary', icon: AlertCircle },
-      paused: { label: 'Pauset', variant: 'secondary', icon: AlertCircle }
-    };
+  type SubscriptionStatus = 'trial' | 'active' | 'past_due' | 'cancelled' | 'paused';
+  const statusConfig: Record<SubscriptionStatus, { label: string; variant: string; icon: typeof Clock }> = {
+    trial: { label: 'Prøveperiode', variant: 'default', icon: Clock },
+    active: { label: 'Aktiv', variant: 'success', icon: CheckCircle2 },
+    past_due: { label: 'Forfalt', variant: 'destructive', icon: AlertCircle },
+    cancelled: { label: 'Kansellert', variant: 'secondary', icon: AlertCircle },
+    paused: { label: 'Pauset', variant: 'secondary', icon: AlertCircle }
+  };
 
-    const config = statusConfig[status] || statusConfig.active;
+  function toSubscriptionStatus(status: string): SubscriptionStatus {
+    if (['trial', 'active', 'past_due', 'cancelled', 'paused'].includes(status)) {
+      return status as SubscriptionStatus;
+    }
+    return 'active';
+  }
+
+  function getStatusBadge(status: string) {
+    const safeStatus = toSubscriptionStatus(status);
+    const config = statusConfig[safeStatus];
     const Icon = config.icon;
 
     return (

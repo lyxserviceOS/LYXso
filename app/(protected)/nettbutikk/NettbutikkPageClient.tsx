@@ -227,6 +227,7 @@ export default function NettbutikkPageClient() {
           </div>
         </div>
       )}
+
     </div>
   );
 }

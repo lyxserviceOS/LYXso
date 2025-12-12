@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json.schemastore.org/supabase",
+  "project_id": "qxslqfzudduxvjyxedkh",
+  "db": {
+    "host": "aws-0-eu-central-1.pooler.supabase.com",
+    "port": 6543,
+    "user": "postgres.qxslqfzudduxvjyxedkh",
+    "database": "postgres"
+  }
+}

@@ -1,0 +1,37 @@
+[
+  {
+    "HasNEXT_PUBLIC": false,
+    "HasMissingValidation": false,
+    "HasTempOrgId": true,
+    "Path": "lyxso-app\\app\\api\\org\\locations\\route.ts",
+    "HasPromiseParams": false
+  },
+  {
+    "HasNEXT_PUBLIC": false,
+    "HasMissingValidation": false,
+    "HasTempOrgId": true,
+    "Path": "lyxso-app\\app\\api\\org\\resources\\route.ts",
+    "HasPromiseParams": false
+  },
+  {
+    "HasNEXT_PUBLIC": true,
+    "HasMissingValidation": false,
+    "HasTempOrgId": false,
+    "Path": "lyxso-app\\app\\api\\public\\check-subdomain\\route.ts",
+    "HasPromiseParams": false
+  },
+  {
+    "HasNEXT_PUBLIC": true,
+    "HasMissingValidation": false,
+    "HasTempOrgId": false,
+    "Path": "lyxso-app\\app\\api\\support\\contact\\route.ts",
+    "HasPromiseParams": false
+  },
+  {
+    "HasNEXT_PUBLIC": true,
+    "HasMissingValidation": false,
+    "HasTempOrgId": false,
+    "Path": "lyxso-app\\app\\api\\support\\tickets\\route.ts",
+    "HasPromiseParams": false
+  }
+]
