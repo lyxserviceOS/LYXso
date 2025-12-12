@@ -373,8 +373,16 @@ function BookingsReport({ period }: { period: string }) {
 }
 
 // Customers Report Component
+interface CustomersReportData {
+  stats?: {
+    total_customers?: number;
+    new_customers?: number;
+    [key: string]: any;
+  };
+  [key: string]: any;
+}
 function CustomersReport({ period }: { period: string }) {
-  const [data, setData] = useState(null);
+  const [data, setData] = useState<CustomersReportData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
