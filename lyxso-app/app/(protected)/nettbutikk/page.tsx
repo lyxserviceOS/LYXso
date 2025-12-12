@@ -1,10 +1,10 @@
 
-
 export const metadata = {
   title: "Nettbutikk | LYXso",
   description: "Administrer nettbutikken din – egne produkter og partnerprodukter",
 };
 
+export default function NettbutikkPage() {
   return (
     <div style={{ padding: 32 }}>
       <h1>Nettbutikk</h1>
