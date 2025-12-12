@@ -23,8 +23,40 @@ import Link from 'next/link';
 
 export default function AbonnementPage() {
   const [loading, setLoading] = useState(true);
-  const [subscription, setSubscription] = useState(null);
-  const [usage, setUsage] = useState(null);
+
+  interface Plan {
+    name: string;
+    description: string;
+    color: string;
+    price_monthly: number;
+    features: string[];
+    // Add other properties if used elsewhere in the file
+  }
+
+  interface Subscription {
+    plan: Plan;
+    trial_ends_at: string | null;
+    status: string;
+    billing_period: string;
+    current_period_end: string | null;
+    [key: string]: any; // Extend as needed
+  }
+
+  const [subscription, setSubscription] = useState<Subscription | null>(null);
+  interface UsageMetric {
+    current: number;
+    limit: number | null;
+    percentage: number;
+  }
+
+  interface Usage {
+    users: UsageMetric;
+    customers: UsageMetric;
+    locations: UsageMetric;
+    ai_requests: UsageMetric;
+  }
+
+  const [usage, setUsage] = useState<Usage | null>(null);
   const [orgId, setOrgId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -74,9 +106,9 @@ export default function AbonnementPage() {
   }
 
   type SubscriptionStatus = 'trial' | 'active' | 'past_due' | 'cancelled' | 'paused';
-  const statusConfig: Record<SubscriptionStatus, { label: string; variant: string; icon: typeof Clock }> = {
+  const statusConfig: Record<SubscriptionStatus, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' | null | undefined; icon: typeof Clock }> = {
     trial: { label: 'Prøveperiode', variant: 'default', icon: Clock },
-    active: { label: 'Aktiv', variant: 'success', icon: CheckCircle2 },
+    active: { label: 'Aktiv', variant: 'default', icon: CheckCircle2 },
     past_due: { label: 'Forfalt', variant: 'destructive', icon: AlertCircle },
     cancelled: { label: 'Kansellert', variant: 'secondary', icon: AlertCircle },
     paused: { label: 'Pauset', variant: 'secondary', icon: AlertCircle }
@@ -182,7 +214,7 @@ export default function AbonnementPage() {
                     </h3>
                     <p className="text-yellow-800 mb-3">
                       Du har {trialDaysLeft} {trialDaysLeft === 1 ? 'dag' : 'dager'} igjen av prøveperioden. 
-                      Oppgrader til en betalt plan for å fortsette etter {formatDate(subscription.trial_ends_at)}.
+                      Oppgrader til en betalt plan for å fortsette etter {subscription.trial_ends_at ? formatDate(subscription.trial_ends_at) : ''}.
                     </p>
                     <Link href="/abonnement/planer">
                       <Button variant="outline" size="sm">

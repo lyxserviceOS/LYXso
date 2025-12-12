@@ -5,14 +5,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowUpIcon, ArrowDownIcon, TrendingUp, DollarSign, Users, Calendar } from 'lucide-react';
-import RevenueChart from '@/components/reports/RevenueChart';
-import BookingsChart from '@/components/reports/BookingsChart';
-import CustomersTable from '@/components/reports/CustomersTable';
+import RevenueChart from '../../components/reports/RevenueChart';
+import BookingsChart from '../../components/reports/BookingsChart';
+import CustomersTable from '../../components/reports/CustomersTable';
 
 export default function RapporterPage() {
   const [period, setPeriod] = useState('30d');
   const [loading, setLoading] = useState(true);
-  const [dashboardData, setDashboardData] = useState(null);
+  interface DashboardData {
+    metrics?: Record<string, any>;
+    [key: string]: any;
+  }
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
 
   useEffect(() => {
     fetchDashboard();
@@ -199,8 +203,17 @@ export default function RapporterPage() {
 }
 
 // Revenue Report Component
-function RevenueReport({ period }) {
-  const [data, setData] = useState(null);
+interface RevenueReportData {
+  stats?: {
+    total_revenue?: number;
+    paid_revenue?: number;
+    unpaid_revenue?: number;
+    [key: string]: any;
+  };
+  [key: string]: any;
+}
+function RevenueReport({ period }: { period: string }) {
+  const [data, setData] = useState<RevenueReportData | null>(null);
   const [loading, setLoading] = useState(true);
   const [groupBy, setGroupBy] = useState('month');
 
@@ -276,8 +289,12 @@ function RevenueReport({ period }) {
 }
 
 // Bookings Report Component
-function BookingsReport({ period }) {
-  const [data, setData] = useState(null);
+interface BookingsReportData {
+  by_status?: Record<string, number>;
+  [key: string]: any;
+}
+function BookingsReport({ period }: { period: string }) {
+  const [data, setData] = useState<BookingsReportData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -315,7 +332,7 @@ function BookingsReport({ period }) {
             {Object.entries(data?.by_status || {}).map(([status, count]) => (
               <div key={status}>
                 <p className="text-sm text-muted-foreground capitalize">{status}</p>
-                <p className="text-2xl font-bold">{count}</p>
+                <p className="text-2xl font-bold">{Number(count)}</p>
               </div>
             ))}
           </div>
@@ -331,7 +348,7 @@ function BookingsReport({ period }) {
             {Object.entries(data?.by_location || {}).map(([location, count]) => (
               <div key={location} className="flex justify-between py-2">
                 <span>{location}</span>
-                <span className="font-bold">{count}</span>
+                <span className="font-bold">{Number(count)}</span>
               </div>
             ))}
           </CardContent>
@@ -345,7 +362,7 @@ function BookingsReport({ period }) {
             {Object.entries(data?.by_service || {}).slice(0, 10).map(([service, count]) => (
               <div key={service} className="flex justify-between py-2">
                 <span className="truncate">{service}</span>
-                <span className="font-bold ml-2">{count}</span>
+                <span className="font-bold ml-2">{Number(count)}</span>
               </div>
             ))}
           </CardContent>
@@ -356,7 +373,7 @@ function BookingsReport({ period }) {
 }
 
 // Customers Report Component
-function CustomersReport({ period }) {
+function CustomersReport({ period }: { period: string }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 

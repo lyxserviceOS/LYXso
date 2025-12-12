@@ -1,4 +1,3 @@
-import NettbutikkPageClient from "./NettbutikkPageClient";
 
 export const metadata = {
   title: "Nettbutikk | LYXso",
@@ -6,5 +5,10 @@ export const metadata = {
 };
 
 export default function NettbutikkPage() {
-  return <NettbutikkPageClient />;
+  return (
+    <div style={{ padding: 32 }}>
+      <h1>Nettbutikk</h1>
+      <p>Nettbutikk-siden er midlertidig utilgjengelig. Kommer snart!</p>
+    </div>
+  );
 }
