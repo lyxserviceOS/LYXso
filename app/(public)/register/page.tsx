@@ -92,6 +92,7 @@ function RegisterPage() {
   const [lastOnboardingInput, setLastOnboardingInput] = useState<OnboardingInput | null>(null);
 
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const { recaptchaRef, verify, reset } = useReCaptcha();
   
   // Slug validation
   const [slugError, setSlugError] = useState<string>("");
@@ -194,7 +195,7 @@ function RegisterPage() {
       const captchaValid = await verify(recaptchaToken);
       if (!captchaValid) {
         setStep1Error("reCAPTCHA-verifisering feilet. Vennligst prøv igjen.");
-        resetRecaptcha();
+        reset();
         setRecaptchaToken(null);
         setStep1Loading(false);
         return;
