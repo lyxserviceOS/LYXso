@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
-import { CheckCircle2, Sparkles, TrendingUp, Crown } from 'lucide-react';
+import { CheckCircle2, Sparkles, TrendingUp, Crown, Calendar } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 interface Plan {
