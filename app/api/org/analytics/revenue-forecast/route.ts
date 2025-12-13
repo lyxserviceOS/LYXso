@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { getApiBaseUrl } from '@/lib/apiConfig';
 
 export async function GET(request: Request) {
   try {
@@ -8,7 +9,7 @@ export async function GET(request: Request) {
     // Get org_id from headers or session
     const orgId = request.headers.get('x-org-id') || 'default-org-id';
     
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+    const API_URL = getApiBaseUrl();
     
     const response = await fetch(
       `${API_URL}/api/orgs/${orgId}/analytics/revenue-forecast?months=${months}`,

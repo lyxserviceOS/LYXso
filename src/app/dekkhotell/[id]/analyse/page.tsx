@@ -18,6 +18,7 @@ import {
   X,
   Eye
 } from 'lucide-react';
+import { getApiBaseUrl } from '@/lib/apiConfig';
 
 export default function TyreAnalysisPage() {
   const params = useParams();
@@ -33,6 +34,7 @@ export default function TyreAnalysisPage() {
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const orgId = process.env.NEXT_PUBLIC_ORG_ID || 'demo-org';
+  const API_URL = getApiBaseUrl();
 
   useEffect(() => {
     if (tyreSetId) {
@@ -42,7 +44,7 @@ export default function TyreAnalysisPage() {
 
   async function loadTyreSet() {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orgs/${orgId}/tyre-sets/${tyreSetId}`);
+      const res = await fetch(`${API_URL}/api/orgs/${orgId}/tyre-sets/${tyreSetId}`);
       const data = await res.json();
       
       if (data.tyreSet) {
@@ -68,7 +70,7 @@ export default function TyreAnalysisPage() {
         formData.append('photo', file);
         formData.append('tyreSetId', tyreSetId);
 
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orgs/${orgId}/tyres/upload`, {
+        const res = await fetch(`${API_URL}/api/orgs/${orgId}/tyres/upload`, {
           method: 'POST',
           body: formData
         });
@@ -97,7 +99,7 @@ export default function TyreAnalysisPage() {
     setError(null);
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orgs/${orgId}/tyres/${tyreSetId}/analyze`, {
+      const res = await fetch(`${API_URL}/api/orgs/${orgId}/tyres/${tyreSetId}/analyze`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

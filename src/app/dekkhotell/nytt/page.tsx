@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { ArrowLeft, Save, Loader2 } from 'lucide-react';
+import { getApiBaseUrl } from '@/lib/apiConfig';
 
 export default function NewTyreSetPage() {
   const router = useRouter();
@@ -35,6 +36,7 @@ export default function NewTyreSetPage() {
   });
 
   const orgId = process.env.NEXT_PUBLIC_ORG_ID || 'demo-org';
+  const API_URL = getApiBaseUrl();
 
   useEffect(() => {
     loadCustomers();
@@ -49,7 +51,7 @@ export default function NewTyreSetPage() {
 
   async function loadCustomers() {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orgs/${orgId}/customers`);
+      const res = await fetch(`${API_URL}/api/orgs/${orgId}/customers`);
       const data = await res.json();
       setCustomers(data.customers || []);
     } catch (error) {
@@ -59,7 +61,7 @@ export default function NewTyreSetPage() {
 
   async function loadVehicles(customerId: string) {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orgs/${orgId}/vehicles?customer_id=${customerId}`);
+      const res = await fetch(`${API_URL}/api/orgs/${orgId}/vehicles?customer_id=${customerId}`);
       const data = await res.json();
       setVehicles(data.vehicles || []);
     } catch (error) {
@@ -69,7 +71,7 @@ export default function NewTyreSetPage() {
 
   async function loadStorageLocations() {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orgs/${orgId}/storage-locations`);
+      const res = await fetch(`${API_URL}/api/orgs/${orgId}/storage-locations`);
       const data = await res.json();
       setStorageLocations(data.locations || []);
     } catch (error) {
@@ -82,7 +84,7 @@ export default function NewTyreSetPage() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orgs/${orgId}/tyre-sets`, {
+      const res = await fetch(`${API_URL}/api/orgs/${orgId}/tyre-sets`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

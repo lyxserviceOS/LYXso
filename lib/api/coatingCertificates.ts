@@ -1,7 +1,8 @@
 // lib/api/coatingCertificates.ts
 import type { CoatingCertificate } from '@/types/coating';
+import { getApiBaseUrl } from '@/lib/apiConfig';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://lyx-api.fly.dev';
+const API_BASE_URL = getApiBaseUrl();
 
 export interface GenerateCertificateResponse {
   success: boolean;

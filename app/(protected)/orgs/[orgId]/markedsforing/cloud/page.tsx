@@ -10,8 +10,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Cloud, Upload, Calendar, Sparkles, CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { getApiBaseUrl } from "@/lib/apiConfig";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+const API_URL = getApiBaseUrl();
 
 export default function CloudPublishingPage() {
   const params = useParams();
