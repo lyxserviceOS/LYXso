@@ -25,7 +25,7 @@ export default function AbonnementPage() {
   const [loading, setLoading] = useState(true);
   const [subscription, setSubscription] = useState(null);
   const [usage, setUsage] = useState(null);
-  const [orgId, setOrgId] = useState(null);
+  const [orgId, setOrgId] = useState<string | null>(null);
 
   useEffect(() => {
     // Get orgId from localStorage or context

@@ -139,7 +139,8 @@ export default function AddonsPage() {
   }
 
   function getCategoryBadge(category: string) {
-    const categoryConfig = {
+    type BadgeVariant = "default" | "secondary" | "destructive" | "outline";
+    const categoryConfig: Record<string, { label: string; variant: BadgeVariant }> = {
       storage: { label: 'Lagring', variant: 'default' },
       users: { label: 'Brukere', variant: 'secondary' },
       features: { label: 'Funksjoner', variant: 'default' },

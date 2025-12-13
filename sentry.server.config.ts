@@ -48,10 +48,11 @@ Sentry.init({
 
     // Filter sensitive headers
     if (event.request?.headers) {
+      const headers = event.request.headers;
       const sensitiveHeaders = ["authorization", "cookie", "x-api-key"];
       sensitiveHeaders.forEach(header => {
-        if (event.request.headers[header]) {
-          event.request.headers[header] = "[Filtered]";
+        if (headers[header]) {
+          headers[header] = "[Filtered]";
         }
       });
     }
