@@ -153,7 +153,7 @@ npm run lint
 
 Required environment variables (see README.md for complete list):
 - `NEXT_PUBLIC_API_BASE_URL` - Backend API URL
-- `NEXT_PUBLIC_ORG_ID` - Default organization ID
+- `NEXT_PUBLIC_DEFAULT_ORG_ID` or `NEXT_PUBLIC_ORG_ID` - Default organization ID (fallback pattern)
 - `NEXT_PUBLIC_SUPABASE_URL` - Supabase project URL
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Supabase anonymous key
 - `NEXT_PUBLIC_ADMIN_EMAIL` - Admin email for access control
