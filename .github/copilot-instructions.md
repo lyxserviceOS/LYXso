@@ -106,7 +106,7 @@ const supabase = createClient();
 Example (server):
 ```typescript
 import { createClient } from '@/lib/supabase/server';
-const supabase = createClient();
+const supabase = await createClient();
 ```
 
 ### Organization Context
