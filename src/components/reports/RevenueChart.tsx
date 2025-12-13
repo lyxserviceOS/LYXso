@@ -2,13 +2,13 @@
 
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid } from 'recharts';
 
-export default function RevenueChart({ data }) {
+export default function RevenueChart({ data }: { data?: any }) {
   if (!data || data.length === 0) {
     return <div className="text-center py-8 text-muted-foreground">Ingen data tilgjengelig</div>;
   }
 
   // Format data for chart
-  const chartData = data.map(item => ({
+  const chartData = data.map((item: any) => ({
     date: item.date || item.period,
     revenue: item.revenue || 0,
     paid: item.paid || 0

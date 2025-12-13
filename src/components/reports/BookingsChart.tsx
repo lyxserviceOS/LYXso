@@ -2,12 +2,12 @@
 
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid } from 'recharts';
 
-export default function BookingsChart({ data }) {
+export default function BookingsChart({ data }: { data?: any }) {
   if (!data || data.length === 0) {
     return <div className="text-center py-8 text-muted-foreground">Ingen data tilgjengelig</div>;
   }
 
-  const chartData = data.map(item => ({
+  const chartData = data.map((item: any) => ({
     date: item.date,
     count: item.count || 0
   }));

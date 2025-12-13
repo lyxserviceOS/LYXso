@@ -194,7 +194,7 @@ export default function PlanerPage() {
             Årlig
           </span>
           {yearlyBilling && (
-            <Badge variant="success" className="ml-2">
+            <Badge variant="default" className="ml-2">
               Spar opptil 17%
             </Badge>
           )}

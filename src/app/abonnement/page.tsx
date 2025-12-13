@@ -21,10 +21,46 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
+type Plan = {
+  name: string;
+  description?: string;
+  color?: string;
+  price_monthly?: number;
+  features?: string[];
+};
+
+type Subscription = {
+  plan: string | Plan;
+  status: string;
+  trial_ends_at?: string;
+  next_billing_date?: string;
+  current_period_end?: string;
+  amount?: number;
+  currency?: string;
+  billing_period?: string;
+};
+
+type UsageItem = {
+  current: number;
+  limit?: number;
+  percentage?: number;
+};
+
+type Usage = {
+  storage_used?: number;
+  storage_limit?: number;
+  users_count?: number;
+  users_limit?: number;
+  users?: UsageItem;
+  customers?: UsageItem;
+  locations?: UsageItem;
+  ai_requests?: UsageItem;
+};
+
 export default function AbonnementPage() {
   const [loading, setLoading] = useState(true);
-  const [subscription, setSubscription] = useState(null);
-  const [usage, setUsage] = useState(null);
+  const [subscription, setSubscription] = useState<Subscription | null>(null);
+  const [usage, setUsage] = useState<Usage | null>(null);
   const [orgId, setOrgId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -74,9 +110,15 @@ export default function AbonnementPage() {
   }
 
   function getStatusBadge(status: string) {
-    const statusConfig = {
+    type BadgeVariant = "default" | "secondary" | "destructive" | "outline";
+    type StatusConfig = {
+      label: string;
+      variant: BadgeVariant;
+      icon: React.ComponentType<{ className?: string }>;
+    };
+    const statusConfig: Record<string, StatusConfig> = {
       trial: { label: 'Prøveperiode', variant: 'default', icon: Clock },
-      active: { label: 'Aktiv', variant: 'success', icon: CheckCircle2 },
+      active: { label: 'Aktiv', variant: 'default', icon: CheckCircle2 },
       past_due: { label: 'Forfalt', variant: 'destructive', icon: AlertCircle },
       cancelled: { label: 'Kansellert', variant: 'secondary', icon: AlertCircle },
       paused: { label: 'Pauset', variant: 'secondary', icon: AlertCircle }
@@ -140,7 +182,9 @@ export default function AbonnementPage() {
     );
   }
 
-  const plan = subscription.plan;
+  const planData = typeof subscription.plan === 'string' 
+    ? { name: subscription.plan, description: '', price_monthly: 0, features: [] } 
+    : subscription.plan;
   const trialDaysLeft = subscription.trial_ends_at ? getDaysUntil(subscription.trial_ends_at) : 0;
   const isTrialActive = subscription.status === 'trial' && trialDaysLeft > 0;
 
@@ -173,7 +217,7 @@ export default function AbonnementPage() {
                     </h3>
                     <p className="text-yellow-800 mb-3">
                       Du har {trialDaysLeft} {trialDaysLeft === 1 ? 'dag' : 'dager'} igjen av prøveperioden. 
-                      Oppgrader til en betalt plan for å fortsette etter {formatDate(subscription.trial_ends_at)}.
+                      {subscription.trial_ends_at && `Oppgrader til en betalt plan for å fortsette etter ${formatDate(subscription.trial_ends_at)}.`}
                     </p>
                     <Link href="/abonnement/planer">
                       <Button variant="outline" size="sm">
@@ -193,16 +237,16 @@ export default function AbonnementPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="flex items-center gap-2">
-                    {plan.name}
+                    {planData.name}
                     {getStatusBadge(subscription.status)}
                   </CardTitle>
                   <CardDescription className="mt-2">
-                    {plan.description}
+                    {planData.description}
                   </CardDescription>
                 </div>
                 <div className="text-right">
-                  <div className="text-3xl font-bold" style={{ color: plan.color }}>
-                    {plan.price_monthly > 0 ? `${plan.price_monthly} kr` : 'Gratis'}
+                  <div className="text-3xl font-bold" style={{ color: planData.color }}>
+                    {(planData.price_monthly || 0) > 0 ? `${planData.price_monthly} kr` : 'Gratis'}
                   </div>
                   <div className="text-sm text-gray-500">
                     per {subscription.billing_period === 'yearly' ? 'år' : 'måned'}
@@ -215,7 +259,7 @@ export default function AbonnementPage() {
               <div>
                 <h4 className="font-semibold mb-2">Inkluderte funksjoner:</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  {plan.features && plan.features.map((feature: string, index: number) => (
+                  {planData.features && planData.features.map((feature: string, index: number) => (
                     <div key={index} className="flex items-center gap-2">
                       <CheckCircle2 className="w-4 h-4 text-green-600" />
                       <span className="text-sm">{feature}</span>
@@ -274,15 +318,15 @@ export default function AbonnementPage() {
                   <div className="flex items-center justify-between mb-4">
                     <Users className="w-8 h-8 text-blue-600" />
                     <Badge variant="outline">
-                      {usage.users.current} / {usage.users.limit || '∞'}
+                      {usage.users?.current} / {usage.users?.limit || '∞'}
                     </Badge>
                   </div>
                   <h3 className="font-semibold mb-2">Brukere</h3>
-                  {usage.users.limit && (
-                    <Progress value={usage.users.percentage} className="mb-2" />
+                  {usage.users?.limit && (
+                    <Progress value={usage.users?.percentage} className="mb-2" />
                   )}
                   <p className="text-sm text-gray-600">
-                    {usage.users.limit ? `${usage.users.percentage}% brukt` : 'Ubegrenset'}
+                    {usage.users?.limit ? `${usage.users?.percentage}% brukt` : 'Ubegrenset'}
                   </p>
                 </CardContent>
               </Card>
@@ -293,15 +337,15 @@ export default function AbonnementPage() {
                   <div className="flex items-center justify-between mb-4">
                     <Users className="w-8 h-8 text-green-600" />
                     <Badge variant="outline">
-                      {usage.customers.current} / {usage.customers.limit || '∞'}
+                      {usage.customers?.current} / {usage.customers?.limit || '∞'}
                     </Badge>
                   </div>
                   <h3 className="font-semibold mb-2">Kunder</h3>
-                  {usage.customers.limit && (
-                    <Progress value={usage.customers.percentage} className="mb-2" />
+                  {usage.customers?.limit && (
+                    <Progress value={usage.customers?.percentage} className="mb-2" />
                   )}
                   <p className="text-sm text-gray-600">
-                    {usage.customers.limit ? `${usage.customers.percentage}% brukt` : 'Ubegrenset'}
+                    {usage.customers?.limit ? `${usage.customers?.percentage}% brukt` : 'Ubegrenset'}
                   </p>
                 </CardContent>
               </Card>
@@ -312,15 +356,15 @@ export default function AbonnementPage() {
                   <div className="flex items-center justify-between mb-4">
                     <MapPin className="w-8 h-8 text-purple-600" />
                     <Badge variant="outline">
-                      {usage.locations.current} / {usage.locations.limit || '∞'}
+                      {usage.locations?.current} / {usage.locations?.limit || '∞'}
                     </Badge>
                   </div>
                   <h3 className="font-semibold mb-2">Lokasjoner</h3>
-                  {usage.locations.limit && (
-                    <Progress value={usage.locations.percentage} className="mb-2" />
+                  {usage.locations?.limit && (
+                    <Progress value={usage.locations?.percentage} className="mb-2" />
                   )}
                   <p className="text-sm text-gray-600">
-                    {usage.locations.limit ? `${usage.locations.percentage}% brukt` : 'Ubegrenset'}
+                    {usage.locations?.limit ? `${usage.locations?.percentage}% brukt` : 'Ubegrenset'}
                   </p>
                 </CardContent>
               </Card>
@@ -331,15 +375,15 @@ export default function AbonnementPage() {
                   <div className="flex items-center justify-between mb-4">
                     <Zap className="w-8 h-8 text-yellow-600" />
                     <Badge variant="outline">
-                      {usage.ai_requests.current} / {usage.ai_requests.limit || '∞'}
+                      {usage.ai_requests?.current} / {usage.ai_requests?.limit || '∞'}
                     </Badge>
                   </div>
                   <h3 className="font-semibold mb-2">AI Forespørsler</h3>
-                  {usage.ai_requests.limit && (
-                    <Progress value={usage.ai_requests.percentage} className="mb-2" />
+                  {usage.ai_requests?.limit && (
+                    <Progress value={usage.ai_requests?.percentage} className="mb-2" />
                   )}
                   <p className="text-sm text-gray-600">
-                    {usage.ai_requests.limit ? `${usage.ai_requests.percentage}% brukt` : 'Ubegrenset'}
+                    {usage.ai_requests?.limit ? `${usage.ai_requests?.percentage}% brukt` : 'Ubegrenset'}
                   </p>
                 </CardContent>
               </Card>
