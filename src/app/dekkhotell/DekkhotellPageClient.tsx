@@ -20,6 +20,7 @@ import {
   Car,
   User
 } from 'lucide-react';
+import { getApiBaseUrl } from '@/lib/apiConfig';
 
 interface TyreSet {
   id: string;
@@ -60,6 +61,7 @@ export default function DekkhotellPageClient() {
   const [selectedTyreSet, setSelectedTyreSet] = useState<TyreSet | null>(null);
 
   const orgId = process.env.NEXT_PUBLIC_ORG_ID || 'demo-org';
+  const API_URL = getApiBaseUrl();
 
   useEffect(() => {
     loadTyreSets();
@@ -72,7 +74,7 @@ export default function DekkhotellPageClient() {
       if (filterStatus !== 'all') params.append('status', filterStatus);
       if (filterCondition !== 'all') params.append('condition', filterCondition);
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orgs/${orgId}/tyre-sets?${params}`);
+      const res = await fetch(`${API_URL}/api/orgs/${orgId}/tyre-sets?${params}`);
       const data = await res.json();
       
       if (data.tyreSets) {

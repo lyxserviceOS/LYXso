@@ -20,6 +20,7 @@ import {
   Clock,
   FileText
 } from 'lucide-react';
+import { getApiBaseUrl } from '@/lib/apiConfig';
 
 export default function TyreSetDetailPage() {
   const params = useParams();
@@ -28,6 +29,7 @@ export default function TyreSetDetailPage() {
   const [loading, setLoading] = useState(true);
 
   const orgId = process.env.NEXT_PUBLIC_ORG_ID || 'demo-org';
+  const API_URL = getApiBaseUrl();
 
   useEffect(() => {
     if (tyreSetId) {
@@ -37,7 +39,7 @@ export default function TyreSetDetailPage() {
 
   async function loadTyreSet() {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orgs/${orgId}/tyre-sets/${tyreSetId}`);
+      const res = await fetch(`${API_URL}/api/orgs/${orgId}/tyre-sets/${tyreSetId}`);
       const data = await res.json();
       
       if (data.tyreSet) {
