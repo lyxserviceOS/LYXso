@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { getApiBaseUrl } from '@/lib/apiConfig';
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,8 +15,10 @@ export async function POST(request: NextRequest) {
     // Parse form data with photos
     const formData = await request.formData();
     
+    const API_URL = getApiBaseUrl();
+    
     // Get orgId from session/user
-    const sessionRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/session`, {
+    const sessionRes = await fetch(`${API_URL}/api/auth/session`, {
       headers: {
         Cookie: `session=${sessionToken}`,
       },
@@ -43,7 +46,7 @@ export async function POST(request: NextRequest) {
 
     // Call backend AI analysis endpoint
     const backendRes = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/tyres/analyze`,
+      `${API_URL}/api/tyres/analyze`,
       {
         method: "POST",
         headers: {
