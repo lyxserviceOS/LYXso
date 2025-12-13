@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import ProductList from "./components/ProductList";
@@ -10,8 +9,6 @@ import VisibilityRulesManager from "./components/VisibilityRulesManager";
 import { Package, ShoppingCart, Plug, Eye } from "lucide-react";
 
 export default function NettbutikkPageClient() {
-  const [activeTab, setActiveTab] = useState("products");
-
   return (
     <div className="container mx-auto py-6 space-y-6">
       {/* Page Header */}
@@ -23,7 +20,7 @@ export default function NettbutikkPageClient() {
       </div>
 
       {/* Tabbed Interface */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+      <Tabs defaultValue="products" className="space-y-6">
         <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
           <TabsTrigger value="products" className="gap-2">
             <Package className="h-4 w-4" />
