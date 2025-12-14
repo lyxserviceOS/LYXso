@@ -24,6 +24,8 @@ export const getStripe = () => {
 
 /**
  * Redirect to Stripe Checkout
+ * Note: This is deprecated. Use the checkout_url from the session instead.
+ * @deprecated Use direct URL redirect from createSubscriptionCheckout
  */
 export async function redirectToCheckout(sessionId: string) {
   const stripe = await getStripe();
@@ -32,10 +34,17 @@ export async function redirectToCheckout(sessionId: string) {
     throw new Error('Stripe er ikke konfigurert');
   }
 
-  const { error } = await stripe.redirectToCheckout({ sessionId });
-  
-  if (error) {
-    throw error;
+  // For newer Stripe versions, redirectToCheckout might not be available
+  // Use type assertion to handle this
+  if ('redirectToCheckout' in stripe && typeof stripe.redirectToCheckout === 'function') {
+    const { error } = await stripe.redirectToCheckout({ sessionId });
+    
+    if (error) {
+      throw error;
+    }
+  } else {
+    console.warn('redirectToCheckout is not available. Use checkout URL instead.');
+    throw new Error('redirectToCheckout is deprecated. Use checkout URL from session.');
   }
 }
 

@@ -2,10 +2,22 @@
 'use client';
 import { useState } from 'react';
 
+type ValidationResult = {
+  valid: boolean;
+  account?: { id: string };
+  error?: string;
+};
+
+type Provider = {
+  id: string;
+  provider_type: string;
+  is_default?: boolean;
+};
+
 export default function PaymentProvidersPage() {
-  const [providers, setProviders] = useState([]);
+  const [providers, setProviders] = useState<Provider[]>([]);
   const [form, setForm] = useState({ provider_type: 'stripe', api_key: '' });
-  const [validation, setValidation] = useState(null);
+  const [validation, setValidation] = useState<ValidationResult | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function fetchProviders() {

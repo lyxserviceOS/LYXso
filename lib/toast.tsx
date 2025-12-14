@@ -175,7 +175,7 @@ export const showToast = {
   },
 
   custom: (message: React.ReactNode, options?: Parameters<typeof toast>[1]) => {
-    return toast(message, {
+    return toast(message as string, {
       style: {
         background: '#0f172a',
         color: '#f1f5f9',

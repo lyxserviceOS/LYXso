@@ -9,10 +9,19 @@ import RevenueChart from '@/components/reports/RevenueChart';
 import BookingsChart from '@/components/reports/BookingsChart';
 import CustomersTable from '@/components/reports/CustomersTable';
 
+type DashboardData = {
+  metrics?: Record<string, any>;
+  trends?: {
+    revenue_by_day?: any[];
+    bookings_by_day?: any[];
+  };
+  top_customers?: any[];
+};
+
 export default function RapporterPage() {
   const [period, setPeriod] = useState('30d');
   const [loading, setLoading] = useState(true);
-  const [dashboardData, setDashboardData] = useState(null);
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
 
   useEffect(() => {
     fetchDashboard();
@@ -199,8 +208,8 @@ export default function RapporterPage() {
 }
 
 // Revenue Report Component
-function RevenueReport({ period }) {
-  const [data, setData] = useState(null);
+function RevenueReport({ period }: { period: string }) {
+  const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [groupBy, setGroupBy] = useState('month');
 
@@ -276,8 +285,8 @@ function RevenueReport({ period }) {
 }
 
 // Bookings Report Component
-function BookingsReport({ period }) {
-  const [data, setData] = useState(null);
+function BookingsReport({ period }: { period: string }) {
+  const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -315,7 +324,7 @@ function BookingsReport({ period }) {
             {Object.entries(data?.by_status || {}).map(([status, count]) => (
               <div key={status}>
                 <p className="text-sm text-muted-foreground capitalize">{status}</p>
-                <p className="text-2xl font-bold">{count}</p>
+                <p className="text-2xl font-bold">{String(count)}</p>
               </div>
             ))}
           </div>
@@ -331,7 +340,7 @@ function BookingsReport({ period }) {
             {Object.entries(data?.by_location || {}).map(([location, count]) => (
               <div key={location} className="flex justify-between py-2">
                 <span>{location}</span>
-                <span className="font-bold">{count}</span>
+                <span className="font-bold">{String(count)}</span>
               </div>
             ))}
           </CardContent>
@@ -345,7 +354,7 @@ function BookingsReport({ period }) {
             {Object.entries(data?.by_service || {}).slice(0, 10).map(([service, count]) => (
               <div key={service} className="flex justify-between py-2">
                 <span className="truncate">{service}</span>
-                <span className="font-bold ml-2">{count}</span>
+                <span className="font-bold ml-2">{String(count)}</span>
               </div>
             ))}
           </CardContent>
@@ -356,8 +365,8 @@ function BookingsReport({ period }) {
 }
 
 // Customers Report Component
-function CustomersReport({ period }) {
-  const [data, setData] = useState(null);
+function CustomersReport({ period }: { period: string }) {
+  const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

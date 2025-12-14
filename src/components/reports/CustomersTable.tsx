@@ -9,7 +9,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
-export default function CustomersTable({ customers }) {
+export default function CustomersTable({ customers }: { customers?: any }) {
   if (!customers || customers.length === 0) {
     return <div className="text-center py-8 text-muted-foreground">Ingen kunder å vise</div>;
   }
@@ -28,7 +28,7 @@ export default function CustomersTable({ customers }) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {customers.map((customer) => (
+          {customers.map((customer: any) => (
             <TableRow key={customer.id}>
               <TableCell className="font-medium">{customer.name}</TableCell>
               <TableCell>
