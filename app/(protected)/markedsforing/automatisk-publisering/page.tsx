@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Image, Calendar, Clock, Zap, TrendingUp, CheckCircle2, Droplet, Upload } from "lucide-react";
 import { toast } from "sonner";
+import { getApiBaseUrl } from "@/lib/apiConfig";
 
 interface CloudImage {
   provider: string;
@@ -39,12 +40,14 @@ export default function AutomaticPublishingPage() {
   const [timeOfDay, setTimeOfDay] = useState("09:00");
   const [selectedPage, setSelectedPage] = useState("");
   const [pages, setPages] = useState<any[]>([]);
+  
+  const API_BASE = getApiBaseUrl();
 
   // Load Meta pages
   useEffect(() => {
     if (!orgId) return;
     
-    fetch(`http://localhost:4000/api/orgs/${orgId}/meta/pages`, {
+    fetch(`${API_BASE}/api/orgs/${orgId}/meta/pages`, {
       credentials: "include"
     })
       .then(res => res.json())
@@ -60,12 +63,12 @@ export default function AutomaticPublishingPage() {
     if (!orgId) return;
     
     // Open Dropbox OAuth in new window
-    const authUrl = `https://www.dropbox.com/oauth2/authorize?client_id=${process.env.NEXT_PUBLIC_DROPBOX_CLIENT_ID}&redirect_uri=${encodeURIComponent('http://localhost:4000/api/marketing/cloud/callback/dropbox')}&response_type=code&state=${orgId}`;
+    const authUrl = `https://www.dropbox.com/oauth2/authorize?client_id=${process.env.NEXT_PUBLIC_DROPBOX_CLIENT_ID}&redirect_uri=${encodeURIComponent(`${API_BASE}/api/marketing/cloud/callback/dropbox`)}&response_type=code&state=${orgId}`;
     window.open(authUrl, '_blank', 'width=600,height=700');
     
     // Poll for connection status
     const checkInterval = setInterval(async () => {
-      const res = await fetch(`http://localhost:4000/api/orgs/${orgId}/social/cloud-images?provider=dropbox`, {
+      const res = await fetch(`${API_BASE}/api/orgs/${orgId}/social/cloud-images?provider=dropbox`, {
         credentials: "include"
       });
       
@@ -86,7 +89,7 @@ export default function AutomaticPublishingPage() {
     
     setIsLoading(true);
     try {
-      const res = await fetch(`http://localhost:4000/api/orgs/${orgId}/social/cloud-images?provider=dropbox`, {
+      const res = await fetch(`${API_BASE}/api/orgs/${orgId}/social/cloud-images?provider=dropbox`, {
         credentials: "include"
       });
       
@@ -111,7 +114,7 @@ export default function AutomaticPublishingPage() {
       // Get image URL (simplified - in production, need proper image serving)
       const imageUrl = `https://via.placeholder.com/400x300.png?text=${encodeURIComponent(image.name)}`;
       
-      const res = await fetch(`http://localhost:4000/api/orgs/${orgId}/social/analyze-image`, {
+      const res = await fetch(`${API_BASE}/api/orgs/${orgId}/social/analyze-image`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -145,7 +148,7 @@ export default function AutomaticPublishingPage() {
     try {
       const imageUrl = `https://via.placeholder.com/400x300.png?text=${encodeURIComponent(image.name)}`;
       
-      const res = await fetch(`http://localhost:4000/api/orgs/${orgId}/social/generate-post`, {
+      const res = await fetch(`${API_BASE}/api/orgs/${orgId}/social/generate-post`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -193,7 +196,7 @@ export default function AutomaticPublishingPage() {
     try {
       const imageUrl = `https://via.placeholder.com/400x300.png?text=${encodeURIComponent(image.name)}`;
       
-      const res = await fetch(`http://localhost:4000/api/orgs/${orgId}/social/publish-now`, {
+      const res = await fetch(`${API_BASE}/api/orgs/${orgId}/social/publish-now`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -227,7 +230,7 @@ export default function AutomaticPublishingPage() {
     
     setIsLoading(true);
     try {
-      const res = await fetch(`http://localhost:4000/api/orgs/${orgId}/social/schedule-automation`, {
+      const res = await fetch(`${API_BASE}/api/orgs/${orgId}/social/schedule-automation`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

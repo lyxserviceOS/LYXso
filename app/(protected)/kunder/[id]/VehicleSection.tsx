@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Car, Plus, Edit2, Trash2, Image as ImageIcon } from "lucide-react";
 import VehicleModal from "@/components/customers/VehicleModal";
 import VehicleImageUpload from "@/components/customers/VehicleImageUpload";
+import { getApiBaseUrl } from "@/lib/apiConfig";
 
 interface VehicleImage {
   id: string;
@@ -34,7 +35,7 @@ export default function VehicleSection({ customerId }: Props) {
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   const [selectedVehicleForImages, setSelectedVehicleForImages] = useState<string | null>(null);
 
-  const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:4000";
+  const API_BASE = getApiBaseUrl();
 
   useEffect(() => {
     fetchVehicles();

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Facebook, Instagram, Image as ImageIcon, Send, Loader2, CheckCircle, AlertCircle } from "lucide-react";
+import { getApiBaseUrl } from "@/lib/apiConfig";
 
 interface MetaMarketingProps {
   orgId: string;
@@ -23,7 +24,7 @@ export default function MetaMarketing({ orgId }: MetaMarketingProps) {
     scheduled: ""
   });
 
-  const API_BASE = process.env.NEXT_PUBLIC_LYXSO_API_URL || process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:4000';
+  const API_BASE = getApiBaseUrl();
 
   useEffect(() => {
     checkConnection();

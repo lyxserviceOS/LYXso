@@ -1,6 +1,7 @@
 // app/(public)/bestill/[slug]/page.tsx
 import { notFound } from 'next/navigation';
 import PublicBookingWizard from './PublicBookingWizard';
+import { getApiBaseUrl } from '@/lib/apiConfig';
 
 type PageProps = {
   params: { slug: string };
@@ -8,7 +9,7 @@ type PageProps = {
 
 async function getOrgInfo(slug: string) {
   try {
-    const apiBase = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:4000';
+    const apiBase = getApiBaseUrl();
     const response = await fetch(`${apiBase}/api/public/orgs/${slug}/info`, {
       cache: 'no-store' // Always fresh data
     });

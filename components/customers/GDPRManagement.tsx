@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Shield, Download, Trash2, AlertTriangle } from "lucide-react";
 import * as Sentry from "@sentry/nextjs";
+import { getApiBaseUrl } from "@/lib/apiConfig";
 
 interface Props {
   customerId: string;
@@ -26,7 +27,7 @@ export default function GDPRManagement({
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [error, setError] = useState<string | null>(null);
 
-  const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:4000";
+  const API_BASE = getApiBaseUrl();
 
   const handleUpdateConsent = async (type: "marketing" | "data_processing", value: boolean) => {
     setLoading(true);

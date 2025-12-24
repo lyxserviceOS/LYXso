@@ -8,6 +8,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Facebook, CheckCircle2, XCircle, RefreshCw, ExternalLink } from "lucide-react";
+import { getApiBaseUrl } from "@/lib/apiConfig";
 
 interface MetaConnection {
   isConnected: boolean;
@@ -26,6 +27,7 @@ interface FacebookPage {
 export default function MetaConnectPage() {
   const router = useRouter();
   const [orgId, setOrgId] = useState<string>("");
+  const API_BASE = getApiBaseUrl();
   const [loading, setLoading] = useState(true);
   const [connecting, setConnecting] = useState(false);
   const [connection, setConnection] = useState<MetaConnection | null>(null);
@@ -45,7 +47,7 @@ export default function MetaConnectPage() {
     setLoading(true);
     try {
       // Sjekk tilkobling
-      const connRes = await fetch(`http://localhost:4000/api/orgs/${orgId}/marketing/meta/connection`);
+      const connRes = await fetch(`${API_BASE}/api/orgs/${orgId}/marketing/meta/connection`);
       if (connRes.ok) {
         const data = await connRes.json();
         setConnection(data);
@@ -64,7 +66,7 @@ export default function MetaConnectPage() {
 
   const loadPages = async () => {
     try {
-      const res = await fetch(`http://localhost:4000/api/orgs/${orgId}/marketing/meta/pages`);
+      const res = await fetch(`${API_BASE}/api/orgs/${orgId}/marketing/meta/pages`);
       if (res.ok) {
         const data = await res.json();
         setPages(data.pages || []);
@@ -80,7 +82,7 @@ export default function MetaConnectPage() {
 
     try {
       // Redirect til Meta OAuth
-      window.location.href = `http://localhost:4000/api/orgs/${orgId}/marketing/meta/auth`;
+      window.location.href = `${API_BASE}/api/orgs/${orgId}/marketing/meta/auth`;
     } catch (err) {
       console.error("Feil ved tilkobling:", err);
       toast.error("Kunne ikke koble til Facebook");
@@ -94,7 +96,7 @@ export default function MetaConnectPage() {
     }
 
     try {
-      const res = await fetch(`http://localhost:4000/api/orgs/${orgId}/marketing/meta/disconnect`, {
+      const res = await fetch(`${API_BASE}/api/orgs/${orgId}/marketing/meta/disconnect`, {
         method: 'POST',
       });
 

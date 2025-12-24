@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Upload, Camera, Loader2, CheckCircle, AlertCircle, ArrowRight } from "lucide-react";
 import { showToast } from "@/lib/toast";
+import { getApiBaseUrl, getDefaultOrgId } from "@/lib/apiConfig";
 
 // Step 1: Upload photos for AI analysis
 // Step 2: AI analyzes and shows results
@@ -138,8 +139,8 @@ export default function NyttDekkhotellPage() {
 
   const performCustomerSearch = async (term: string) => {
     try {
-      const API_BASE = process.env.NEXT_PUBLIC_LYXSO_API_URL || process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:4000';
-      const ORG_ID = process.env.NEXT_PUBLIC_ORG_ID;
+      const API_BASE = getApiBaseUrl();
+      const ORG_ID = getDefaultOrgId();
 
       if (!ORG_ID) {
         console.error("Mangler NEXT_PUBLIC_ORG_ID");
@@ -175,8 +176,8 @@ export default function NyttDekkhotellPage() {
     
     // Fetch customer's vehicles
     try {
-      const API_BASE = process.env.NEXT_PUBLIC_LYXSO_API_URL || process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:4000';
-      const ORG_ID = process.env.NEXT_PUBLIC_ORG_ID;
+      const API_BASE = getApiBaseUrl();
+      const ORG_ID = getDefaultOrgId();
       
       const res = await fetch(`${API_BASE}/api/orgs/${ORG_ID}/customers/${customer.id}/vehicles`, {
         credentials: 'include'

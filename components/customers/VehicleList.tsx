@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Car, Plus, Edit2, Trash2 } from "lucide-react";
 import VehicleModal from "./VehicleModal";
+import { getApiBaseUrl } from "@/lib/apiConfig";
 
 interface Vehicle {
   id: string;
@@ -38,7 +39,7 @@ export default function VehicleList({ customerId, vehicles, onRefresh }: Vehicle
 
     setDeleting(vehicleId);
     try {
-      const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:4000";
+      const API_BASE = getApiBaseUrl();
       const response = await fetch(`${API_BASE}/vehicles/${vehicleId}`, {
         method: "DELETE",
         headers: {

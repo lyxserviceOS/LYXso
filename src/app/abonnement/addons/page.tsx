@@ -13,6 +13,7 @@ import {
   CheckCircle2,
   X
 } from 'lucide-react';
+import { getApiBaseUrl, getDefaultOrgId } from '@/lib/apiConfig';
 
 interface Addon {
   id: string;
@@ -36,6 +37,7 @@ interface ActiveAddon {
 }
 
 export default function AddonsPage() {
+  const API_BASE = getApiBaseUrl();
   const [loading, setLoading] = useState(true);
   const [addons, setAddons] = useState<Addon[]>([]);
   const [activeAddons, setActiveAddons] = useState<ActiveAddon[]>([]);
@@ -48,7 +50,7 @@ export default function AddonsPage() {
 
   async function fetchAddons() {
     try {
-      const response = await fetch('http://localhost:4000/api/public/addons');
+      const response = await fetch('${API_BASE}/api/public/addons');
       if (response.ok) {
         const data = await response.json();
         setAddons(data.addons);
@@ -67,7 +69,7 @@ export default function AddonsPage() {
       
       if (!orgId || !token) return;
 
-      const response = await fetch(`http://localhost:4000/api/orgs/${orgId}/subscription/addons`, {
+      const response = await fetch(`${API_BASE}/api/orgs/${orgId}/subscription/addons`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -99,7 +101,7 @@ export default function AddonsPage() {
 
     try {
       const endpoint = isActive ? 'deactivate' : 'activate';
-      const response = await fetch(`http://localhost:4000/api/orgs/${orgId}/subscription/addons/${addonId}/${endpoint}`, {
+      const response = await fetch(`${API_BASE}/api/orgs/${orgId}/subscription/addons/${addonId}/${endpoint}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

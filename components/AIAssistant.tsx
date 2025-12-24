@@ -3,6 +3,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useOrgPlan } from "./OrgPlanContext";
+import { getApiBaseUrl } from "@/lib/apiConfig";
 
 interface Message {
   role: "user" | "assistant";
@@ -49,7 +50,7 @@ export default function AIAssistant() {
     setIsLoading(true);
 
     try {
-      const apiBase = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:4000";
+      const apiBase = getApiBaseUrl();
       const response = await fetch(`${apiBase}/api/orgs/${org?.id}/ai/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

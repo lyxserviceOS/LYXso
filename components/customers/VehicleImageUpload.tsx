@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { Upload, X, Image as ImageIcon } from "lucide-react";
 import * as Sentry from "@sentry/nextjs";
+import { getApiBaseUrl } from "@/lib/apiConfig";
 
 interface VehicleImage {
   id: string;
@@ -22,7 +23,7 @@ export default function VehicleImageUpload({ vehicleId, images, onImagesUpdated 
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:4000";
+  const API_BASE = getApiBaseUrl();
   const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
   const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 

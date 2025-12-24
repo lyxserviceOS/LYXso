@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Plus, X, Edit2, Check } from "lucide-react";
 import * as Sentry from "@sentry/nextjs";
+import { getApiBaseUrl } from "@/lib/apiConfig";
 
 interface Tag {
   id: string;
@@ -38,7 +39,7 @@ export default function TagManagement({ customerId, selectedTags = [], onTagsCha
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:4000";
+  const API_BASE = getApiBaseUrl();
 
   useEffect(() => {
     fetchTags();

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Send, Bot, User, Loader2, Check, X, Clock, MessageSquare } from "lucide-react";
+import { getApiBaseUrl, getDefaultOrgId } from "@/lib/apiConfig";
 
 interface LeadChatProps {
   leadId: string;
@@ -28,8 +29,8 @@ export default function LeadChat({ leadId, leadName, leadPhone, onMessageSent }:
   const [loading, setLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:4000';
-  const ORG_ID = process.env.NEXT_PUBLIC_ORG_ID;
+  const API_BASE = getApiBaseUrl();
+  const ORG_ID = getDefaultOrgId();
 
   // Load SMS history from Twilio
   useEffect(() => {

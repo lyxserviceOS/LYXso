@@ -20,6 +20,7 @@ import {
   Calendar
 } from 'lucide-react';
 import Link from 'next/link';
+import { getApiBaseUrl, getDefaultOrgId } from '@/lib/apiConfig';
 
 type Plan = {
   name: string;
@@ -58,6 +59,7 @@ type Usage = {
 };
 
 export default function AbonnementPage() {
+  const API_BASE = getApiBaseUrl();
   const [loading, setLoading] = useState(true);
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [usage, setUsage] = useState<Usage | null>(null);
@@ -75,7 +77,7 @@ export default function AbonnementPage() {
 
   async function fetchSubscription(orgId: string) {
     try {
-      const response = await fetch(`http://localhost:4000/api/orgs/${orgId}/subscription`, {
+      const response = await fetch(`${API_BASE}/api/orgs/${orgId}/subscription`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -94,7 +96,7 @@ export default function AbonnementPage() {
 
   async function fetchUsage(orgId: string) {
     try {
-      const response = await fetch(`http://localhost:4000/api/orgs/${orgId}/usage`, {
+      const response = await fetch(`${API_BASE}/api/orgs/${orgId}/usage`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }

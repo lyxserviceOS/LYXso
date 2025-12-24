@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { CheckCircle2, Sparkles, TrendingUp, Crown } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { getApiBaseUrl, getDefaultOrgId } from '@/lib/apiConfig';
 
 interface Plan {
   id: string;
@@ -26,6 +27,7 @@ interface Plan {
 
 export default function PlanerPage() {
   const router = useRouter();
+  const API_BASE = getApiBaseUrl();
   const [loading, setLoading] = useState(true);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [yearlyBilling, setYearlyBilling] = useState(false);
@@ -39,7 +41,7 @@ export default function PlanerPage() {
 
   async function fetchPlans() {
     try {
-      const response = await fetch('http://localhost:4000/api/public/plans');
+      const response = await fetch('${API_BASE}/api/public/plans');
       if (response.ok) {
         const data = await response.json();
         setPlans(data.plans);
@@ -58,7 +60,7 @@ export default function PlanerPage() {
       
       if (!orgId || !token) return;
 
-      const response = await fetch(`http://localhost:4000/api/orgs/${orgId}/subscription`, {
+      const response = await fetch(`${API_BASE}/api/orgs/${orgId}/subscription`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -87,7 +89,7 @@ export default function PlanerPage() {
     setSubscribing(planSlug);
 
     try {
-      const response = await fetch(`http://localhost:4000/api/orgs/${orgId}/subscription`, {
+      const response = await fetch(`${API_BASE}/api/orgs/${orgId}/subscription`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

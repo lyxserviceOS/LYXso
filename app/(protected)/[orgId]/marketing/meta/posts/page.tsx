@@ -19,6 +19,7 @@ import {
   CheckCircle2,
   ExternalLink
 } from "lucide-react";
+import { getApiBaseUrl } from "@/lib/apiConfig";
 
 interface Post {
   id: string;
@@ -41,6 +42,7 @@ interface FacebookPage {
 export default function MetaPostsPage() {
   const router = useRouter();
   const [orgId, setOrgId] = useState<string>("");
+  const API_BASE = getApiBaseUrl();
   const [loading, setLoading] = useState(true);
   const [posts, setPosts] = useState<Post[]>([]);
   const [pages, setPages] = useState<FacebookPage[]>([]);
@@ -61,7 +63,7 @@ export default function MetaPostsPage() {
 
   const loadPages = async () => {
     try {
-      const res = await fetch(`http://localhost:4000/api/orgs/${orgId}/marketing/meta/pages`);
+      const res = await fetch(`${API_BASE}/api/orgs/${orgId}/marketing/meta/pages`);
       if (res.ok) {
         const data = await res.json();
         setPages(data.pages || []);
@@ -74,7 +76,7 @@ export default function MetaPostsPage() {
   const loadPosts = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:4000/api/orgs/${orgId}/marketing/meta/posts`);
+      const res = await fetch(`${API_BASE}/api/orgs/${orgId}/marketing/meta/posts`);
       if (res.ok) {
         const data = await res.json();
         setPosts(data.posts || []);
