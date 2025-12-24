@@ -50,7 +50,7 @@ export default function AddonsPage() {
 
   async function fetchAddons() {
     try {
-      const response = await fetch('${API_BASE}/api/public/addons');
+      const response = await fetch(`${API_BASE}/api/public/addons`);
       if (response.ok) {
         const data = await response.json();
         setAddons(data.addons);

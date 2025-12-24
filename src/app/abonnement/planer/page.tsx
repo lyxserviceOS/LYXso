@@ -41,7 +41,7 @@ export default function PlanerPage() {
 
   async function fetchPlans() {
     try {
-      const response = await fetch('${API_BASE}/api/public/plans');
+      const response = await fetch(`${API_BASE}/api/public/plans`);
       if (response.ok) {
         const data = await response.json();
         setPlans(data.plans);
