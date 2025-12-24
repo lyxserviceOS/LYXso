@@ -8,9 +8,10 @@ import {
   MoreVertical, Pencil, Trash2
 } from "lucide-react";
 import LeadChat from "@/components/leads/LeadChat";
+import { getApiBaseUrl, getDefaultOrgId } from "@/lib/apiConfig";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:4000';
-const ORG_ID = process.env.NEXT_PUBLIC_ORG_ID;
+const API_BASE = getApiBaseUrl();
+const ORG_ID = getDefaultOrgId();
 
 type Lead = {
   id: string;

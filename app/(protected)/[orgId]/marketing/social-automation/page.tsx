@@ -25,6 +25,7 @@ import {
   Settings,
   RefreshCw
 } from "lucide-react";
+import { getApiBaseUrl } from "@/lib/apiConfig";
 
 interface CloudConnection {
   provider: string;
@@ -60,6 +61,7 @@ interface Analytics {
 export default function SocialAutomationPage() {
   const [activeTab, setActiveTab] = useState("connect");
   const [orgId, setOrgId] = useState<string>("");
+  const API_BASE = getApiBaseUrl();
   
   // Cloud storage state
   const [cloudProvider, setCloudProvider] = useState<string>("dropbox");
@@ -99,7 +101,7 @@ export default function SocialAutomationPage() {
 
   const loadCloudConnections = async () => {
     try {
-      const res = await fetch(`http://localhost:4000/api/orgs/${orgId}/social/cloud-images`);
+      const res = await fetch(`${API_BASE}/api/orgs/${orgId}/social/cloud-images`);
       if (res.ok) {
         const data = await res.json();
         setCloudImages(data.images || []);
@@ -130,7 +132,7 @@ export default function SocialAutomationPage() {
     toast.info("Analyserer bilde med AI...");
     
     try {
-      const res = await fetch(`http://localhost:4000/api/orgs/${orgId}/social/analyze-image`, {
+      const res = await fetch(`${API_BASE}/api/orgs/${orgId}/social/analyze-image`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ imageUrl: image.path })
@@ -154,7 +156,7 @@ export default function SocialAutomationPage() {
     setGeneratingPost(true);
     
     try {
-      const res = await fetch(`http://localhost:4000/api/orgs/${orgId}/social/generate-post`, {
+      const res = await fetch(`${API_BASE}/api/orgs/${orgId}/social/generate-post`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -189,7 +191,7 @@ export default function SocialAutomationPage() {
     setPublishing(true);
 
     try {
-      const res = await fetch(`http://localhost:4000/api/orgs/${orgId}/social/publish-now`, {
+      const res = await fetch(`${API_BASE}/api/orgs/${orgId}/social/publish-now`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -225,7 +227,7 @@ export default function SocialAutomationPage() {
     }
 
     try {
-      const res = await fetch(`http://localhost:4000/api/orgs/${orgId}/social/schedule-automation`, {
+      const res = await fetch(`${API_BASE}/api/orgs/${orgId}/social/schedule-automation`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -255,7 +257,7 @@ export default function SocialAutomationPage() {
     setLoadingAnalytics(true);
     
     try {
-      const res = await fetch(`http://localhost:4000/api/orgs/${orgId}/social/analytics?pageId=${pageId}`);
+      const res = await fetch(`${API_BASE}/api/orgs/${orgId}/social/analytics?pageId=${pageId}`);
       
       if (res.ok) {
         const data = await res.json();

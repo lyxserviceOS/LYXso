@@ -12,10 +12,10 @@ import {
   isFeatureEnabled,
   type PlanFeatureKey,
 } from "@/lib/orgPlan";
+import { getApiBaseUrl, getDefaultOrgId } from "@/lib/apiConfig";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:4000";
-const ORG_ID = process.env.NEXT_PUBLIC_ORG_ID;
+const API_BASE_URL = getApiBaseUrl();
+const ORG_ID = getDefaultOrgId();
 
 type OrgFromApi = {
   id: string;

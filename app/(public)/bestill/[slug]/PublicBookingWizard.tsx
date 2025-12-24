@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, User, Car, CheckCircle2, ChevronRight, ChevronLeft } from 'lucide-react';
 import ReCAPTCHA from 'react-google-recaptcha';
+import { getApiBaseUrl } from '@/lib/apiConfig';
 
 type Org = {
   id: string;
@@ -67,7 +68,7 @@ export default function PublicBookingWizard({ org }: { org: Org }) {
     notes: ''
   });
 
-  const apiBase = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:4000';
+  const apiBase = getApiBaseUrl();
   const recaptchaSiteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '';
 
   // Hent tjenester ved mount

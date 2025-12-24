@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
+import { getApiBaseUrl } from "@/lib/apiConfig";
 
 interface VehicleFormData {
   registration_number: string;
@@ -39,7 +40,7 @@ export default function VehicleModal({ customerId, vehicle, onClose }: VehicleMo
     setError(null);
 
     try {
-      const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:4000";
+      const API_BASE = getApiBaseUrl();
       const url = vehicle
         ? `${API_BASE}/vehicles/${vehicle.id}`
         : `${API_BASE}/customers/${customerId}/vehicles`;

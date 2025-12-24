@@ -20,6 +20,7 @@ import {
   ArrowLeft,
   AlertCircle
 } from "lucide-react";
+import { getApiBaseUrl } from "@/lib/apiConfig";
 
 interface FacebookPage {
   id: string;
@@ -30,6 +31,7 @@ interface FacebookPage {
 export default function MetaPublishPage() {
   const router = useRouter();
   const [orgId, setOrgId] = useState<string>("");
+  const API_BASE = getApiBaseUrl();
   const [loading, setLoading] = useState(true);
   const [publishing, setPublishing] = useState(false);
   
@@ -55,7 +57,7 @@ export default function MetaPublishPage() {
   const loadPages = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:4000/api/orgs/${orgId}/marketing/meta/pages`);
+      const res = await fetch(`${API_BASE}/api/orgs/${orgId}/marketing/meta/pages`);
       if (res.ok) {
         const data = await res.json();
         setPages(data.pages || []);
@@ -100,7 +102,7 @@ export default function MetaPublishPage() {
         body.scheduled = new Date(scheduled).toISOString();
       }
 
-      const res = await fetch(`http://localhost:4000/api/orgs/${orgId}/marketing/meta/publish`, {
+      const res = await fetch(`${API_BASE}/api/orgs/${orgId}/marketing/meta/publish`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
