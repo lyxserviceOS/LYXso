@@ -65,7 +65,7 @@ export default function RevenueChart({ data, type = "bar" }: Props) {
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="period" />
           <YAxis tickFormatter={formatCurrency} />
-          <Tooltip formatter={(value: number) => formatCurrency(value)} />
+          <Tooltip formatter={(value: number | undefined) => value !== undefined ? formatCurrency(value) : 'N/A'} />
           <Legend />
           <Line
             type="monotone"
@@ -92,7 +92,7 @@ export default function RevenueChart({ data, type = "bar" }: Props) {
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="period" />
         <YAxis tickFormatter={formatCurrency} />
-        <Tooltip formatter={(value: number) => formatCurrency(value)} />
+        <Tooltip formatter={(value: number | undefined) => value !== undefined ? formatCurrency(value) : 'N/A'} />
         <Legend />
         <Bar dataKey="revenue" fill="#3b82f6" name="Inntekt" />
         <Bar dataKey="paid" fill="#10b981" name="Betalt" />
