@@ -16,9 +16,13 @@ export async function PATCH(request: NextRequest, context: any) {
     }
     const { bookingId } = params as { bookingId: string };
     const cookieStore = await cookies();
+    
+    const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+    const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+    
     const supabase = createServerClient(
-      process.env.SUPABASE_URL!,
-      process.env.SUPABASE_ANON_KEY!,
+      supabaseUrl || 'https://placeholder.supabase.co',
+      supabaseAnonKey || 'placeholder-key',
       {
         cookies: {
           get(name: string) {

@@ -1,11 +1,8 @@
 // app/api/support/tickets/[id]/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createApiClient } from "@/lib/supabase/api-client";
 
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+const supabase = createApiClient();
 
 // Hjelpefunksjon for å hente id uansett om params er Promise eller vanlig objekt
 async function getIdFromContext(context: any): Promise<string> {

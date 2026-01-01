@@ -1,11 +1,8 @@
 // app/api/public/check-subdomain/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createApiClient, isSupabaseConfigured } from '@/lib/supabase/api-client';
 
-const supabaseUrl = process.env.SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
+const supabase = isSupabaseConfigured() ? createApiClient() : null;
 
 const RESERVED_SUBDOMAINS = [
   'www', 'api', 'admin', 'app', 'mail', 'ftp', 'localhost',
@@ -44,6 +41,15 @@ export async function GET(request: NextRequest) {
     if (RESERVED_SUBDOMAINS.includes(subdomain.toLowerCase())) {
       return NextResponse.json(
         { available: false, error: 'This subdomain is reserved' },
+        { status: 200 }
+      );
+    }
+
+    // Check Supabase configuration
+    if (!supabase) {
+      console.warn('Supabase not configured, assuming subdomain is available');
+      return NextResponse.json(
+        { available: true, subdomain },
         { status: 200 }
       );
     }

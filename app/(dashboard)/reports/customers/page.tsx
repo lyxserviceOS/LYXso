@@ -5,6 +5,9 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Download, RefreshCw, TrendingUp, Users } from "lucide-react";
 
+// Disable static generation for this page
+export const dynamic = 'force-dynamic';
+
 interface Customer {
   id: string;
   name: string;

@@ -1,11 +1,8 @@
 // app/api/support/tickets/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createApiClient, isSupabaseConfigured } from "@/lib/supabase/api-client";
 
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+const supabase = createApiClient();
 
 // GET - List all tickets (admin)
 export async function GET(request: NextRequest) {

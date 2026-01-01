@@ -6,6 +6,9 @@ import { useRouter } from "next/navigation";
 import BookingsChart from "@/components/BookingsChart";
 import { Download, RefreshCw } from "lucide-react";
 
+// Disable static generation for this page
+export const dynamic = 'force-dynamic';
+
 interface BookingsData {
   total: number;
   by_status: {

@@ -6,6 +6,9 @@ import { useRouter } from "next/navigation";
 import RevenueChart from "@/components/RevenueChart";
 import { Download, RefreshCw, Calendar as CalendarIcon } from "lucide-react";
 
+// Disable static generation for this page
+export const dynamic = 'force-dynamic';
+
 interface RevenueData {
   stats: {
     total_bookings: number;
