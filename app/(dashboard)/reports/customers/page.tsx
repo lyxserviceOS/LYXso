@@ -7,6 +7,7 @@ import { Download, RefreshCw, TrendingUp, Users } from "lucide-react";
 
 // Disable static generation for this page
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 interface Customer {
   id: string;

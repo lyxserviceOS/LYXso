@@ -8,6 +8,7 @@ import { Download, RefreshCw, Calendar as CalendarIcon } from "lucide-react";
 
 // Disable static generation for this page
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 interface RevenueData {
   stats: {

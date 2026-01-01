@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
+import { Suspense } from "react";
 import "./globals.css";
 import "leaflet/dist/leaflet.css";
 import PublicHeader from "@/components/PublicHeader";
@@ -124,12 +125,16 @@ export default function RootLayout({
         </div>
         <PublicFooter />
         <CookieConsentBanner />
-        {GA_ID && <GoogleAnalytics gaId={GA_ID} />}
+        <Suspense fallback={null}>
+          {GA_ID && <GoogleAnalytics gaId={GA_ID} />}
+        </Suspense>
         <SpeedInsights />
         <ToastProvider />
         <SpeedInsights />
         <Analytics />
-        <AnalyticsTracking />
+        <Suspense fallback={null}>
+          <AnalyticsTracking />
+        </Suspense>
       </body>
     </html>
   );
