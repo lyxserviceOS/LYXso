@@ -2,10 +2,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
+// Check if Supabase is properly configured
+const isConfigured = Boolean(supabaseUrl && supabaseServiceKey);
+
+// Create client only if properly configured
+const supabase = isConfigured 
+  ? createClient(supabaseUrl!, supabaseServiceKey!)
+  : null;
 
 const RESERVED_SUBDOMAINS = [
   'www', 'api', 'admin', 'app', 'mail', 'ftp', 'localhost',
@@ -15,6 +21,14 @@ const RESERVED_SUBDOMAINS = [
 
 export async function GET(request: NextRequest) {
   try {
+    // If Supabase is not configured, return an error
+    if (!isConfigured || !supabase) {
+      return NextResponse.json(
+        { error: 'Service not configured', available: false },
+        { status: 503 }
+      );
+    }
+
     const { searchParams } = new URL(request.url);
     const subdomain = searchParams.get('subdomain');
 
@@ -78,3 +92,6 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+// Export dynamic config to prevent static optimization at build time
+export const dynamic = 'force-dynamic';
